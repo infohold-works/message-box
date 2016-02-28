@@ -6,23 +6,22 @@
         name: 'Main',
 
         route: {
-            data({ to }) {
-              if(to.params.type === "type") {
-                  this.title = to.params.name
-                  this.state = 'type'
-              }
-              else if(to.params.type === "message" && to.params.name === "read") {
-                  this.title = "已读消息"
-                  this.state = 'read'
-              }
-              else if(to.params.type === "message" && to.params.name === "unread") {
-                  this.title = "未读消息"
-                  this.state = "unread"
-              }
-              else {
-                  this.title = "所有消息"
-                  this.state = "all"
-              }
+            data({
+                to
+            }) {
+                if (to.params.type === "type") {
+                    this.title = to.params.name
+                    this.state = 'type'
+                } else if (to.params.type === "message" && to.params.name === "read") {
+                    this.title = "已读消息"
+                    this.state = 'read'
+                } else if (to.params.type === "message" && to.params.name === "unread") {
+                    this.title = "未读消息"
+                    this.state = "unread"
+                } else {
+                    this.title = "所有消息"
+                    this.state = "all"
+                }
             }
         },
 
@@ -36,24 +35,26 @@
                 sendtime: '',
                 markedread: '',
                 refreshing: false,
-                state: ''
+                state: '',
+                messages: []
             }
         },
 
-        computed: {
-            messages() {
-                return {
-                    id: '1',
-                    read: false,
-                    mestitle: '标题',
-                    mesdesc: '描述',
-                    author: '小明',
-                    sendtime: '2016-02-28 11:30:21'
-                }
-            }
+        ready: function() {
+            // When the application loads, we want to call the method that initializes
+            // some data
+            this.fetchTypeMessages();
         },
 
         methods: {
+            // We dedicate a method to retrieving and setting some data
+            fetchTypeMessages: function() {
+                this.$http.get('./assets/data/typeMessages.json', function(data) {
+                    this.$set('messages', data);
+                }).error(function(data, status, request) {
+                    console.log('fail' + status + "," + request);
+                })
+            },
             markRead() {
                 markRead(this.id);
                 this.markedread = true;
@@ -61,6 +62,12 @@
             markUnread() {
                 markUnread(this.id);
                 this.markedread = false;
+            },
+            messageDetail(id) {
+                var self = this;
+                console.log(id);
+                console.log(self.messages[id-1].read);
+                this.messages[id-1].read = true;
             }
         },
 
@@ -80,18 +87,12 @@
         </div>
     </div>
     <div class="dashboard-messages">
-        <!-- <pre>
-            {{ $data | json }}
-        </pre> -->
         <ul v-if="messages.length > 0" class="messages">
             <li :class="{ readed : message.read }" v-for="message in messages |
-            filterBy searchQuery in 'title' 'context'" class="message" @:click="messageDetail(message._id)">
-                <h3>{{ message.title }}</h3>
-                <pre>
-                    {{ $data | json }}
-                </pre>
+            filterBy searchQuery in 'title' 'desc'" class="message" @click="messageDetail(message.id)">
+                <h6>{{ message.title }}</h6>
                 <div class="description">
-                    {{ message.summary }}
+                    {{ message.desc }}
                 </div>
             </li>
         </ul>
@@ -106,6 +107,9 @@
         </div>
     </div>
     <div class="dashboard-message-detail">
+        <!-- <pre>
+            {{ $data | json }}
+        </pre> -->
         <div class="manage-message" v-if="mescontent">
             <button v-if="!markedread" v-on:click="markRead()" type="button" class="toggle-tag-editor">
                 <i class="fa fa-fw fa-check"></i> 标记为已读
@@ -206,6 +210,15 @@
     }
     /* 消息列表 */
 
+    .messages {
+        border-right: 1px solid rgba(55, 53, 112, 0.08);
+        box-shadow: 1px 0 3px rgba(55, 53, 112, 0.08);
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
     .messages .message {
         background: #fff;
         background-clip: padding-box;
@@ -213,6 +226,21 @@
         cursor: pointer;
         display: block;
         margin: 0;
-        padding: 20px;
+        padding: 10px 20px;
+    }
+
+    .messages .message h6 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #27AE60;
+        margin: 4px 0;
+    }
+
+    .messages .readed {
+        opacity: .6;
+    }
+
+    .description {
+        font-size: 14px;
     }
 </style>

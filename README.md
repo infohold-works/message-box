@@ -3,9 +3,9 @@
 
 # Usages
 
-- clone this repo
-- npm install
-- npm start
+- `clone this repo`
+- `npm install`
+- `npm start`
 
 # Features
 
@@ -16,12 +16,16 @@
 - [ ] 新消息监听机制
 - [ ] 系统桌面新消息/通知弹窗
 - [ ] 按消息/通知类型检索消息
-- [ ] 按消息/通知类型统计消息总数
+- [ ] 按消息/通知类型统计未读消息总数
 - [ ] 标记已读/未读
+- [x] 全文搜索功能
 - [ ] 开机自动启动客户端
-- [ ] 全文搜索功能
+- [ ] 制作客户端图标
 
 # Plan to do better
 
 - [ ] 给消息/通知添加标签
 - [ ] 添加webhook支持
+
+# License
+MIT

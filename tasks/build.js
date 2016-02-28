@@ -19,13 +19,13 @@ var projectDir = jetpack
 var srcDir = projectDir.cwd(src)
 var destDir = projectDir.cwd(dest)
 
-// var filesToCopy = [
-//     './app/app.html',
-//     './app/assets/**/*',
-//     './app/main.js',
-//     './app/vendor/**/*',
-//     './app/node_modules/**/*',
-// ]
+var filesToCopyAll = [
+    './app/app.html',
+    './app/assets/**/*',
+    './app/main.js',
+    './app/vendor/**/*',
+    './app/node_modules/**/*',
+]
 
 var filesToCopy = [
     './app/app.html',
@@ -40,11 +40,17 @@ var devConfig = Object.create(webpackConfig)
 devConfig.devtool = 'source-map'
 devConfig.debug = true
 
+// Determine the node_modules dir is exists or not
+var moduleExists = jetpack.exists(dest + '/node_modules') || jetpack.exists(dest + '/vendor')
+
 gulp.task('clean', function() {
-    // return jetpack.cwd(dest).dir('.', { empty: true })
-    return jetpack.find(dest, {
-        matching: ['*.json','*.html','*.css','*.js','*.map','!vendor/**/*','!node_modules/**/*']
-    }).forEach(jetpack.remove)
+    if (!moduleExists) {
+        return jetpack.cwd(dest).dir('.', { empty: true })
+    } else {
+        return jetpack.find(dest, {
+            matching: ['*.json','*.html','*.css','*.js','*.map','!vendor/**/*','!node_modules/**/*']
+        }).forEach(jetpack.remove)
+    }
 })
 
 gulp.task('css', function () {
@@ -69,8 +75,13 @@ gulp.task('fonts', function() {
 })
 
 gulp.task('copy', function() {
-    return gulp.src(filesToCopy, { base: 'app' })
-        .pipe(gulp.dest(dest))
+    if (!moduleExists) {
+        return gulp.src(filesToCopyAll, { base: 'app' })
+            .pipe(gulp.dest(dest))
+    } else {
+        return gulp.src(filesToCopy, { base: 'app' })
+            .pipe(gulp.dest(dest))
+    }
 })
 
 gulp.task('webpack:build-dev', function(callback) {
@@ -111,6 +122,7 @@ gulp.task('build', ['build-dev', 'finalize'])
 
 var filesToWatch = [
   './**/*.js',
+  './**/*.css',
   './**/*.vue',
   '!./vendor/**',
   '!./node_modules/**',
