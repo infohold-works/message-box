@@ -1,0 +1,26 @@
+[{
+  "id": 1,
+  "title": "部门通知",
+  "read": false,
+  "count": 0
+}, {
+  "id": 2,
+  "title": "业务通知",
+  "read": false,
+  "count": 0
+}, {
+  "id": 3,
+  "title": "到账通知",
+  "read": false,
+  "count": 0
+}, {
+  "id": 4,
+  "title": "对账通知",
+  "read": false,
+  "count": 0
+}, {
+  "id": 5,
+  "title": "测试消息",
+  "read": false,
+  "count": 0
+}]
