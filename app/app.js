@@ -5,7 +5,6 @@ var Resource = require('vue-resource')
 var App = require('./App.vue')
 var Main = require('./components/Main.vue')
 var About = require('./components/About.vue')
-var Quote = require('./components/Quote.vue')
 var Fullreponame = require('./components/Fullreponame.vue')
 
 // Install plugins
@@ -24,10 +23,6 @@ router.map({
     '/about': {
         name: 'about',
         component: About
-    },
-    '/quote': {
-        name: 'quote',
-        component: Quote
     },
     '/github-file-explorer': {
         name: 'github-file-explorer',

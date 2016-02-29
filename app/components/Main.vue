@@ -1,5 +1,6 @@
 <script>
-    var PulseLoader = require('vue-spinner/src/PulseLoader.vue'); //PulseLoader插件
+    var PulseLoader = require('vue-spinner/src/PulseLoader.vue');    // PulseLoader插件
+    var dataProvider = require('../services/dataProvider');    // 数据提供器
     var Message = require('./Message.vue');
 
     module.exports = {
@@ -22,6 +23,19 @@
                     this.title = "所有消息"
                     this.state = "all"
                 }
+            },
+            activate: function(transition) {
+                return new Promise((resolve) => {
+                    console.log('hook-example activated!')
+                    resolve()
+                })
+            },
+            deactivate: function(transition) {
+                console.log('hook-example deactivated!')
+                transition.next()
+            },
+            canReuse: function(transition) {
+                return true;
             }
         },
 
@@ -36,38 +50,65 @@
                 markedread: '',
                 refreshing: false,
                 state: '',
-                messages: []
+                summaries: []
             }
         },
 
         ready: function() {
             // When the application loads, we want to call the method that initializes
             // some data
-            this.fetchTypeMessages();
+            // this.fetchTypeMessages();
+            var summaries = dataProvider.getSummaries(this).summaries;
+            this.$set('summaries', summaries);
         },
 
         methods: {
             // We dedicate a method to retrieving and setting some data
-            fetchTypeMessages: function() {
-                this.$http.get('./assets/data/typeMessages.json', function(data) {
-                    this.$set('messages', data);
-                }).error(function(data, status, request) {
-                    console.log('fail' + status + "," + request);
-                })
-            },
-            markRead() {
-                markRead(this.id);
+            // fetchTypeMessages: function() {
+            //     this.$http.get('./assets/data/typeMessages.json', function(data) {
+            //         this.$set('summaries', data);
+            //     }).error(function(data, status, request) {
+            //         console.log('fail' + status + "," + request);
+            //     })
+            // },
+            markRead(id) {
                 this.markedread = true;
+                this.summaries[id - 1].read = true;
             },
-            markUnread() {
-                markUnread(this.id);
+            markUnread(id) {
                 this.markedread = false;
+                this.summaries[id - 1].read = false;
             },
             messageDetail(id) {
                 var self = this;
                 console.log(id);
-                console.log(self.messages[id-1].read);
-                this.messages[id-1].read = true;
+                console.log(self.summaries[id - 1].read);
+                //this.summaries[id - 1].read = !this.summaries[id - 1].read;
+                this.summaries[id - 1].read = true;
+
+                var messages = dataProvider.getMessages(this).messages;
+                console.log(messages[id - 1]);
+                this.$set('id', messages[id - 1].id);
+                this.$set('mestitle', messages[id - 1].title);
+                this.$set('mescontent', messages[id - 1].content);
+                this.$set('author', messages[id - 1].author);
+                this.$set('sendtime', messages[id - 1].sendtime);
+                this.$set('markedread', messages[id - 1].markedread);
+                this.markedread = true;
+                // 按id匹配messages
+                // for (var i in messages) {
+                //     if (messages.hasOwnProperty(i)) {
+                //         if (id = messages[i].id) {
+                //             console.log(messages[i]);
+                //             this.$set('id',messages[i].id);
+                //             this.$set('mestitle',messages[i].title);
+                //             this.$set('mescontent',messages[i].content);
+                //             this.$set('author',messages[i].author);
+                //             this.$set('sendtime',messages[i].sendtime);
+                //             this.$set('markedread',messages[i].markedread);
+                //         }
+                //     }
+                // }
             }
         },
 
@@ -86,17 +127,25 @@
             <span class="form-control-feedback fui-search"></span>
         </div>
     </div>
-    <div class="dashboard-messages">
-        <ul v-if="messages.length > 0" class="messages">
-            <li :class="{ readed : message.read }" v-for="message in messages |
-            filterBy searchQuery in 'title' 'desc'" class="message" @click="messageDetail(message.id)">
-                <h6>{{ message.title }}</h6>
+    <div class="dashboard-summaries">
+        <ul v-if="summaries.length > 0" class="summaries">
+            <li :class="{ readed : summary.read }" v-for="summary in summaries |
+            filterBy searchQuery in 'title' 'desc'" class="summary" @click="messageDetail(summary.id)">
+                <h6>{{ summary.title }}</h6>
                 <div class="description">
-                    {{ message.desc }}
+                    {{ summary.desc }}
                 </div>
             </li>
         </ul>
-        <div class="empty-placeholder" v-if="messages.length == 0">暂时没有消息</div>
+        <!-- vue.js 调试日志 -->
+        <!-- <div>
+            <p>当前路径: {{$route.path}}</p>
+            <p>当前路由参数: {{$route.params | json}}</p>
+        </div>
+        <pre>
+            {{ $data | json }}
+        </pre> -->
+        <div class="empty-placeholder" v-if="summaries.length == 0">暂时没有消息</div>
         <div class="empty-placeholder" v-if="refreshing">
             <pulse-loader></pulse-loader>
             <br/>
@@ -107,19 +156,16 @@
         </div>
     </div>
     <div class="dashboard-message-detail">
-        <!-- <pre>
-            {{ $data | json }}
-        </pre> -->
         <div class="manage-message" v-if="mescontent">
-            <button v-if="!markedread" v-on:click="markRead()" type="button" class="toggle-tag-editor">
+            <button v-if="!markedread" v-on:click="markRead(id)" type="button" class="btn btn-xs btn-primary btn-marked">
                 <i class="fa fa-fw fa-check"></i> 标记为已读
             </button>
-            <button v-if="markedread" v-on:click="markUnread()" type="button" class="toggle-tag-editor">
+            <button v-if="markedread" v-on:click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
                 <i class="fa fa-fw fa-history"></i> 标记为未读
             </button>
         </div>
-        <message-detail :mestitle="mestitle" :sendtime="sendtime" :author="author" :content="mescontent" v-if="mescontent"></message-detail>
-        <div class="empty-placeholder" v-if="!content">没有选择消息</div>
+        <message-detail :mestitle="mestitle" :sendtime="sendtime" :author="author" :mescontent="mescontent" v-if="mescontent"></message-detail>
+        <div class="empty-placeholder" v-if="!mescontent">没有选择消息</div>
     </div>
 </template>
 
@@ -159,7 +205,7 @@
         margin: 9px 9px 0 0;
     }
 
-    .dashboard-messages {
+    .dashboard-summaries {
         position: absolute;
         top: 60px;
         bottom: 0;
@@ -196,6 +242,34 @@
         width: 100%;
     }
 
+    .dashboard-message-detail .manage-message {
+        width: 100%;
+        height: 48px;
+        background: #fafafa;
+        border-bottom: 1px solid rgba(55, 53, 112, 0.1);
+        box-shadow: 0 1px 3px rgba(55, 53, 112, 0.08);
+        position: absolute;
+        z-index: 99;
+    }
+
+    .dashboard-message-detail .manage-message .btn-marked {
+        margin: 10px;
+    }
+
+    .dashboard-message-detail .message-read {
+        font-size: 1.4rem;
+        line-height: 1.5;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        padding: 20px;
+        position: absolute;
+        top: 48px;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        word-wrap: break-word;
+    }
+
     .form-control-feedback {
         position: absolute;
         top: 2px;
@@ -210,7 +284,7 @@
     }
     /* 消息列表 */
 
-    .messages {
+    .summaries {
         border-right: 1px solid rgba(55, 53, 112, 0.08);
         box-shadow: 1px 0 3px rgba(55, 53, 112, 0.08);
         list-style-type: none;
@@ -219,7 +293,7 @@
         width: 100%;
     }
 
-    .messages .message {
+    .summaries .summary {
         background: #fff;
         background-clip: padding-box;
         border-bottom: 1px solid rgba(55, 53, 112, 0.1);
@@ -229,15 +303,28 @@
         padding: 10px 20px;
     }
 
-    .messages .message h6 {
+    .summaries .summary h6 {
         font-size: 18px;
         font-weight: 600;
         color: #27AE60;
         margin: 4px 0;
     }
 
-    .messages .readed {
+    .summaries .readed {
         opacity: .6;
+    }
+
+    .dashboard-summaries .empty-placeholder {
+        -webkit-transform: translateY(-50%);
+        transform: translateY(-50%);
+        color: #658399;
+        font-weight: bold;
+        pointer-events: none;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        text-align: center;
+        width: 100%;
     }
 
     .description {

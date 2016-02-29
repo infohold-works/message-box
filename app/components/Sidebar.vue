@@ -1,54 +1,24 @@
 <script>
+    var dataProvider = require('../services/dataProvider');
+
     module.exports = {
         name: "Sidebar",
 
         data: function() {
             return {
-                mesTypes: [{
-                    "id": 1,
-                    "title": "部门通知",
-                    "read": false,
-                    "count": 13
-                }, {
-                    "id": 2,
-                    "title": "业务通知",
-                    "read": false,
-                    "count": 7
-                }, {
-                    "id": 3,
-                    "title": "到账通知",
-                    "read": false,
-                    "count": 0
-                }, {
-                    "id": 4,
-                    "title": "对账通知",
-                    "read": false,
-                    "count": 0
-                }, {
-                    "id": 5,
-                    "title": "测试消息",
-                    "read": false,
-                    "count": 6
-                }]
+                messageTypes: []
             }
         },
 
         // // Anything within the ready function will run when the application loads
-        // created: function() {
-        //     // When the application loads, we want to call the method that initializes
-        //     // some data
-        //     this.fetchTypes();
-        // },
+        ready: function() {
+            // When the application loads, we want to call the method that initializes
+            // some data
+            var messageTypes = dataProvider.getMessageTypes(this).messageTypes;
+            this.$set('messageTypes',messageTypes);
+        },
 
         methods: {
-            // We dedicate a method to retrieving and setting some data
-            // fetchTypes: function() {
-            //     this.$http.get('./assets/data/mesTypes.json', function(data) {
-            //         this.$set('mesTypes', data);
-            //     }).error(function(data, status, request) {
-            //         console.log('fail' + status + "," + request);
-            //     })
-            // },
             allMessages() {
                 return this.$route.router.go({
                     path: '/',
@@ -101,9 +71,12 @@
             </li>
         </ul>
         <ul class="dashboard-list">
-            <li @click="typeMessages(mesType.title)" v-for="mesType in mesTypes" class="dashboard-list-item">
-                <i class="fa fa-fw fa-rss"></i> {{ mesType.title }}
-                <span class="type-count pull-right badge">{{ mesType.count }}</span>
+            <!-- <pre>
+                {{ $data | json }}
+            </pre> -->
+            <li @click="typeMessages(messageType.title)" v-for="messageType in messageTypes" class="dashboard-list-item">
+                <i class="fa fa-fw fa-rss"></i> {{ messageType.title }}
+                <span class="type-count pull-right badge">{{ messageType.count }}</span>
             </li>
         </ul>
     </div>
