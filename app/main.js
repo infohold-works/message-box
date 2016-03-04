@@ -12,6 +12,9 @@ var windowStateKeeper = require('./vendor/electron_boilerplate/window_state');
 
 var mainWindow;
 var map = new Map();
+var user = new Map();
+user.put(123456,1234567);  //测试用user数据
+var onlineUsers = {};
 var socketid;
 // Preserver of the window size and position between app launches.
 var mainWindowState = windowStateKeeper('main', {
@@ -20,18 +23,49 @@ var mainWindowState = windowStateKeeper('main', {
 });
 
 io.on('connection', function(socket){
+    console.log('a user connected');
     socket.on('login', function(obj){
-        map.put(obj.username,socket.id);   //将登录的username:socketid存入数组
-        console.log(obj.username+'已登录');
+        socket.name = obj.userId;//将新加入用户的唯一标识当作socket的名称，后面退出的时候会用到
+        map.put(obj.userId,socket.id);
+        var pwd;
+        if(user.get(obj.userId)){  //如果用户列表中有此userId
+            pwd = user.get(obj.userId);  //获取密码
+            if(obj.password == pwd){
+                socketid = map.get(obj.userId);  //获取登录用户的socketid
+                io.sockets.connected[socketid].emit('login',{data:0});
+                if(!onlineUsers.hasOwnProperty(obj.userId)) {   //判断在线列表是否有此userid
+                    onlineUsers[obj.userId] = socketid;       //将此userid加入在线列表
+                }
+            }else { //如果用户列表中没有此userId
+                socketid = map.get(obj.userId);  //获取登录用户的socketid
+                io.sockets.connected[socketid].emit('login',{data:1});  //发送失败标志
+                map.remove(obj.userId);  //删除此socketid
+            }
+        }else {   //如果没有此userId
+            socketid = map.get(obj.userId);  //获取socketid
+            io.sockets.connected[socketid].emit('login',{data:1});  //给客户端发送登录失败标志
+            map.remove(obj.userId);  //删除此socketid
+        }
     });
+
+    //接收消息并发送给指定客户端
     socket.on('private message',function(obj){
         if(map.get(obj.username)){
             socketid = map.get(obj.username);
+            console.log(socketid)
             io.sockets.connected[socketid].emit('private message',obj);
         }
     });
+    //推送给所有客户端
     socket.on('public message',function(obj){
         io.emit('public message',obj);
+    });
+    //监测登录成功的用户退出
+    socket.on('disconnect', function(){
+        if(onlineUsers.hasOwnProperty(socket.name)) {
+            delete onlineUsers[socket.name];   //从在线列表删除
+            map.remove(socket.name);    //从用户信息列表中删除
+        }
     });
 });
 
