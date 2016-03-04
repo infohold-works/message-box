@@ -42,7 +42,7 @@
             <div class="col-md-9 col-md-offset-3" style="margin-top: 80px;">
                 <form id="changeRepoForm" @submit.prevent="changeRepo()" class="form-inline">
                     <div class="form-group">
-                        <label for="fullRepoName">Full Repo Name</label>
+                        <label for="fullRepoName">Full Rep  o Name</label>
                         <input type="text" name="fullRepoName" v-model="fullRepoName" placeholder="xiaoluoboding/kaidorei" class="form-control">
                     </div>
                     <button type="submit" class="btn btn-primary">获&emsp;取</button>
