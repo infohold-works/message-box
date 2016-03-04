@@ -8,7 +8,6 @@ module.exports = {
         //       return data;
         //   })
         console.log('Get MessageTypes from dataProvider');
-
         return {
             messageTypes: [{
                 "id": 1,
