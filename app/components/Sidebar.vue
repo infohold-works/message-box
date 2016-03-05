@@ -92,11 +92,11 @@
         top: 60px;
         bottom: 0;
         left: 0;
-        width: 280px;
+        width: 256px;
     }
 
     .dashboard-sidebar .sidebar-header {
-        width: 280px;
+        width: 256px;
         height: 60px;
         padding: 0 20px;
         background: #1ABC9C;

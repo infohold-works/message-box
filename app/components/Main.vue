@@ -177,7 +177,7 @@
         height: 60px;
         line-height: 60px;
         position: absolute;
-        left: 280px;
+        left: 256px;
         right: 0;
     }
 
@@ -209,10 +209,10 @@
         position: absolute;
         top: 60px;
         bottom: 0;
-        left: 280px;
+        left: 256px;
         background: #fafafa;
         overflow-y: auto;
-        width: 360px;
+        width: 384px;
     }
 
     .dashboard-message-detail {
