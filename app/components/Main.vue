@@ -1,6 +1,5 @@
 <script>
     var PulseLoader = require('vue-spinner/src/PulseLoader.vue');    // PulseLoader插件
-    var dataProvider = require('../services/dataProvider');    // 数据提供器
     var Message = require('./Message.vue');
 
     module.exports = {
@@ -57,20 +56,18 @@
         ready: function() {
             // When the application loads, we want to call the method that initializes
             // some data
-            // this.fetchTypeMessages();
-            var summaries = dataProvider.getSummaries(this).summaries;
-            this.$set('summaries', summaries);
+            this.$http({
+                url: 'http://localhost:3000/summaries',
+                method: 'GET'
+            }).then(function(response) {
+                // success callback
+                this.$set('summaries', response.data);
+            }, function(response) {
+                // error callback
+            });
         },
 
         methods: {
-            // We dedicate a method to retrieving and setting some data
-            // fetchTypeMessages: function() {
-            //     this.$http.get('./assets/data/typeMessages.json', function(data) {
-            //         this.$set('summaries', data);
-            //     }).error(function(data, status, request) {
-            //         console.log('fail' + status + "," + request);
-            //     })
-            // },
             markRead(id) {
                 this.markedread = true;
                 this.summaries[id - 1].read = true;
@@ -86,15 +83,23 @@
                 //this.summaries[id - 1].read = !this.summaries[id - 1].read;
                 this.summaries[id - 1].read = true;
 
-                var messages = dataProvider.getMessages(this).messages;
-                console.log(messages[id - 1]);
-                this.$set('id', messages[id - 1].id);
-                this.$set('mestitle', messages[id - 1].title);
-                this.$set('mescontent', messages[id - 1].content);
-                this.$set('author', messages[id - 1].author);
-                this.$set('sendtime', messages[id - 1].sendtime);
-                this.$set('markedread', messages[id - 1].markedread);
-                this.markedread = true;
+                this.$http({
+                    url: 'http://localhost:3000/messages',
+                    method: 'GET'
+                }).then(function(response) {
+                    // success callback
+                    var messages = response.data;
+                    console.log(messages[id - 1]);
+                    this.$set('id', messages[id - 1].id);
+                    this.$set('mestitle', messages[id - 1].title);
+                    this.$set('mescontent', messages[id - 1].content);
+                    this.$set('author', messages[id - 1].author);
+                    this.$set('sendtime', messages[id - 1].sendtime);
+                    this.$set('markedread', messages[id - 1].markedread);
+                    this.markedread = true;
+                }, function(response) {
+                    // error callback
+                });
                 // 按id匹配messages
                 // for (var i in messages) {
                 //     if (messages.hasOwnProperty(i)) {
@@ -212,7 +217,7 @@
         left: 256px;
         background: #fafafa;
         overflow-y: auto;
-        width: 384px;
+        width: 320px;
     }
 
     .dashboard-message-detail {
@@ -220,10 +225,10 @@
         color: #2C3E50;
         position: absolute;
         top: 60px;
-        left: 640px;
+        left: 576px;
         right: 0;
         bottom: 0;
-        min-width: 550px;
+        min-width: 448px;
     }
 
     .dashboard-message-detail .empty-placeholder {
