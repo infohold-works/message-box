@@ -1,120 +1,3 @@
-<script>
-    module.exports = {
-        name: "Sidebar",
-
-        data: function() {
-            return {
-                messageTypes: [],
-                selected: 'selected',
-                isAll: false,
-                isRead: false,
-                isUnRead: false,
-                isType: false
-            }
-        },
-
-        // // Anything within the ready function will run when the application loads
-        ready: function() {
-            // When the application loads, we want to call the method that initializes
-            // some data
-            // GET request
-            this.$http({
-                url: 'http://localhost:3000/messageTypes',
-                method: 'GET'
-            }).then(function(response) {
-                // success callback
-                this.$set('messageTypes', response.data);
-            }, function(response) {
-                // error callback
-            });
-        },
-
-        methods: {
-            allMessages() {
-                this.$set('isAll', true);
-                this.$set('isRead', false);
-                this.$set('isUnRead', false);
-                this.$set('isType', false);
-                return this.$route.router.go({
-                    path: '/',
-                    replace: true
-                })
-            }, readMessages() {
-                this.$set('isAll', false);
-                this.$set('isRead', true);
-                this.$set('isUnRead', false);
-                this.$set('isType', false);
-                return this.$route.router.go({
-                    path: '/message/read'
-                });
-            }, unreadMessages() {
-                this.$set('isAll', false);
-                this.$set('isRead', false);
-                this.$set('isUnRead', true);
-                this.$set('isType', false);
-                return this.$route.router.go({
-                    path: '/message/unread'
-                });
-            }, typeMessages(messageType,length) {
-                for (var i = 0; i < length; i++) {
-                    i == messageType.id - 1 ? this.messageTypes[i].selected = true :
-                    this.messageTypes[i].selected = false;
-                }
-                this.$set('isAll', false);
-                this.$set('isRead', false);
-                this.$set('isUnRead', false);
-                this.$set('isType', true);
-                
-                // // 根据id查询
-                // this.$http({
-                //     url: 'http://localhost:3000/messageTypes',
-                //     data: {
-                //         id: messageType.id
-                //     },
-                //     method: 'GET'
-                // }).then(function(response) {
-                // }, function(response) {
-                //     // error callback
-                // });
-
-                return this.$route.router.go({
-                    path: '/type/' + messageType.title
-                });
-            }
-        }
-    }
-</script>
-
-<template>
-    <!-- dashboard-sidebar -->
-    <div class="dashboard-sidebar">
-        <div class="sidebar-header">
-            <h4 class="sidebar-header-text">消息盒子</h4>
-        </div>
-        <ul class="dashboard-list">
-            <li class="dashboard-list-item" @click="allMessages()" :class="[isAll ? selected : '']">
-                <i class="fa fa-fw fa-list"></i> 所有消息
-            </li>
-            <li class="dashboard-list-item" @click="readMessages()" :class="[isRead ? selected : '']">
-                <i class="fa fa-fw fa-check"></i> 已读消息
-            </li>
-            <li class="dashboard-list-item" @click="unreadMessages()" :class="[isUnRead ? selected : '']">
-                <i class="fa fa-fw fa-history"></i> 未读消息
-            </li>
-        </ul>
-        <ul class="dashboard-list">
-            <li @click="typeMessages(messageType,messageTypes.length)" v-for="messageType in messageTypes" class="dashboard-list-item" :class="[messageType.selected ? isType ? selected : '' : '']">
-                <i class="fa fa-fw fa-rss"></i> {{ messageType.title }}
-                <span class="type-count pull-right badge">{{ messageType.count }}</span>
-            </li>
-            <!-- <pre>
-                {{ $data | json }}
-            </pre> -->
-        </ul>
-    </div>
-    <!-- ./dashboard-sidebar -->
-</template>
-
 <style>
     .dashboard-sidebar {
         background: #2C3E50;
@@ -182,3 +65,120 @@
         margin: 11px 0;
     }
 </style>
+
+<template>
+    <!-- dashboard-sidebar -->
+    <div class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h4 class="sidebar-header-text">消息盒子</h4>
+        </div>
+        <ul class="dashboard-list">
+            <li class="dashboard-list-item" @click="allMessages()" :class="[isAll ? selected : '']">
+                <i class="fa fa-fw fa-list"></i> 所有消息
+            </li>
+            <li class="dashboard-list-item" @click="readMessages()" :class="[isRead ? selected : '']">
+                <i class="fa fa-fw fa-check"></i> 已读消息
+            </li>
+            <li class="dashboard-list-item" @click="unreadMessages()" :class="[isUnRead ? selected : '']">
+                <i class="fa fa-fw fa-history"></i> 未读消息
+            </li>
+        </ul>
+        <ul class="dashboard-list">
+            <li @click="typeMessages(messageType,messageTypes.length)" v-for="messageType in messageTypes" class="dashboard-list-item" :class="[messageType.selected ? isType ? selected : '' : '']">
+                <i class="fa fa-fw fa-rss"></i> {{ messageType.title }}
+                <span class="type-count pull-right badge">{{ messageType.count }}</span>
+            </li>
+            <!-- <pre>
+                {{ $data | json }}
+            </pre> -->
+        </ul>
+    </div>
+    <!-- ./dashboard-sidebar -->
+</template>
+
+<script>
+    module.exports = {
+        name: "Sidebar",
+
+        data: function() {
+            return {
+                messageTypes: [],
+                selected: 'selected',
+                isAll: false,
+                isRead: false,
+                isUnRead: false,
+                isType: false
+            }
+        },
+
+        // // Anything within the ready function will run when the application loads
+        ready: function() {
+            // When the application loads, we want to call the method that initializes
+            // some data
+            // GET request
+            this.$http({
+                url: 'http://localhost:3000/messageTypes',
+                method: 'GET'
+            }).then(function(response) {
+                // success callback
+                this.$set('messageTypes', response.data);
+            }, function(response) {
+                // error callback
+            });
+        },
+
+        methods: {
+            allMessages() {
+                this.$set('isAll', true);
+                this.$set('isRead', false);
+                this.$set('isUnRead', false);
+                this.$set('isType', false);
+                return this.$route.router.go({
+                    path: '/',
+                    replace: true
+                })
+            }, readMessages() {
+                this.$set('isAll', false);
+                this.$set('isRead', true);
+                this.$set('isUnRead', false);
+                this.$set('isType', false);
+                return this.$route.router.go({
+                    path: '/message/read'
+                });
+            }, unreadMessages() {
+                this.$set('isAll', false);
+                this.$set('isRead', false);
+                this.$set('isUnRead', true);
+                this.$set('isType', false);
+                return this.$route.router.go({
+                    path: '/message/unread'
+                });
+            }, typeMessages(messageType,length) {
+                for (var i = 0; i < length; i++) {
+                    i == messageType.id - 1 ? this.messageTypes[i].selected = true :
+                    this.messageTypes[i].selected = false;
+                }
+                this.$set('isAll', false);
+                this.$set('isRead', false);
+                this.$set('isUnRead', false);
+                this.$set('isType', true);
+
+                // // 根据id查询
+                // this.$http({
+                //     url: 'http://localhost:3000/messageTypes',
+                //     data: {
+                //         id: messageType.id
+                //     },
+                //     method: 'GET'
+                // }).then(function(response) {
+                // }, function(response) {
+                //     // error callback
+                // });
+
+                return this.$route.router.go({
+                    path: '/type/' + messageType.title
+                });
+            }
+        }
+    }
+</script>

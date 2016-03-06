@@ -15,6 +15,7 @@
         Sorry this content is only available online view
     </div> -->
 </template>
+
 <script>
     module.exports =  {
         name: 'Message',

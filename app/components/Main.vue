@@ -1,179 +1,3 @@
-<script>
-    var PulseLoader = require('vue-spinner/src/PulseLoader.vue');    // PulseLoader插件
-    var Message = require('./Message.vue');
-
-    module.exports = {
-        name: 'Main',
-
-        route: {
-            data({
-                to
-            }) {
-                if (to.params.type === "type") {
-                    this.title = to.params.name
-                    this.state = 'type'
-                } else if (to.params.type === "message" && to.params.name === "read") {
-                    this.title = "已读消息"
-                    this.state = 'read'
-                } else if (to.params.type === "message" && to.params.name === "unread") {
-                    this.title = "未读消息"
-                    this.state = "unread"
-                } else {
-                    this.title = "所有消息"
-                    this.state = "all"
-                }
-            },
-            activate: function(transition) {
-                return new Promise((resolve) => {
-                    console.log('hook-example activated!')
-                    resolve()
-                })
-            },
-            deactivate: function(transition) {
-                console.log('hook-example deactivated!')
-                transition.next()
-            },
-            canReuse: function(transition) {
-                return true;
-            }
-        },
-
-        data: function() {
-            return {
-                title: "所有消息",
-                id: '',
-                mestitle: '',
-                mescontent: '',
-                author: '',
-                sendtime: '',
-                markedread: '',
-                refreshing: false,
-                state: '',
-                summaries: []
-            }
-        },
-
-        ready: function() {
-            // When the application loads, we want to call the method that initializes
-            // some data
-            this.$http({
-                url: 'http://localhost:3000/summaries',
-                method: 'GET'
-            }).then(function(response) {
-                // success callback
-                this.$set('summaries', response.data);
-            }, function(response) {
-                // error callback
-            });
-        },
-
-        methods: {
-            markRead(id) {
-                this.markedread = true;
-                this.summaries[id - 1].read = true;
-            },
-            markUnread(id) {
-                this.markedread = false;
-                this.summaries[id - 1].read = false;
-            },
-            messageDetail(id) {
-                var self = this;
-                console.log(id);
-                console.log(self.summaries[id - 1].read);
-                //this.summaries[id - 1].read = !this.summaries[id - 1].read;
-                this.summaries[id - 1].read = true;
-
-                this.$http({
-                    url: 'http://localhost:3000/messages',
-                    method: 'GET'
-                }).then(function(response) {
-                    // success callback
-                    var messages = response.data;
-                    console.log(messages[id - 1]);
-                    this.$set('id', messages[id - 1].id);
-                    this.$set('mestitle', messages[id - 1].title);
-                    this.$set('mescontent', messages[id - 1].content);
-                    this.$set('author', messages[id - 1].author);
-                    this.$set('sendtime', messages[id - 1].sendtime);
-                    this.$set('markedread', messages[id - 1].markedread);
-                    this.markedread = true;
-                }, function(response) {
-                    // error callback
-                });
-                // 按id匹配messages
-                // for (var i in messages) {
-                //     if (messages.hasOwnProperty(i)) {
-                //         if (id = messages[i].id) {
-                //             console.log(messages[i]);
-                //             this.$set('id',messages[i].id);
-                //             this.$set('mestitle',messages[i].title);
-                //             this.$set('mescontent',messages[i].content);
-                //             this.$set('author',messages[i].author);
-                //             this.$set('sendtime',messages[i].sendtime);
-                //             this.$set('markedread',messages[i].markedread);
-                //         }
-                //     }
-                // }
-            }
-        },
-
-        components: {
-            PulseLoader,
-            'message-detail': Message
-        }
-    }
-</script>
-
-<template>
-    <div class="dashboard-header">
-        <h4>{{ title }}</h4>
-        <div class="form-group has-feedback dashboard-header-search pull-right">
-            <input type="text" value="" placeholder="搜索" class="form-control" v-model="searchQuery" />
-            <span class="form-control-feedback fui-search"></span>
-        </div>
-    </div>
-    <div class="dashboard-summaries">
-        <ul v-if="summaries.length > 0" class="summaries">
-            <li :class="{ readed : summary.read }" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'" class="summary" @click="messageDetail(summary.id)">
-                <h6>{{ summary.title }}</h6>
-                <div class="description">
-                    {{ summary.desc }}
-                </div>
-            </li>
-        </ul>
-        <!-- vue.js 调试日志 -->
-        <!-- <div>
-            <p>当前路径: {{$route.path}}</p>
-            <p>当前路由参数: {{$route.params | json}}</p>
-        </div>
-        <pre>
-            {{ $data | json }}
-        </pre> -->
-        <div class="empty-placeholder" v-if="summaries.length == 0">暂时没有消息</div>
-        <div class="empty-placeholder" v-if="refreshing">
-            <pulse-loader></pulse-loader>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <p>获取信息消息 ...</p>
-        </div>
-    </div>
-    <div class="dashboard-message-detail">
-        <div class="manage-message" v-if="mescontent">
-            <button v-if="!markedread" v-on:click="markRead(id)" type="button" class="btn btn-xs btn-primary btn-marked">
-                <i class="fa fa-fw fa-check"></i> 标记为已读
-            </button>
-            <button v-if="markedread" v-on:click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
-                <i class="fa fa-fw fa-history"></i> 标记为未读
-            </button>
-        </div>
-        <message-detail :mestitle="mestitle" :sendtime="sendtime" :author="author" :mescontent="mescontent" v-if="mescontent"></message-detail>
-        <div class="empty-placeholder" v-if="!mescontent">没有选择消息</div>
-    </div>
-</template>
-
 <style>
     .dashboard .dashboard-header {
         background: #fff;
@@ -336,3 +160,179 @@
         font-size: 14px;
     }
 </style>
+
+<template>
+    <div class="dashboard-header">
+        <h4>{{ title }}</h4>
+        <div class="form-group has-feedback dashboard-header-search pull-right">
+            <input type="text" value="" placeholder="搜索" class="form-control" v-model="searchQuery" />
+            <span class="form-control-feedback fui-search"></span>
+        </div>
+    </div>
+    <div class="dashboard-summaries">
+        <ul v-if="summaries.length > 0" class="summaries">
+            <li :class="{ readed : summary.read }" v-for="summary in summaries |
+            filterBy searchQuery in 'title' 'desc'" class="summary" @click="messageDetail(summary.id)">
+                <h6>{{ summary.title }}</h6>
+                <div class="description">
+                    {{ summary.desc }}
+                </div>
+            </li>
+        </ul>
+        <!-- vue.js 调试日志 -->
+        <!-- <div>
+            <p>当前路径: {{$route.path}}</p>
+            <p>当前路由参数: {{$route.params | json}}</p>
+        </div>
+        <pre>
+            {{ $data | json }}
+        </pre> -->
+        <div class="empty-placeholder" v-if="summaries.length == 0">暂时没有消息</div>
+        <div class="empty-placeholder" v-if="refreshing">
+            <pulse-loader></pulse-loader>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <p>获取信息消息 ...</p>
+        </div>
+    </div>
+    <div class="dashboard-message-detail">
+        <div class="manage-message" v-if="mescontent">
+            <button v-if="!markedread" v-on:click="markRead(id)" type="button" class="btn btn-xs btn-primary btn-marked">
+                <i class="fa fa-fw fa-check"></i> 标记为已读
+            </button>
+            <button v-if="markedread" v-on:click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
+                <i class="fa fa-fw fa-history"></i> 标记为未读
+            </button>
+        </div>
+        <message-detail :mestitle="mestitle" :sendtime="sendtime" :author="author" :mescontent="mescontent" v-if="mescontent"></message-detail>
+        <div class="empty-placeholder" v-if="!mescontent">没有选择消息</div>
+    </div>
+</template>
+
+<script>
+    var PulseLoader = require('vue-spinner/src/PulseLoader.vue');    // PulseLoader插件
+    var Message = require('./Message.vue');
+
+    module.exports = {
+        name: 'Main',
+
+        route: {
+            data({
+                to
+            }) {
+                if (to.params.type === "type") {
+                    this.title = to.params.name
+                    this.state = 'type'
+                } else if (to.params.type === "message" && to.params.name === "read") {
+                    this.title = "已读消息"
+                    this.state = 'read'
+                } else if (to.params.type === "message" && to.params.name === "unread") {
+                    this.title = "未读消息"
+                    this.state = "unread"
+                } else {
+                    this.title = "所有消息"
+                    this.state = "all"
+                }
+            },
+            activate: function(transition) {
+                return new Promise((resolve) => {
+                    console.log('hook-example activated!')
+                    resolve()
+                })
+            },
+            deactivate: function(transition) {
+                console.log('hook-example deactivated!')
+                transition.next()
+            },
+            canReuse: function(transition) {
+                return true;
+            }
+        },
+
+        data: function() {
+            return {
+                title: "所有消息",
+                id: '',
+                mestitle: '',
+                mescontent: '',
+                author: '',
+                sendtime: '',
+                markedread: '',
+                refreshing: false,
+                state: '',
+                summaries: []
+            }
+        },
+
+        ready: function() {
+            // When the application loads, we want to call the method that initializes
+            // some data
+            this.$http({
+                url: 'http://localhost:3000/summaries',
+                method: 'GET'
+            }).then(function(response) {
+                // success callback
+                this.$set('summaries', response.data);
+            }, function(response) {
+                // error callback
+            });
+        },
+
+        methods: {
+            markRead(id) {
+                this.markedread = true;
+                this.summaries[id - 1].read = true;
+            },
+            markUnread(id) {
+                this.markedread = false;
+                this.summaries[id - 1].read = false;
+            },
+            messageDetail(id) {
+                var self = this;
+                console.log(id);
+                console.log(self.summaries[id - 1].read);
+                //this.summaries[id - 1].read = !this.summaries[id - 1].read;
+                this.summaries[id - 1].read = true;
+
+                this.$http({
+                    url: 'http://localhost:3000/messages',
+                    method: 'GET'
+                }).then(function(response) {
+                    // success callback
+                    var messages = response.data;
+                    console.log(messages[id - 1]);
+                    this.$set('id', messages[id - 1].id);
+                    this.$set('mestitle', messages[id - 1].title);
+                    this.$set('mescontent', messages[id - 1].content);
+                    this.$set('author', messages[id - 1].author);
+                    this.$set('sendtime', messages[id - 1].sendtime);
+                    this.$set('markedread', messages[id - 1].markedread);
+                    this.markedread = true;
+                }, function(response) {
+                    // error callback
+                });
+                // 按id匹配messages
+                // for (var i in messages) {
+                //     if (messages.hasOwnProperty(i)) {
+                //         if (id = messages[i].id) {
+                //             console.log(messages[i]);
+                //             this.$set('id',messages[i].id);
+                //             this.$set('mestitle',messages[i].title);
+                //             this.$set('mescontent',messages[i].content);
+                //             this.$set('author',messages[i].author);
+                //             this.$set('sendtime',messages[i].sendtime);
+                //             this.$set('markedread',messages[i].markedread);
+                //         }
+                //     }
+                // }
+            }
+        },
+
+        components: {
+            PulseLoader,
+            'message-detail': Message
+        }
+    }
+</script>
