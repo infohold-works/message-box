@@ -24,10 +24,6 @@ router.map({
         name: 'about',
         component: About
     },
-    '/github-file-explorer': {
-        name: 'github-file-explorer',
-        component: Fullreponame
-    },
     ':type/:name': {
         component: Main
     }

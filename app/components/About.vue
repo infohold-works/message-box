@@ -1,9 +1,3 @@
-<script>
-    module.exports = {
-        name: "About"
-    }
-</script>
-
 <template>
     <div id="container" class="container">
         <div class="row">
@@ -17,3 +11,9 @@
         </div>
     </div>
 </template>
+
+<script>
+    module.exports = {
+        name: "About"
+    }
+</script>
