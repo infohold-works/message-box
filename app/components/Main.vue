@@ -251,6 +251,8 @@
             }
         },
 
+        props: ['typeid','markread'],
+
         data: function() {
             return {
                 title: "所有消息",
@@ -284,17 +286,17 @@
             markRead(id) {
                 this.markedread = true;
                 this.summaries[id - 1].read = true;
+                this.markread = true;
+                this.$dispatch('markRead');
             },
             markUnread(id) {
                 this.markedread = false;
                 this.summaries[id - 1].read = false;
+                this.markread = false;
+                this.$dispatch('markUnread');
             },
             messageDetail(id) {
                 var self = this;
-                console.log(id);
-                console.log(self.summaries[id - 1].read);
-                //this.summaries[id - 1].read = !this.summaries[id - 1].read;
-                this.summaries[id - 1].read = true;
 
                 this.$http({
                     url: 'http://localhost:3000/messages',
@@ -303,16 +305,17 @@
                     // success callback
                     var messages = response.data;
                     console.log(messages[id - 1]);
+                    this.$set('typeid', messages[id - 1].typeid);
                     this.$set('id', messages[id - 1].id);
                     this.$set('mestitle', messages[id - 1].title);
                     this.$set('mescontent', messages[id - 1].content);
                     this.$set('author', messages[id - 1].author);
                     this.$set('sendtime', messages[id - 1].sendtime);
                     this.$set('markedread', messages[id - 1].markedread);
-                    this.markedread = true;
                 }, function(response) {
                     // error callback
                 });
+
                 // 按id匹配messages
                 // for (var i in messages) {
                 //     if (messages.hasOwnProperty(i)) {

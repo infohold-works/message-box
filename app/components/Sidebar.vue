@@ -100,6 +100,8 @@
     module.exports = {
         name: "Sidebar",
 
+        props: ['typeid','markread'],
+
         data: function() {
             return {
                 messageTypes: [],
@@ -125,6 +127,25 @@
             }, function(response) {
                 // error callback
             });
+
+            // this.$http({
+            //     url: 'http://localhost:3000/messageTypes?id=6',
+            //     data: {
+            //         title: ''
+            //     },
+            //     method: 'POST'
+            // }).then(function(response) {
+            //     console.log('success');
+            // }, function(response) {
+            // });
+
+            // 删除写法
+            // this.$http({
+            //     url: 'http://localhost:3000/messageTypes/8',
+            //     method: 'DELETE'
+            // }).then(function(response) {
+            //     console.log('删除成功');
+            // })
         },
 
         methods: {
@@ -137,7 +158,8 @@
                     path: '/',
                     replace: true
                 })
-            }, readMessages() {
+            },
+            readMessages() {
                 this.$set('isAll', false);
                 this.$set('isRead', true);
                 this.$set('isUnRead', false);
@@ -145,7 +167,8 @@
                 return this.$route.router.go({
                     path: '/message/read'
                 });
-            }, unreadMessages() {
+            },
+            unreadMessages() {
                 this.$set('isAll', false);
                 this.$set('isRead', false);
                 this.$set('isUnRead', true);
@@ -153,10 +176,11 @@
                 return this.$route.router.go({
                     path: '/message/unread'
                 });
-            }, typeMessages(messageType,length) {
+            },
+            typeMessages(messageType, length) {
                 for (var i = 0; i < length; i++) {
                     i == messageType.id - 1 ? this.messageTypes[i].selected = true :
-                    this.messageTypes[i].selected = false;
+                        this.messageTypes[i].selected = false;
                 }
                 this.$set('isAll', false);
                 this.$set('isRead', false);
@@ -178,6 +202,17 @@
                 return this.$route.router.go({
                     path: '/type/' + messageType.title
                 });
+            }
+        },
+
+        events: {
+            'siderbar-markRead': function() {
+                console.log('typeid:' + this.typeid);
+                this.messageTypes[this.typeid - 1].count -= 1;
+            },
+            'siderbar-markUnread': function () {
+                console.log('+1');
+                this.messageTypes[this.typeid - 1].count += 1;
             }
         }
     }

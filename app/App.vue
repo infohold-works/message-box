@@ -7,13 +7,24 @@
 
         data: function () {
             return {
-                isLogin: false
+                isLogin: false,
+                typeId: '',
+                markRead: '',
             }
         },
 
         components: {
             Login,
             Sidebar
+        },
+
+        events: {
+            'markRead': function() {
+                this.$broadcast('siderbar-markRead');
+            },
+            'markUnread': function() {
+                this.$broadcast('siderbar-markUnread');
+            }
         }
     }
 </script>
@@ -22,7 +33,7 @@
         <login :msg.sync="isLogin"></login>
     </div>
     <div class="dashboard" v-if="isLogin">
-        <sidebar></sidebar>
-        <router-view></router-view>
+        <sidebar :typeid.sync="typeId" :markread.sync="markRead"></sidebar>
+        <router-view :typeid.sync="typeId" :markread.sync="markRead"></router-view>
     </div>
 </template>
