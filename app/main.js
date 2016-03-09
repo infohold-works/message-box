@@ -27,6 +27,7 @@ io.on('connection', function(socket){
     socket.on('login', function(obj){
         socket.name = obj.userId;//将新加入用户的唯一标识当作socket的名称，后面退出的时候会用到
         map.put(obj.userId,socket.id);
+
         var pwd;
         if(user.get(obj.userId)){  //如果用户列表中有此userId
             pwd = user.get(obj.userId);  //获取密码
