@@ -2,6 +2,7 @@
   "messageTypes": [
     {
       "id": 1,
+      "type": 1,
       "title": "部门通知",
       "read": false,
       "count": 13,
@@ -9,6 +10,7 @@
     },
     {
       "id": 2,
+      "type": 2,
       "title": "业务通知",
       "read": false,
       "count": 7,
@@ -16,6 +18,7 @@
     },
     {
       "id": 3,
+      "type": 3,
       "title": "到账通知",
       "read": false,
       "count": 0,
@@ -23,6 +26,7 @@
     },
     {
       "id": 4,
+      "type": 4,
       "title": "对账通知",
       "read": false,
       "count": 8,
@@ -30,6 +34,7 @@
     },
     {
       "id": 5,
+      "type": 5,
       "title": "测试消息",
       "read": false,
       "count": 0,
