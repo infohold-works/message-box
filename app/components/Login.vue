@@ -26,6 +26,7 @@ header h6 {
             <div class="form-group">
                 <input type="password" class="form-control login-field" value="" placeholder="密码" id="login-pass">
                 <label class="login-field-icon fui-lock" for="login-pass"></label>
+                <span id="care" style="float:right;font-size: 12px;color: red"></span>
             </div>
 
             <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
@@ -34,14 +35,31 @@ header h6 {
     </div>
 </template>
 <script>
+    //连接本地接口8090
+    var socket = require('socket.io-client')('http://localhost:8090');
     module.exports = {
         name: "Login",
 
         props: ['msg'],
 
         methods: {
-            login: function() {
-                this.msg = true;
+            login : function(){
+                $('#care').html('');
+                var id=$('#login-name').val().trim();
+                var password=$('#login-pass').val().trim();
+                if(id==""&&password==""){
+                    $('#care').html('账号或密码不能为空');
+                }else {
+                    var self = this;
+                    socket.emit('login', {userId: id, password: password});
+                    socket.on('login', function (obj) {
+                        if (obj.data == 0) {
+                            self.msg = true;
+                        } else {
+                            $('#care').html('用户名或密码错误');
+                        }
+                    });
+                }
             }
         }
     }
