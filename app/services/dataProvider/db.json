@@ -38,6 +38,7 @@
   ],
   "summaries": [
     {
+      "typeid": 1,
       "id": 1,
       "author": "李世民",
       "title": "晓松奇谈",
@@ -46,14 +47,16 @@
       "read": false
     },
     {
+      "typeid": 1,
       "id": 2,
       "author": "雍正",
-      "title": "皇帝诏曰",
+      "title": "大牌对王牌",
       "desc": "wow lol wow lol wow lol wow lol wow lol wow lol wow lol wow lol ",
       "sendtime": "2016-02-28",
       "read": true
     },
     {
+      "typeid": 2,
       "id": 3,
       "author": "诸葛亮",
       "title": "奔跑吧兄弟",
@@ -62,6 +65,7 @@
       "read": false
     },
     {
+      "typeid": 2,
       "id": 4,
       "author": "孙悟空",
       "title": "奇葩说",
@@ -72,6 +76,7 @@
   ],
   "messages": [
     {
+      "typeid": 1,
       "id": 1,
       "author": "李世民",
       "title": "晓松奇谈",
@@ -80,6 +85,7 @@
       "markedread": false
     },
     {
+      "typeid": 1,
       "id": 2,
       "author": "雍正",
       "title": "大牌对王牌",
@@ -88,6 +94,7 @@
       "markedread": false
     },
     {
+      "typeid": 2,
       "id": 3,
       "author": "诸葛亮",
       "title": "奔跑吧兄弟",
@@ -96,6 +103,7 @@
       "markedread": false
     },
     {
+      "typeid": 2,
       "id": 4,
       "author": "孙悟空",
       "title": "奇葩说",
