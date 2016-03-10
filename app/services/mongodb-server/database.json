@@ -1,0 +1,10 @@
+{
+  "test": {
+    "url": "mongodb://8.1.3.213:27017/test",
+    "options": {
+      "server": {
+        "poolSize": 10
+      }
+    }
+  }
+}
