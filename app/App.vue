@@ -7,7 +7,7 @@
 
         data: function () {
             return {
-                isLogin: false,
+                isLogin: true,
                 typeId: '',
                 markRead: '',
             }

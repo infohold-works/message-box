@@ -174,7 +174,7 @@
             <li :class="{ readed : summary.read }" v-for="summary in summaries |
             filterBy searchQuery in 'title' 'desc' 'typeid'"  class="summary" @click="messageDetail(summary.id)">
                 <div>
-                    <h6>{{ summary.title }}</h6>
+                    <h6 v-show="typeid=='部门通知'">{{ summary.title }}</h6>
                     <div class="description">
                         {{ summary.desc }}
                     </div>

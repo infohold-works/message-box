@@ -43,7 +43,7 @@
   ],
   "summaries": [
     {
-      "typeid": 1,
+      "typeid": "部门通知",
       "id": 1,
       "author": "李世民",
       "title": "晓松奇谈",
@@ -52,7 +52,7 @@
       "read": false
     },
     {
-      "typeid": 1,
+      "typeid": "部门通知",
       "id": 2,
       "author": "雍正",
       "title": "大牌对王牌",
