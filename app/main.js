@@ -9,6 +9,16 @@ var env = require('./vendor/electron_boilerplate/env_config');
 var devHelper = require('./vendor/electron_boilerplate/dev_helper');
 var windowStateKeeper = require('./vendor/electron_boilerplate/window_state');
 
+// var redis = require('redis'),
+//     RDS_PORT = 6379,
+//     RDS_HOST = '8.1.3.213',
+//     RDS_OPTS = {},
+//     client = redis.createClient(RDS_PORT,RDS_HOST,RDS_OPTS);
+//
+// client.on('ready', function (err) {
+//     console.log('ready');
+// })
+
 var mainWindow;
 // Preserver of the window size and position between app launches.
 var mainWindowState = windowStateKeeper('main', {

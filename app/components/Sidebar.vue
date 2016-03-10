@@ -97,10 +97,17 @@
 </template>
 
 <script>
+    // 连接mongodb
+    var MongoClient = require('mongodb').MongoClient,
+        assert = require('assert');
+    // Connection URL
+    var url = 'mongodb://8.1.3.213:27017/test';
+
+
     module.exports = {
         name: "Sidebar",
 
-        props: ['typeid','markread'],
+        props: ['typeid', 'markread'],
 
         data: function() {
             return {
@@ -210,7 +217,7 @@
                 console.log('typeid:' + this.typeid);
                 this.messageTypes[this.typeid - 1].count -= 1;
             },
-            'siderbar-markUnread': function () {
+            'siderbar-markUnread': function() {
                 console.log('+1');
                 this.messageTypes[this.typeid - 1].count += 1;
             }
