@@ -1,33 +1,58 @@
-var io = require('socket.io')(8090);
+var io = require('socket.io')(3000);
 
-var map = new Map();
-var user = new Map();
-user.put(123456, 1234567);
+//var map = new Map(); //login的用户的信息列表
+//var user = new Map(); //用户列表
+//user.put(123456, 1234567);
 var socketid;
-var onlineUsers = {};
+var onlineUsers = {}; //在线列表
+var loginUsers = {};  //用户登录列表
+var users = {123456:1234567};//测试用数据
 
 io.on('connection', function(socket) {
-
+    console.log("a user connection")
     socket.on('login', function(obj) {
-        if (!onlineUsers.hasOwnProperty(obj.userId)) { //判断在线列表是没有此user
+        if (!onlineUsers.hasOwnProperty(obj.userId) ) { //判断在线列表是没有此user  && !loginUsers.hasOwnProperty(obj.userId)
             socket.name = obj.userId; //将新加入用户的唯一标识当作socket的名称，后面退出的时候会用到
-            map.put(obj.userId, socket.id);
+            //map.put(obj.userId, socket.id);
+            loginUsers[obj.userId] = socket.id;
             var pwd;
-            if (user.get(obj.userId)) { //如果用户列表中有此userId
-                pwd = user.get(obj.userId); //获取密码
+            if (users.hasOwnProperty(obj.userId)) { //如果用户列表中有此userId
+
+                //pwd = user.get(obj.userId); //获取密码
+                pwd = users[obj.userId];
                 if (obj.password == pwd) {
-                    socketid = map.get(obj.userId); //获取登录用户的socketid
+                    //socketid = map.get(obj.userId); //获取登录用户的socketid
+                    socketid = loginUsers[obj.userId];  //获取登录用户的socketid
+                    console.log(obj.userId+"登录成功")
+                    console.log("登录成功! socketid为:"+loginUsers[obj.userId]);
                     io.sockets.connected[socketid].emit('login', { data: 0 }); //发送登录成功标识
                     onlineUsers[obj.userId] = socketid; //添加进在线user列表
                 } else {
-                    socketid = map.get(obj.userId);
+                    console.log("密码不正确!")
+                    //socketid = map.get(obj.userId);
+                    socketid = loginUsers[obj.userId];
                     io.sockets.connected[socketid].emit('login', { data: 1 }); //发送登录失败标识
-                    map.remove(obj.userId); //删除此socketid
+
+                    console.log("是否有此ID属性:"+loginUsers.hasOwnProperty(obj.userId)+","+"此socketid:"+loginUsers[obj.userId])
+                   // map.remove(obj.userId); //删除此socketid
+                    delete loginUsers[obj.userId];
+
+                    console.log("删除之后此socketid:"+loginUsers[obj.userId])
+                   // delete map[obj.userId];
+                    console.log("是否有此ID:"+loginUsers.hasOwnProperty(obj.userId))
+
                 }
             } else { //如果没有此userId
-                socketid = map.get(obj.userId); //获取socketid
+                console.log("没有此用户ID")
+                //socketid = map.get(obj.userId); //获取socketid
+                socketid = loginUsers[obj.userId];
                 io.sockets.connected[socketid].emit('login', { data: 1 }); //给客户端发送登录失败标志
-                map.remove(obj.userId); //删除此socketid
+                //console.log("user列表:"+user.containsKey(obj.userId))
+                //map.remove(obj.userId); //删除此socketid
+                delete loginUsers[obj.userId];
+
+                //console.log("删除是否成功:"+map.remove(obj.userId))
+                console.log(obj.userId+":"+loginUsers[obj.userId])
             }
         } else {
             console.log("此用户已登录");
@@ -36,8 +61,9 @@ io.on('connection', function(socket) {
 
     //接收消息并发送给指定客户端
     socket.on('private message', function(obj) {
-        if (map.get(obj.username)) {
-            socketid = map.get(obj.username);
+        if (loginUsers.hasOwnProperty(obj.userId)) {
+            //socketid = map.get(obj.username);
+            socketid = loginUsers[obj.userId];
             io.sockets.connected[socketid].emit('private message', obj);
         }
     });
@@ -49,8 +75,10 @@ io.on('connection', function(socket) {
     //监测登录成功的用户退出
     socket.on('disconnect', function() {
         if (onlineUsers.hasOwnProperty(socket.name)) {
+            console.log(socket.name + "退出了")
             delete onlineUsers[socket.name]; //从在线列表删除
-            map.remove(socket.name); //从用户信息列表中删除
+           // map.remove(socket.name); //从用户信息列表中删除
+            delete loginUsers[socket.name];
         }
     });
 });
@@ -82,6 +110,8 @@ function Map() {
         try {
             for (i = 0; i < this.elements.length; i++) {
                 if (this.elements[i].key == _key) {
+                    console.log("输出key:"+this.elements[i].key);
+
                     this.elements.splice(i, 1);
                     return true;
                 }

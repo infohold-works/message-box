@@ -20,6 +20,18 @@
             },
             'markUnread': function() {
                 this.$broadcast('siderbar-markUnread');
+            },
+            'searchAll': function() {
+                this.$broadcast('summaries-searchAll');
+            },
+            'searchRead': function() {
+                this.$broadcast('summaries-searchRead');
+            },
+            'searchUnread': function() {
+                this.$broadcast('summaries-searchUnread');
+            },
+            'searchType': function(id) {
+                this.$broadcast('summaries-searchType', id);
             }
         }
     }

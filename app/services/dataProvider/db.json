@@ -2,6 +2,7 @@
   "messageTypes": [
     {
       "id": 1,
+      "type": 1,
       "title": "部门通知",
       "read": false,
       "count": 13,
@@ -9,6 +10,7 @@
     },
     {
       "id": 2,
+      "type": 2,
       "title": "业务通知",
       "read": false,
       "count": 7,
@@ -16,6 +18,7 @@
     },
     {
       "id": 3,
+      "type": 3,
       "title": "到账通知",
       "read": false,
       "count": 0,
@@ -23,6 +26,7 @@
     },
     {
       "id": 4,
+      "type": 4,
       "title": "对账通知",
       "read": false,
       "count": 8,
@@ -30,6 +34,7 @@
     },
     {
       "id": 5,
+      "type": 5,
       "title": "测试消息",
       "read": false,
       "count": 0,
@@ -38,7 +43,7 @@
   ],
   "summaries": [
     {
-      "typeid": 1,
+      "typeid": "部门通知",
       "id": 1,
       "author": "李世民",
       "title": "晓松奇谈",
@@ -47,7 +52,7 @@
       "read": false
     },
     {
-      "typeid": 1,
+      "typeid": "部门通知",
       "id": 2,
       "author": "雍正",
       "title": "大牌对王牌",
@@ -56,7 +61,7 @@
       "read": true
     },
     {
-      "typeid": 2,
+      "typeid": "业务通知",
       "id": 3,
       "author": "诸葛亮",
       "title": "奔跑吧兄弟",
@@ -65,7 +70,7 @@
       "read": false
     },
     {
-      "typeid": 2,
+      "typeid": "到账通知",
       "id": 4,
       "author": "孙悟空",
       "title": "奇葩说",

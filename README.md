@@ -1,5 +1,5 @@
 # message-box
-基于Electron、Vue.js、socket.io等技术搭建的消息盒子桌面客户端（Windows）
+基于Electron、Vue.js、socket.io、MongoDB等技术搭建的消息盒子桌面客户端（Windows）
 
 # Usages
 
@@ -15,7 +15,7 @@
 - [x] 用户登录
 - [x] 新消息监听机制
 - [ ] 系统桌面新消息/通知弹窗
-- [ ] 按消息/通知类型检索消息
+- [x] 按消息/通知类型检索消息
 - [x] 按消息/通知类型统计未读消息总数
 - [x] 标记已读/未读
 - [x] 全文搜索功能

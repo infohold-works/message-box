@@ -43,15 +43,12 @@ header h6 {
     var socket = require('socket.io-client')('http://192.168.1.114:8090');
     module.exports = {
         name: "Login",
-
         data: function() {
             return {
                 notice:''
             }
         },
-
         props: ['msg'],
-
         methods: {
             login : function(){
                 var id=this.userId;
@@ -70,7 +67,6 @@ header h6 {
                     });
                 }
             }
-
         }
     }
 </script>
