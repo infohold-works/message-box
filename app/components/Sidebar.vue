@@ -136,7 +136,6 @@
             // 使用mongodb获取数据
             var self = this;
             connect(function(db) {
-                // 获得db的引用，如果没有建立连接池，则建立，否则使用连接池的连接
                 // Get the documents collection
                 var collection = db.collection('messageTypes');
                 // Find some documents
@@ -148,17 +147,6 @@
                     self.messageTypes = docs;
                 });
             });
-
-            // this.$http({
-            //     url: 'http://localhost:3000/messageTypes?id=6',
-            //     data: {
-            //         title: ''
-            //     },
-            //     method: 'POST'
-            // }).then(function(response) {
-            //     console.log('success');
-            // }, function(response) {
-            // });
 
             // 删除写法
             // this.$http({
