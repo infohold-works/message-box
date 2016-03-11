@@ -97,10 +97,15 @@
 </template>
 
 <script>
+    // 连接mongodb
+    var conf = require('../services/mongodb-server/database.json');
+    var connect = require('../services/mongodb-server/server').connect(conf.test.url, conf.test.options);
+    var assert = require('assert');
+
     module.exports = {
         name: "Sidebar",
 
-        props: ['typeid','markread'],
+        props: ['typeid', 'markread'],
 
         data: function() {
             return {
@@ -118,26 +123,30 @@
             // When the application loads, we want to call the method that initializes
             // some data
             // GET request
-            this.$http({
-                url: 'http://localhost:3000/messageTypes',
-                method: 'GET'
-            }).then(function(response) {
-                // success callback
-                this.$set('messageTypes', response.data);
-            }, function(response) {
-                // error callback
-            });
-
             // this.$http({
-            //     url: 'http://localhost:3000/messageTypes?id=6',
-            //     data: {
-            //         title: ''
-            //     },
-            //     method: 'POST'
+            //     url: 'http://localhost:3000/messageTypes',
+            //     method: 'GET'
             // }).then(function(response) {
-            //     console.log('success');
+            //     // success callback
+            //     this.$set('messageTypes', response.data);
             // }, function(response) {
+            //     // error callback
             // });
+
+            // 使用mongodb获取数据
+            var self = this;
+            connect(function(db) {
+                // Get the documents collection
+                var collection = db.collection('messageTypes');
+                // Find some documents
+                collection.find({}).toArray(function(err, docs) {
+                    // assert.equal(err, null);
+                    // assert.equal(5, docs.length);
+                    // console.log("Sidebar found the following records");
+                    // console.dir(docs);
+                    self.messageTypes = docs;
+                });
+            });
 
             // 删除写法
             // this.$http({
@@ -210,7 +219,7 @@
                 console.log('typeid:' + this.typeid);
                 this.messageTypes[this.typeid - 1].count -= 1;
             },
-            'siderbar-markUnread': function () {
+            'siderbar-markUnread': function() {
                 console.log('+1');
                 this.messageTypes[this.typeid - 1].count += 1;
             }

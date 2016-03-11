@@ -1,23 +1,19 @@
 <script>
     var Sidebar = require('./components/Sidebar.vue')
     var Login = require('./components/Login.vue')
-
     module.exports = {
         name: "App",
-
-        data: function () {
+        data: function() {
             return {
                 isLogin: false,
                 typeId: '',
                 markRead: '',
             }
         },
-
         components: {
             Login,
             Sidebar
         },
-
         events: {
             'markRead': function() {
                 this.$broadcast('siderbar-markRead');
@@ -29,7 +25,7 @@
     }
 </script>
 <template>
-    <div class="login-style"  v-if="!isLogin">
+    <div class="login-style" v-if="!isLogin">
         <login :msg.sync="isLogin"></login>
     </div>
     <div class="dashboard" v-if="isLogin">

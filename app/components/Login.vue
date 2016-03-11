@@ -11,6 +11,10 @@ body {
 header h6 {
     text-align: center;
 }
+#notice{
+    font-size:13px;
+    color: #e74c3c;
+}
 </style>
 <template>
     <div class="login-screen">
@@ -19,14 +23,14 @@ header h6 {
                 <h6>消息盒子</h6>
             </header>
             <div class="form-group">
-                <input type="text" class="form-control login-field" value="" placeholder="用户名" id="login-name">
+                <input type="text" class="form-control login-field" value="" placeholder="用户名" v-model="userId">
                 <label class="login-field-icon fui-user" for="login-name"></label>
             </div>
 
             <div class="form-group">
-                <input type="password" class="form-control login-field" value="" placeholder="密码" id="login-pass">
+                <input type="password" class="form-control login-field" value="" placeholder="密码" v-model="passwd">
                 <label class="login-field-icon fui-lock" for="login-pass"></label>
-                <span id="care" style="float:right;font-size: 12px;color: red"></span>
+                <span  class="pull-right" id="notice">{{notice}}</span>
             </div>
 
             <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
@@ -36,19 +40,24 @@ header h6 {
 </template>
 <script>
     //连接本地接口8090
-    var socket = require('socket.io-client')('http://localhost:8090');
+    var socket = require('socket.io-client')('http://192.168.1.114:8090');
     module.exports = {
         name: "Login",
+
+        data: function() {
+            return {
+                notice:''
+            }
+        },
 
         props: ['msg'],
 
         methods: {
             login : function(){
-                $('#care').html('');
-                var id=$('#login-name').val().trim();
-                var password=$('#login-pass').val().trim();
-                if(id==""&&password==""){
-                    $('#care').html('账号或密码不能为空');
+                var id=this.userId;
+                var password=this.passwd;
+                if(id==""||password==""){
+                   this.notice='用户名或密码不能为空';
                 }else {
                     var self = this;
                     socket.emit('login', {userId: id, password: password});
@@ -56,11 +65,12 @@ header h6 {
                         if (obj.data == 0) {
                             self.msg = true;
                         } else {
-                            $('#care').html('用户名或密码错误');
+                            self.notice='用户名或密码错误';
                         }
                     });
                 }
             }
+
         }
     }
 </script>

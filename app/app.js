@@ -10,6 +10,11 @@ var About = require('./components/About.vue')
 Vue.use(Router)
 Vue.use(Resource)
 
+Vue.http.options.root = '/root'
+Vue.http.headers.common['Authorization'] = 'Basic YXBpOnBhc3N3b3Jk'
+Vue.http.options.emulateJSON = true
+Vue.http.options.emulateHTTP = true
+
 // Set up a new router
 var router = new Router()
 
