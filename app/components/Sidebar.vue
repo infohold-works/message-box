@@ -163,6 +163,7 @@
                 this.$set('isRead', false);
                 this.$set('isUnRead', false);
                 this.$set('isType', false);
+                this.$dispatch('searchAll');
                 return this.$route.router.go({
                     path: '/',
                     replace: true
@@ -173,6 +174,7 @@
                 this.$set('isRead', true);
                 this.$set('isUnRead', false);
                 this.$set('isType', false);
+                this.$dispatch('searchRead');
                 return this.$route.router.go({
                     path: '/message/read'
                 });
@@ -182,6 +184,7 @@
                 this.$set('isRead', false);
                 this.$set('isUnRead', true);
                 this.$set('isType', false);
+                this.$dispatch('searchUnread');
                 return this.$route.router.go({
                     path: '/message/unread'
                 });
@@ -207,6 +210,8 @@
                 // }, function(response) {
                 //     // error callback
                 // });
+
+                this.$dispatch('searchType', messageType.id);
 
                 return this.$route.router.go({
                     path: '/type/' + messageType.title

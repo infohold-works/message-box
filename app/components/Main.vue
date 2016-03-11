@@ -172,9 +172,9 @@
     <div class="dashboard-summaries">
         <ul v-if="summaries.length > 0" class="summaries">
             <li :class="{ readed : summary.read }" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'  "  class="summary" @click="messageDetail(summary.id)">
+            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)">
                 <div>
-                    <h6 >{{ summary.title }}</h6>
+                    <h6>{{ summary.title }}</h6>
                     <div class="description">
                         {{ summary.desc }}
                     </div>
@@ -183,7 +183,7 @@
             </li>
         </ul>
         <!-- vue.js 调试日志 -->
-        <!-- <div>   searchQuery in 'title' 'desc' 
+        <!-- <div>
             <p>当前路径: {{$route.path}}</p>
             <p>当前路由参数: {{$route.params | json}}</p>
         </div>
@@ -272,21 +272,25 @@
                 markedread: '',
                 refreshing: false,
                 state: '',
-                summaries: []
+                summaries: [],
+                searchQuery: ''
             }
         },
 
         ready: function() {
-            var self = this;
-            connect(function(db) {
-                var collection = db.collection('summaries');
-                collection.find({}).toArray(function(err, docs) {
-                    self.summaries = docs;
-                });
-            });
+            this.searchAllSummaries();
         },
 
         methods: {
+            searchAllSummaries() {
+                var self = this;
+                connect(function(db) {
+                    var collection = db.collection('summaries');
+                    collection.find({}).toArray(function(err, docs) {
+                        self.summaries = docs;
+                    });
+                });
+            },
             markRead(id) {
                 this.markedread = true;
                 this.summaries[id - 1].read = true;
@@ -313,6 +317,45 @@
                         self.author = messages[messagesId].author;
                         self.sendtime = messages[messagesId].sendtime;
                         self.markedread = messages[messagesId].markedread;
+                    });
+                });
+            }
+        },
+
+        events: {
+            'summaries-searchAll': function() {
+                this.searchAllSummaries();
+            },
+            'summaries-searchRead': function() {
+                var self = this;
+                connect(function(db) {
+                    var collection = db.collection('summaries');
+                    collection.find({
+                        read: true
+                    }).toArray(function(err, docs) {
+                        self.summaries = docs;
+                    });
+                });
+            },
+            'summaries-searchUnread': function() {
+                var self = this;
+                connect(function(db) {
+                    var collection = db.collection('summaries');
+                    collection.find({
+                        read: false
+                    }).toArray(function(err, docs) {
+                        self.summaries = docs;
+                    });
+                });
+            },
+            'summaries-searchType': function(id) {
+                var self = this;
+                connect(function(db) {
+                    var collection = db.collection('summaries');
+                    collection.find({
+                        typeid: id
+                    }).toArray(function(err, docs) {
+                        self.summaries = docs;
                     });
                 });
             }
