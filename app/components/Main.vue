@@ -172,9 +172,9 @@
     <div class="dashboard-summaries">
         <ul v-if="summaries.length > 0" class="summaries">
             <li :class="{ readed : summary.read }" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc' 'typeid'"  class="summary" @click="messageDetail(summary.id)">
+            filterBy searchQuery in 'title' 'desc'  "  class="summary" @click="messageDetail(summary.id)">
                 <div>
-                    <h6 v-show="typeid=='部门通知'">{{ summary.title }}</h6>
+                    <h6 >{{ summary.title }}</h6>
                     <div class="description">
                         {{ summary.desc }}
                     </div>
@@ -183,7 +183,7 @@
             </li>
         </ul>
         <!-- vue.js 调试日志 -->
-        <!-- <div>
+        <!-- <div>   searchQuery in 'title' 'desc' 
             <p>当前路径: {{$route.path}}</p>
             <p>当前路由参数: {{$route.params | json}}</p>
         </div>
@@ -227,6 +227,7 @@
             }) {
                 if (to.params.type === "type") {
                     this.title = to.params.name
+                    this.hehe = to.params.name
                     this.state = 'type'
                 } else if (to.params.type === "message" && to.params.name === "read") {
                     this.title = "已读消息"

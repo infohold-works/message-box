@@ -36,7 +36,7 @@
 
         data: function() {
             return {
-                isLogin: true,
+                isLogin: false,
                 typeId: '',
                 markRead: '',
             }

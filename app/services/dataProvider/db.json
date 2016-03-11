@@ -61,7 +61,7 @@
       "read": true
     },
     {
-      "typeid": 2,
+      "typeid": "业务通知",
       "id": 3,
       "author": "诸葛亮",
       "title": "奔跑吧兄弟",
@@ -70,7 +70,7 @@
       "read": false
     },
     {
-      "typeid": 2,
+      "typeid": "到账通知",
       "id": 4,
       "author": "孙悟空",
       "title": "奇葩说",

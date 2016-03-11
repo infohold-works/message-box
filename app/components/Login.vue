@@ -54,9 +54,11 @@ header h6 {
                     socket.emit('login', {userId: id, password: password});
                     socket.on('login', function (obj) {
                         if (obj.data == 0) {
-                            self.msg = true;
+//                             self.msg = true;
+                            console.log("success");
                         } else {
                             $('#care').html('用户名或密码错误');
+                            console.log("fail")
                         }
                     });
                 }
