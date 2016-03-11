@@ -98,11 +98,9 @@
 
 <script>
     // 连接mongodb
-    var MongoClient = require('mongodb').MongoClient,
-        assert = require('assert');
-    // Connection URL
-    var url = 'mongodb://8.1.3.213:27017/test';
-
+    var conf = require('../services/mongodb-server/database.json');
+    var connect = require('../services/mongodb-server/server').connect(conf.test.url, conf.test.options);
+    var assert = require('assert');
 
     module.exports = {
         name: "Sidebar",
@@ -125,26 +123,30 @@
             // When the application loads, we want to call the method that initializes
             // some data
             // GET request
-            this.$http({
-                url: 'http://localhost:3000/messageTypes',
-                method: 'GET'
-            }).then(function(response) {
-                // success callback
-                this.$set('messageTypes', response.data);
-            }, function(response) {
-                // error callback
-            });
-
             // this.$http({
-            //     url: 'http://localhost:3000/messageTypes?id=6',
-            //     data: {
-            //         title: ''
-            //     },
-            //     method: 'POST'
+            //     url: 'http://localhost:3000/messageTypes',
+            //     method: 'GET'
             // }).then(function(response) {
-            //     console.log('success');
+            //     // success callback
+            //     this.$set('messageTypes', response.data);
             // }, function(response) {
+            //     // error callback
             // });
+
+            // 使用mongodb获取数据
+            var self = this;
+            connect(function(db) {
+                // Get the documents collection
+                var collection = db.collection('messageTypes');
+                // Find some documents
+                collection.find({}).toArray(function(err, docs) {
+                    // assert.equal(err, null);
+                    // assert.equal(5, docs.length);
+                    // console.log("Sidebar found the following records");
+                    // console.dir(docs);
+                    self.messageTypes = docs;
+                });
+            });
 
             // 删除写法
             // this.$http({
