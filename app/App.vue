@@ -3,11 +3,7 @@
     var Login = require('./components/Login.vue')
 
     // 连接mongodb
-    var MongoClient = require('mongodb').MongoClient,
-        assert = require('assert');
-
-    // Connection URL
-    var url = 'mongodb://8.1.3.213:27017/test';
+    var MongoClient = require('mongodb').Mon
     // Use connect method to connect to the Server
     MongoClient.connect(url, function(err, db) {
         assert.equal(null, err);
