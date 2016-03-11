@@ -215,8 +215,12 @@
 </template>
 
 <script>
-    var PulseLoader = require('vue-spinner/src/PulseLoader.vue');    // PulseLoader插件
+    var PulseLoader = require('vue-spinner/src/PulseLoader.vue'); // PulseLoader插件
     var Message = require('./Message.vue');
+    // 连接mongodb
+    var conf = require('../services/mongodb-server/database.json');
+    var connect = require('../services/mongodb-server/server').connect(conf.test.url, conf.test.options);
+    var assert = require('assert');
 
     module.exports = {
         name: 'Main',
@@ -255,7 +259,7 @@
             }
         },
 
-        props: ['typeid','markread'],
+        props: ['typeid', 'markread'],
 
         data: function() {
             return {
@@ -273,16 +277,12 @@
         },
 
         ready: function() {
-            // When the application loads, we want to call the method that initializes
-            // some data
-            this.$http({
-                url: 'http://localhost:3000/summaries',
-                method: 'GET'
-            }).then(function(response) {
-                // success callback
-                this.$set('summaries', response.data);
-            }, function(response) {
-                // error callback
+            var self = this;
+            connect(function(db) {
+                var collection = db.collection('summaries');
+                collection.find({}).toArray(function(err, docs) {
+                    self.summaries = docs;
+                });
             });
         },
 
@@ -301,39 +301,20 @@
             },
             messageDetail(id) {
                 var self = this;
-
-                this.$http({
-                    url: 'http://localhost:3000/messages',
-                    method: 'GET'
-                }).then(function(response) {
-                    // success callback
-                    var messages = response.data;
-                    console.log(messages[id - 1]);
-                    this.$set('typeid', messages[id - 1].typeid);
-                    this.$set('id', messages[id - 1].id);
-                    this.$set('mestitle', messages[id - 1].title);
-                    this.$set('mescontent', messages[id - 1].content);
-                    this.$set('author', messages[id - 1].author);
-                    this.$set('sendtime', messages[id - 1].sendtime);
-                    this.$set('markedread', messages[id - 1].markedread);
-                }, function(response) {
-                    // error callback
+                var messagesId = id - 1;
+                connect(function(db) {
+                    var collection = db.collection('messages');
+                    collection.find({}).toArray(function(err, docs) {
+                        var messages = docs;
+                        self.typeid = messages[messagesId].typeid;
+                        self.id = messages[messagesId].id;
+                        self.mestitle = messages[messagesId].title;
+                        self.mescontent = messages[messagesId].content;
+                        self.author = messages[messagesId].author;
+                        self.sendtime = messages[messagesId].sendtime;
+                        self.markedread = messages[messagesId].markedread;
+                    });
                 });
-
-                // 按id匹配messages
-                // for (var i in messages) {
-                //     if (messages.hasOwnProperty(i)) {
-                //         if (id = messages[i].id) {
-                //             console.log(messages[i]);
-                //             this.$set('id',messages[i].id);
-                //             this.$set('mestitle',messages[i].title);
-                //             this.$set('mescontent',messages[i].content);
-                //             this.$set('author',messages[i].author);
-                //             this.$set('sendtime',messages[i].sendtime);
-                //             this.$set('markedread',messages[i].markedread);
-                //         }
-                //     }
-                // }
             }
         },
 
