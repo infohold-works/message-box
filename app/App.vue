@@ -1,10 +1,8 @@
 <script>
     var Sidebar = require('./components/Sidebar.vue')
     var Login = require('./components/Login.vue')
-
     module.exports = {
         name: "App",
-
         data: function() {
             return {
                 isLogin: false,
@@ -12,12 +10,10 @@
                 markRead: '',
             }
         },
-
         components: {
             Login,
             Sidebar
         },
-
         events: {
             'markRead': function() {
                 this.$broadcast('siderbar-markRead');
