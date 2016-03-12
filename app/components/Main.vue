@@ -129,7 +129,7 @@
         cursor: pointer;
         display: block;
         margin: 0;
-        padding: 10px 20px;
+        padding: 5px 10px;
     }
 
     .summaries .summary h6 {
@@ -218,8 +218,8 @@
     var PulseLoader = require('vue-spinner/src/PulseLoader.vue'); // PulseLoader插件
     var Message = require('./Message.vue');
     // 连接mongodb
-    var conf = require('../services/mongodb-server/database.json');
-    var connect = require('../services/mongodb-server/server').connect(conf.test.url, conf.test.options);
+    var env_conf = require('../../config/env_development.json');
+    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
     var assert = require('assert');
 
     module.exports = {
@@ -285,7 +285,7 @@
             searchAllSummaries() {
                 var self = this;
                 connect(function(db) {
-                    var collection = db.collection('summaries');
+                    var collection = db.collection('mb_summaries');
                     collection.find({}).toArray(function(err, docs) {
                         self.summaries = docs;
                     });
@@ -307,7 +307,7 @@
                 var self = this;
                 var messagesId = id - 1;
                 connect(function(db) {
-                    var collection = db.collection('messages');
+                    var collection = db.collection('mb_messages');
                     collection.find({}).toArray(function(err, docs) {
                         var messages = docs;
                         self.typeid = messages[messagesId].typeid;
@@ -323,13 +323,11 @@
         },
 
         events: {
-            'summaries-searchAll': function() {
-                this.searchAllSummaries();
-            },
+            'summaries-searchAll': 'searchAllSummaries',
             'summaries-searchRead': function() {
                 var self = this;
                 connect(function(db) {
-                    var collection = db.collection('summaries');
+                    var collection = db.collection('mb_summaries');
                     collection.find({
                         read: true
                     }).toArray(function(err, docs) {
@@ -340,7 +338,7 @@
             'summaries-searchUnread': function() {
                 var self = this;
                 connect(function(db) {
-                    var collection = db.collection('summaries');
+                    var collection = db.collection('mb_summaries');
                     collection.find({
                         read: false
                     }).toArray(function(err, docs) {
@@ -351,7 +349,7 @@
             'summaries-searchType': function(id) {
                 var self = this;
                 connect(function(db) {
-                    var collection = db.collection('summaries');
+                    var collection = db.collection('mb_summaries');
                     collection.find({
                         typeid: id
                     }).toArray(function(err, docs) {

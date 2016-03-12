@@ -38,7 +38,7 @@
 </script>
 <template>
     <div class="login-style" v-if="!isLogin">
-        <login :msg.sync="isLogin"></login>
+        <login :is-login.sync="isLogin"></login>
     </div>
     <div class="dashboard" v-if="isLogin">
         <sidebar :typeid.sync="typeId" :markread.sync="markRead"></sidebar>

@@ -98,8 +98,8 @@
 
 <script>
     // 连接mongodb
-    var conf = require('../services/mongodb-server/database.json');
-    var connect = require('../services/mongodb-server/server').connect(conf.test.url, conf.test.options);
+    var env_conf = require('../../config/env_development.json');
+    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
     var assert = require('assert');
 
     module.exports = {
@@ -137,7 +137,7 @@
             var self = this;
             connect(function(db) {
                 // Get the documents collection
-                var collection = db.collection('messageTypes');
+                var collection = db.collection('mb_message_types');
                 // Find some documents
                 collection.find({}).toArray(function(err, docs) {
                     // assert.equal(err, null);
