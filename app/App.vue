@@ -7,7 +7,7 @@
             return {
                 isLogin: false,
                 typeId: '',
-                markRead: '',
+                markedRead: '',
             }
         },
         components: {
@@ -15,11 +15,11 @@
             Sidebar
         },
         events: {
-            'markRead': function() {
-                this.$broadcast('siderbar-markRead');
+            'markRead': function(typeid) {
+                this.$broadcast('siderbar-markRead',typeid);
             },
-            'markUnread': function() {
-                this.$broadcast('siderbar-markUnread');
+            'markUnread': function(typeid) {
+                this.$broadcast('siderbar-markUnread',typeid);
             },
             'searchAll': function() {
                 this.$broadcast('summaries-searchAll');
@@ -41,7 +41,7 @@
         <login :is-login.sync="isLogin"></login>
     </div>
     <div class="dashboard" v-if="isLogin">
-        <sidebar :typeid.sync="typeId" :markread.sync="markRead"></sidebar>
-        <router-view :typeid.sync="typeId" :markread.sync="markRead"></router-view>
+        <sidebar></sidebar>
+        <router-view></router-view>
     </div>
 </template>

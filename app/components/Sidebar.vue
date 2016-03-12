@@ -105,8 +105,6 @@
     module.exports = {
         name: "Sidebar",
 
-        props: ['typeid', 'markread'],
-
         data: function() {
             return {
                 messageTypes: [],
@@ -220,13 +218,29 @@
         },
 
         events: {
-            'siderbar-markRead': function() {
-                console.log('typeid:' + this.typeid);
-                this.messageTypes[this.typeid - 1].count -= 1;
+            'siderbar-markRead': function(typeid) {
+                var self = this;
+                console.log('-1');
+                this.messageTypes[typeid - 1].count -= 1;
+                connect(function(db) {
+                    var collection = db.collection('mb_message_types');
+                    collection.update(
+                        { id: typeid },
+                        { $set: { count: self.messageTypes[typeid - 1].count } }
+                    );
+                })
             },
-            'siderbar-markUnread': function() {
+            'siderbar-markUnread': function(typeid) {
+                var self = this;
                 console.log('+1');
-                this.messageTypes[this.typeid - 1].count += 1;
+                this.messageTypes[typeid - 1].count += 1;
+                connect(function(db) {
+                    var collection = db.collection('mb_message_types');
+                    collection.update(
+                        { id: typeid },
+                        { $set: { count: self.messageTypes[typeid - 1].count } }
+                    );
+                })
             }
         }
     }

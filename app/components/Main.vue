@@ -30,10 +30,6 @@
         top: -3px;
     }
 
-    .dashboard-header-search {
-        margin: 9px 9px 0 0;
-    }
-
     .dashboard-summaries {
         position: absolute;
         top: 60px;
@@ -42,6 +38,7 @@
         background: #fafafa;
         overflow-y: auto;
         width: 320px;
+        border-right: 1px solid rgba(55, 53, 112, 0.08);
     }
 
     .dashboard-message-detail {
@@ -114,10 +111,9 @@
     /* 消息列表 */
 
     .summaries {
-        border-right: 1px solid rgba(55, 53, 112, 0.08);
         box-shadow: 1px 0 3px rgba(55, 53, 112, 0.08);
         list-style-type: none;
-        margin: 0;
+        margin: 48px 0 0;
         padding: 0;
         width: 100%;
     }
@@ -132,6 +128,12 @@
         padding: 5px 10px;
     }
 
+    /*.summaries .summary:hover {
+        opacity: .9;
+        background: #34495E;
+        color: #fff;
+    }*/
+
     .summaries .summary h6 {
         font-size: 18px;
         font-weight: 600;
@@ -139,8 +141,13 @@
         margin: 4px 0;
     }
 
-    .summaries .readed {
+    .summaries .summary.readed {
         opacity: .6;
+    }
+
+    .summaries .summary.selected {
+        background: #fafafa;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .dashboard-summaries .empty-placeholder {
@@ -156,6 +163,11 @@
         width: 100%;
     }
 
+    .dashboard-summaries-search {
+        margin: 6px 10px;
+        width: 300px;
+    }
+
     .description {
         font-size: 14px;
     }
@@ -164,14 +176,18 @@
 <template>
     <div class="dashboard-header">
         <h4>{{ title }}</h4>
-        <div class="form-group has-feedback dashboard-header-search pull-right">
+        <!-- <div class="form-group has-feedback dashboard-header-search pull-right">
             <input type="text" value="" placeholder="搜索" class="form-control" v-model="searchQuery" />
             <span class="form-control-feedback fui-search"></span>
-        </div>
+        </div> -->
     </div>
     <div class="dashboard-summaries">
+        <div class="form-group has-feedback dashboard-summaries-search pull-right">
+            <input type="text" value="" placeholder="搜索" class="form-control input-sm" v-model="searchQuery" />
+            <span class="form-control-feedback fui-search"></span>
+        </div>
         <ul v-if="summaries.length > 0" class="summaries">
-            <li :class="{ readed : summary.read }" v-for="summary in summaries |
+            <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
             filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)">
                 <div>
                     <h6>{{ summary.title }}</h6>
@@ -179,7 +195,6 @@
                         {{ summary.desc }}
                     </div>
                 </div>
-
             </li>
         </ul>
         <!-- vue.js 调试日志 -->
@@ -231,7 +246,6 @@
             }) {
                 if (to.params.type === "type") {
                     this.title = to.params.name
-                    this.hehe = to.params.name
                     this.state = 'type'
                 } else if (to.params.type === "message" && to.params.name === "read") {
                     this.title = "已读消息"
@@ -259,21 +273,20 @@
             }
         },
 
-        props: ['typeid', 'markread'],
-
         data: function() {
             return {
                 title: "所有消息",
+                refreshing: false,
+                state: '',
+                summaries: [],
+                searchQuery: '',
+                markedread: '',
+                selected: '',
                 id: '',
                 mestitle: '',
                 mescontent: '',
                 author: '',
                 sendtime: '',
-                markedread: '',
-                refreshing: false,
-                state: '',
-                summaries: [],
-                searchQuery: ''
             }
         },
 
@@ -286,26 +299,70 @@
                 var self = this;
                 connect(function(db) {
                     var collection = db.collection('mb_summaries');
-                    collection.find({}).toArray(function(err, docs) {
+                    collection.find({}).sort({
+                        "sendtime": -1
+                    }).toArray(function(err, docs) {
                         self.summaries = docs;
                     });
                 });
             },
             markRead(id) {
+                // 传参赋值
                 this.markedread = true;
-                this.summaries[id - 1].read = true;
-                this.markread = true;
-                this.$dispatch('markRead');
+                // read样式绑定
+                for (var i in this.summaries) {
+                    if(this.summaries[i].id == id) {
+                        // this.summaries.$set(i,{read:true});        // 视图更新
+                        this.summaries[i].read = true;                // 视图不变
+                        this.$dispatch('markRead',this.summaries[i].typeid);
+                    }
+                }
+                connect(function(db) {
+                    var collection = db.collection('mb_summaries');
+                    collection.update({
+                        id: id
+                    }, {
+                        $set: {
+                            read: true
+                        }
+                    });
+                })
+
             },
             markUnread(id) {
                 this.markedread = false;
-                this.summaries[id - 1].read = false;
-                this.markread = false;
-                this.$dispatch('markUnread');
+                for (var i in this.summaries) {
+                    if(this.summaries[i].id == id) {
+                        // this.summaries.$set(i,{read:true});        // 视图更新
+                        this.summaries[i].read = false;               // 视图不变
+                        this.$dispatch('markUnread',this.summaries[i].typeid);
+                    }
+                }
+                connect(function(db) {
+                    var collection = db.collection('mb_summaries');
+                    collection.update({
+                        id: id
+                    }, {
+                        $set: {
+                            read: false
+                        }
+                    });
+                })
             },
             messageDetail(id) {
                 var self = this;
                 var messagesId = id - 1;
+                for (var i in this.summaries) {
+                    if(this.summaries[i].id == id) {
+                        // this.summaries[i].selected = '';
+                        if (this.summaries[i].read) {
+                            this.markedread = true;
+                        } else {
+                            this.markRead(id);
+                        }
+                        // this.summaries[i].selected = true;
+                    }
+                }
                 connect(function(db) {
                     var collection = db.collection('mb_messages');
                     collection.find({}).toArray(function(err, docs) {
@@ -316,7 +373,6 @@
                         self.mescontent = messages[messagesId].content;
                         self.author = messages[messagesId].author;
                         self.sendtime = messages[messagesId].sendtime;
-                        self.markedread = messages[messagesId].markedread;
                     });
                 });
             }
@@ -330,6 +386,8 @@
                     var collection = db.collection('mb_summaries');
                     collection.find({
                         read: true
+                    }).sort({
+                        "sendtime": -1
                     }).toArray(function(err, docs) {
                         self.summaries = docs;
                     });
@@ -341,6 +399,8 @@
                     var collection = db.collection('mb_summaries');
                     collection.find({
                         read: false
+                    }).sort({
+                        "sendtime": -1
                     }).toArray(function(err, docs) {
                         self.summaries = docs;
                     });
@@ -352,6 +412,8 @@
                     var collection = db.collection('mb_summaries');
                     collection.find({
                         typeid: id
+                    }).sort({
+                        "sendtime": -1
                     }).toArray(function(err, docs) {
                         self.summaries = docs;
                     });
