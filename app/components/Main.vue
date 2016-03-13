@@ -34,6 +34,33 @@
         top: -3px;
     }
 
+    .dashboard-header .dropdown-toggle {
+        color: #34495e;
+        margin-right: 20px;
+    }
+    /* dropdown */
+
+    .open .dropdown-toggle {
+        color: #34495e !important;
+    }
+
+    .open .dropdown-menu,
+    .dropdown-menu {
+        margin: 8px !important;
+        border: 1px solid rgba(55, 53, 112, 0.1);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+        background: #fff;
+    }
+
+    .dropdown-menu .divider {
+        margin: 0;
+    }
+
+    .open .dropdown-menu li > a:hover {
+        color: rgba(52, 73, 94, 0.75);
+        background: #
+    }
+
     .dashboard-summaries {
         position: absolute;
         top: 60px;
@@ -117,11 +144,10 @@
         margin: 0;
         padding: 8px 16px;
     }
-    /*.summaries .summary:hover {
-        opacity: .9;
-        background: #34495E;
-        color: #fff;
-    }*/
+
+    .summaries .summary:hover {
+        background: #fafafa;
+    }
 
     .summaries .summary .summary-title h6 {
         display: inline-block;
@@ -177,6 +203,17 @@
             <input type="text" value="" placeholder="搜索" class="form-control" v-model="searchQuery" />
             <span class="form-control-feedback fui-search"></span>
         </div> -->
+        <div class="btn-group pull-right">
+            <section class="dropdown-toggle" data-toggle="dropdown">
+                欢迎您，管理员 <span class="caret"></span>
+            </section>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#">设&emsp;&emsp;置</a></li>
+                <li><a href="#">关于我们</a></li>
+                <li class="divider"></li>
+                <li><a href="#">退&emsp;&emsp;出</a></li>
+            </ul>
+        </div>
     </div>
     <div class="dashboard-summaries">
         <div class="form-group has-feedback dashboard-summaries-search pull-right">
@@ -289,15 +326,6 @@
                 sendtime: '',
             }
         },
-
-        // computed: {
-        //     // 一个计算属性的 getter
-        //     m_sendtime: function() {
-        //         // `this` 指向 vm 实例
-        //
-        //         return this.a + 1
-        //     }
-        // },
 
         ready: function() {
             this.searchAllSummaries();
