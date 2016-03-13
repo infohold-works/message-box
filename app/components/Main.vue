@@ -1,4 +1,8 @@
 <style>
+    footer {
+        background: none;
+    }
+
     .dashboard .dashboard-header {
         background: #fff;
         border-bottom: 1px solid rgba(55, 53, 112, 0.1);
@@ -82,20 +86,6 @@
         margin: 10px;
     }
 
-    .dashboard-message-detail .message-read {
-        font-size: 1.4rem;
-        line-height: 1.5;
-        overflow-x: hidden;
-        overflow-y: scroll;
-        padding: 20px;
-        position: absolute;
-        top: 48px;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        word-wrap: break-word;
-    }
-
     .form-control-feedback {
         position: absolute;
         top: 2px;
@@ -125,24 +115,40 @@
         cursor: pointer;
         display: block;
         margin: 0;
-        padding: 5px 10px;
+        padding: 8px 16px;
     }
-
     /*.summaries .summary:hover {
         opacity: .9;
         background: #34495E;
         color: #fff;
     }*/
 
-    .summaries .summary h6 {
-        font-size: 18px;
+    .summaries .summary .summary-title h6 {
+        display: inline-block;
+        margin: 0;
+        font-size: 16px;
         font-weight: 600;
         color: #27AE60;
-        margin: 4px 0;
+    }
+
+    .summaries .summary .summary-time {
+        margin: 3px 0;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .summaries .summary .summary-desc {
+        font-size: 14px;
+        color: #666;
     }
 
     .summaries .summary.readed {
         opacity: .6;
+    }
+
+    .dashboard-summaries-search {
+        margin: 6px 20px;
+        width: 280px;
     }
 
     .summaries .summary.selected {
@@ -162,15 +168,6 @@
         text-align: center;
         width: 100%;
     }
-
-    .dashboard-summaries-search {
-        margin: 6px 10px;
-        width: 300px;
-    }
-
-    .description {
-        font-size: 14px;
-    }
 </style>
 
 <template>
@@ -189,12 +186,16 @@
         <ul v-if="summaries.length > 0" class="summaries">
             <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
             filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)">
-                <div>
-                    <h6>{{ summary.title }}</h6>
-                    <div class="description">
+                <article>
+                    <header class="summary-title">
+                        <h6 v-if="summary.title.length > 12">{{ summary.title.substring(0,12) }} ...</h6>
+                        <h6 v-else>{{ summary.title }}</h6>
+                        <time class="summary-time pull-right">{{ summary.sendtime.substr(0,10) }}</time>
+                    </header>
+                    <section class="summary-desc">
                         {{ summary.desc }}
-                    </div>
-                </div>
+                    </section>
+                </article>
             </li>
         </ul>
         <!-- vue.js 调试日志 -->
@@ -235,7 +236,6 @@
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
-    var assert = require('assert');
 
     module.exports = {
         name: 'Main',
@@ -290,6 +290,15 @@
             }
         },
 
+        // computed: {
+        //     // 一个计算属性的 getter
+        //     m_sendtime: function() {
+        //         // `this` 指向 vm 实例
+        //
+        //         return this.a + 1
+        //     }
+        // },
+
         ready: function() {
             this.searchAllSummaries();
         },
@@ -311,10 +320,10 @@
                 this.markedread = true;
                 // read样式绑定
                 for (var i in this.summaries) {
-                    if(this.summaries[i].id == id) {
+                    if (this.summaries[i].id == id) {
                         // this.summaries.$set(i,{read:true});        // 视图更新
-                        this.summaries[i].read = true;                // 视图不变
-                        this.$dispatch('markRead',this.summaries[i].typeid);
+                        this.summaries[i].read = true; // 视图不变
+                        this.$dispatch('markRead', this.summaries[i].typeid);
                     }
                 }
                 connect(function(db) {
@@ -332,10 +341,10 @@
             markUnread(id) {
                 this.markedread = false;
                 for (var i in this.summaries) {
-                    if(this.summaries[i].id == id) {
+                    if (this.summaries[i].id == id) {
                         // this.summaries.$set(i,{read:true});        // 视图更新
-                        this.summaries[i].read = false;               // 视图不变
-                        this.$dispatch('markUnread',this.summaries[i].typeid);
+                        this.summaries[i].read = false; // 视图不变
+                        this.$dispatch('markUnread', this.summaries[i].typeid);
                     }
                 }
                 connect(function(db) {
@@ -353,7 +362,7 @@
                 var self = this;
                 var messagesId = id - 1;
                 for (var i in this.summaries) {
-                    if(this.summaries[i].id == id) {
+                    if (this.summaries[i].id == id) {
                         // this.summaries[i].selected = '';
                         if (this.summaries[i].read) {
                             this.markedread = true;

@@ -10,7 +10,7 @@
         width: 256px;
     }
 
-    .dashboard-sidebar .sidebar-header {
+    .dashboard-sidebar .dashboard-sidebar-header {
         width: 256px;
         height: 60px;
         padding: 0 20px;
@@ -21,9 +21,28 @@
         left: 0;
     }
 
-    .dashboard-sidebar .sidebar-header h4 {
+    .dashboard-sidebar .dashboard-sidebar-header .dashboard-sidebar-header-text {
         color: #fff;
         font-size: 24px;
+    }
+
+    .dashboard-sidebar .sidebar-header {
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 0.7rem;
+        font-weight: bold;
+        height: 42px;
+        overflow: hidden;
+        padding: 15px 20px;
+        position: relative;
+        text-transform: uppercase;
+    }
+
+    .dashboard-sidebar .sidebar-header .sidebar-header-text {
+        display: inline-block;
+        margin: 0;
+        position: relative;
+        top: -2px;
+        font-size: 18px;
     }
 
     .dashboard-sidebar .dashboard-list {
@@ -64,13 +83,20 @@
     .type-count {
         margin: 11px 0;
     }
+
+    .badge {
+        background-color: #e74c3c;
+    }
 </style>
 
 <template>
     <!-- dashboard-sidebar -->
     <div class="dashboard-sidebar">
+        <div class="dashboard-sidebar-header">
+            <h4 class="dashboard-sidebar-header-text">消息盒子</h4>
+        </div>
         <div class="sidebar-header">
-            <h4 class="sidebar-header-text">消息盒子</h4>
+            <h4 class="sidebar-header-text">消息</h4>
         </div>
         <ul class="dashboard-list">
             <li class="dashboard-list-item" @click="allMessages()" :class="[isAll ? selected : '']">
@@ -83,10 +109,13 @@
                 <i class="fa fa-fw fa-history"></i> 未读消息
             </li>
         </ul>
+        <div class="sidebar-header">
+            <h4 class="sidebar-header-text">类型</h4>
+        </div>
         <ul class="dashboard-list">
             <li @click="typeMessages(messageType,messageTypes.length)" v-for="messageType in messageTypes" class="dashboard-list-item" :class="[messageType.selected ? isType ? selected : '' : '']">
                 <i class="fa fa-fw fa-rss"></i> {{ messageType.title }}
-                <span class="type-count pull-right badge">{{ messageType.count }}</span>
+                <span class="type-count pull-right badge" v-if="messageType.count > 0">{{ messageType.count }}</span>
             </li>
             <!-- <pre>
                 {{ $data | json }}
@@ -224,10 +253,13 @@
                 this.messageTypes[typeid - 1].count -= 1;
                 connect(function(db) {
                     var collection = db.collection('mb_message_types');
-                    collection.update(
-                        { id: typeid },
-                        { $set: { count: self.messageTypes[typeid - 1].count } }
-                    );
+                    collection.update({
+                        id: typeid
+                    }, {
+                        $set: {
+                            count: self.messageTypes[typeid - 1].count
+                        }
+                    });
                 })
             },
             'siderbar-markUnread': function(typeid) {
@@ -236,10 +268,13 @@
                 this.messageTypes[typeid - 1].count += 1;
                 connect(function(db) {
                     var collection = db.collection('mb_message_types');
-                    collection.update(
-                        { id: typeid },
-                        { $set: { count: self.messageTypes[typeid - 1].count } }
-                    );
+                    collection.update({
+                        id: typeid
+                    }, {
+                        $set: {
+                            count: self.messageTypes[typeid - 1].count
+                        }
+                    });
                 })
             }
         }
