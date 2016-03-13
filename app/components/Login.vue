@@ -4,15 +4,22 @@
     }
 
     .login-screen {
-        padding: 128px 384px
+        padding: 0;
+    }
+
+    .login-screen .login-screen-header {
+        margin-top: 128px;
+        color: #fff;
+        text-align: center;
+    }
+
+    .login-form {
+        width: 320px;
+        margin: 32px auto;
     }
 
     .login-form::before {
         content: none;
-    }
-
-    header h6 {
-        text-align: center;
     }
 
     .notice {
@@ -22,10 +29,10 @@
 </style>
 <template>
     <div class="login-screen">
+        <header class="login-screen-header">
+            <h5>消息盒子</h5>
+        </header>
         <div class="login-form">
-            <header>
-                <h6>消息盒子</h6>
-            </header>
             <div class="form-group" v-bind:class="{ 'has-error': errorA}">
                 <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="userId">
                 <label class="login-field-icon fui-user" for="login-name"></label>
