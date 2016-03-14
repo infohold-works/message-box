@@ -194,6 +194,7 @@
         text-align: center;
         width: 100%;
     }
+
 </style>
 
 <template>
@@ -205,7 +206,7 @@
         </div> -->
         <div class="btn-group pull-right">
             <section class="dropdown-toggle" data-toggle="dropdown">
-                欢迎您，管理员 <span class="caret"></span>
+                欢迎您,{{userName}} <span class="caret"></span>
             </section>
             <ul class="dropdown-menu" role="menu">
                 <li><a href="#">设&emsp;&emsp;置</a></li>
@@ -276,7 +277,9 @@
 
     module.exports = {
         name: 'Main',
-
+        props:[
+            'userName'
+        ],
         route: {
             data({
                 to
@@ -332,6 +335,9 @@
         },
 
         methods: {
+            lol:function(){
+              console.log(this.userName)
+            },
             searchAllSummaries() {
                 var self = this;
                 connect(function(db) {
