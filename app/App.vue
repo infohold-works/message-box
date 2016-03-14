@@ -6,6 +6,7 @@
         data: function() {
             return {
                 isLogin: false,
+                userName:'',
                 typeId: '',
                 markedRead: '',
             }
@@ -38,10 +39,10 @@
 </script>
 <template>
     <div class="login-style" v-if="!isLogin">
-        <login :is-login.sync="isLogin"></login>
+        <login :is-login.sync="isLogin" :user-name.sync="userName"></login>
     </div>
     <div class="dashboard" v-if="isLogin">
         <sidebar></sidebar>
-        <router-view></router-view>
+        <router-view :user-name.once="userName"></router-view>
     </div>
 </template>

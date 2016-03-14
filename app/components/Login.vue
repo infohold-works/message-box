@@ -34,9 +34,9 @@
         </header>
         <div class="login-form">
             <div class="form-group" v-bind:class="{ 'has-error': errorA}">
-                <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="userId">
+                <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="loginName">
                 <label class="login-field-icon fui-user" for="login-name"></label>
-                <span class="notice pull-right ">{{noticeId}}</span>
+                <span class="notice pull-right ">{{noticeName}}</span>
             </div>
 
             <div class="form-group" v-bind:class="{'has-error':errorB}">
@@ -59,9 +59,9 @@
 
         data: function() {
             return {
-                noticeId: '',
+                noticeName: '',
                 noticePswd: '',
-                userId: '',
+                loginName: '',
                 passwd: '',
                 errorA: false,
                 loginA: true,
@@ -70,7 +70,11 @@
             }
         },
 
-        props: ['isLogin'],
+        props: [
+            'isLogin',
+            'userName'
+        ],
+
 
         methods: {
             login: function() {
@@ -79,14 +83,14 @@
                 this.loginA = true;
                 this.errorB = false;
                 this.loginB = true;
-                this.noticeId = '';
+                this.noticeName = '';
                 this.noticePswd = '';
                 //获取用户名和密码
-                var id = this.userId;
+                var name = this.loginName;
                 var password = this.passwd;
                 //判断用户名和密码是否为空
-                if (id == "") {
-                    this.noticeId = '用户名不能为空';
+                if (name == "") {
+                    this.noticeName = '用户名不能为空';
                     this.errorA = true;
                     this.loginA = false;
                     if (password == "") {
@@ -101,11 +105,12 @@
                 } else {
                     var self = this;
                     socket.emit('login', {
-                        userId: id,
+                        loginName:name,
                         password: password
                     });
                     socket.on('login', function(obj) {
                         if (obj.data == 0) {
+                            self.userName=name;
                             self.isLogin = true;
                         } else if (obj.data == 1) {
                             self.errorB = true;
@@ -115,8 +120,6 @@
                             self.errorA = true;
                             sele.loginA = false;
                             self.noticeId = '用户名不存在';
-                        } else {
-                            alert('网络出现错误,请联系管理员');
                         }
                     });
                 }
