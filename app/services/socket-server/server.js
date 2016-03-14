@@ -21,6 +21,16 @@ connect(function(db) {
     function updateSocketId(username, socketid) {
         collection.update({ username: username }, { $set: { socketID: socketid } });
     }
+    //更新当前登录时间
+    function updateLoginTime(username,nowtime){
+        collection.update({username:username},{ $set: { login_time: nowtime } });
+    }
+    //更新上一次登录时间
+    function updateLastLoginTime(username){
+        collection.find({username:username}).toArray(function(err,docs){
+            collection.update({username:username},{ $set: { last_login_time: docs[0].login_time } });
+        });
+    }
 
     io.on('connection', function(socket) {
         console.log("a user connection")
@@ -38,6 +48,8 @@ connect(function(db) {
                                 io.sockets.connected[socketid].emit('login', { data: 0 }); //发送登录成功标识
                                 socket.name = obj.username; //将新加入用户的唯一标识当作socket的名称，后面退出的时候会用到
                                 updateOnlineStat(obj.username, true);
+                                updateLastLoginTime(obj.username);   //更新上一次登录时间
+                                updateLoginTime(obj.username,nowTime());//添加当前时间
                                 console.log(obj.username + "登录成功");
                             });
                         } else {
@@ -99,3 +111,15 @@ connect(function(db) {
         });
     });
 });
+
+//生成当前时间
+function nowTime(){
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth()+1;
+    var day = now.getDate();
+    var hours = now.getHours();
+    var minutes= now.getMinutes();
+    var seconds = now.getSeconds();
+    return  year+"/"+month+"/"+day+" "+hours+":"+minutes+":"+seconds;
+}
