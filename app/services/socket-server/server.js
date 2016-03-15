@@ -37,9 +37,9 @@ connect(function(db) {
 
         socket.on('login', function(obj) {
             updateSocketId(obj.username, "");  //清空数据库socketid
+            updateSocketId(obj.username, socket.id); //将此用户socketid添加到数据库
             collection.find({ username: obj.username }).toArray(function(err, docs) {
                 if (docs.length > 0) { //判断是否有此用户
-                    updateSocketId(obj.username, socket.id); //将此用户socketid添加到数据库
                     if (!docs[0].online_stat) {
                         pwd = docs[0].password;
                         if (obj.password == pwd) {
@@ -67,13 +67,12 @@ connect(function(db) {
                     } else {
                         console.log("此用户已登录");
                         socketid = docs[0].socketID;
-                        io.sockets.connected[socketid].emit('login', { data: 1 }); //给客户端发送登录失败标志
-                        updateSocketId(obj.username, '');
+                        io.sockets.connected[socketid].emit('login', { data: 3 }); //给客户端发送登录失败标志
                     }
-                } else {
+                } else {  //如果没有此用户
                     try{
                         socketid = socket.id;
-                        io.sockets.connected[socketid].emit('login', { data: 1 }); //给客户端发送登录失败标志
+                        io.sockets.connected[socketid].emit('login', { data: 2 }); //给客户端发送登录失败标志
                         console.log("没有此用户名");
                     }catch(e){
                         console.log("没有此用户名!!");
@@ -84,7 +83,7 @@ connect(function(db) {
 
         //接收消息并发送给指定客户端
         socket.on('private message', function(obj) {
-            collection.find({ username: obj.username }).toArray(function(err, docs) {
+            collection.find({ username: obj.username }).toArray(function(err, docs) { //查询是否有此用户
                 if (docs.length > 0) {
                     socketid = docs[0].socketID;
                     io.sockets.connected[socketid].emit('private message', obj);
