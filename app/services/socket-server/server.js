@@ -1,11 +1,8 @@
 var io = require('socket.io')(3000);
+var moment = require('moment');
 // 连接mongodb
 var conf = require('../../../config/env_development.json');
 var connect = require('../../services/mongodb-server/server').connect(conf.test.url, conf.test.options);
-
-//var map = new Map(); //login的用户的信息列表
-//var user = new Map(); //用户列表
-//user.put(123456, 1234567);
 var socketid;
 var pwd;
 var password;
@@ -40,16 +37,14 @@ connect(function(db) {
     //       collection.update({username:docs[i].username},{ $set: { online_stat:false,socketID:""} });
     //   }
     //});
-    //collection.update({username:'Dongjiqiang'},{ $set: {online_stat: false , socketID: ""} });
 
     io.on('connection', function(socket) {
-        console.log("a user connection")
+        console.log("a user connection");
 
         socket.on('login', function(obj) {
-            updateSocketId(obj.username, ""); //清空数据库socketid
-            updateSocketId(obj.username, socket.id); //将此用户socketid添加到数据库
             collection.find({ username: obj.username }).toArray(function(err, docs) {
                 if (docs.length > 0) { //判断是否有此用户
+                    updateSocketId(obj.username, socket.id); //将此用户socketid添加到数据库
                     if (!docs[0].online_stat) {
                         pwd = docs[0].password;
                         if (obj.password == pwd) {
@@ -76,13 +71,15 @@ connect(function(db) {
                         }
                     } else {
                         console.log("此用户已登录");
-                        socketid = docs[0].socketID;
-                        io.sockets.connected[socketid].emit('login', { data: 3 }); //给客户端发送登录失败标志
+                        collection.find({ username: obj.username }).toArray(function(err, d) {
+                            socketid = d[0].socketID;
+                            io.sockets.connected[socketid].emit('login', { data: 3 }); //给客户端发送已登录标志
+                        });
                     }
                 } else { //如果没有此用户
                     try {
                         socketid = socket.id;
-                        io.sockets.connected[socketid].emit('login', { data: 2 }); //给客户端发送登录失败标志
+                        io.sockets.connected[socketid].emit('login', { data: 2 }); //给客户端发送没有用户名标志
                         console.log("没有此用户名");
                     } catch (e) {
                         console.log("没有此用户名!!");
@@ -95,7 +92,9 @@ connect(function(db) {
         socket.on('private message', function(obj) {
             summaries.find({}).toArray(function(err, docs) {
                 summaries.save({
-                    username: obj.username,
+                    type: "private",
+                    user_id: obj.userid,
+                    user_brc: "",
                     id: docs.length + 1,
                     typeid: +obj.typeid,
                     title: obj.title,
@@ -105,39 +104,38 @@ connect(function(db) {
                     read: false
                 });
                 messages.save({
-                    username: obj.username,
                     id: docs.length + 1,
                     typeid: +obj.typeid,
                     title: obj.title,
                     author: obj.author,
                     content: obj.content,
                     sendtime: nowTime(),
-                    markedread: false
                 });
-            });
-
-            collection.find({ username: obj.username }).toArray(function(err, docs) { //查询用户是否在线
-                if (docs[0].online_stat) {
-                    socketid = docs[0].socketID;
-                    io.sockets.connected[socketid].emit('private message', {
-                        typeid: +obj.typeid,
-                        title: obj.title,
-                        author: obj.author,
-                        sendtime: nowTime(),
-                        read: false,
-                        desc: obj.content.substr(0, 50),
-                        content: obj.content,
-                        markedread: false
-                    });
-                }
+                collection.find({ userid: obj.userid }).toArray(function(err, d) {
+                    if (d[0].online_stat) { //查询用户是否在线
+                        socketid = d[0].socketID;
+                        io.sockets.connected[socketid].emit('private message', {
+                            id: docs.length + 1,
+                            typeid: +obj.typeid,
+                            title: obj.title,
+                            author: obj.author,
+                            sendtime: nowTime(),
+                            read: false,
+                            desc: obj.content.substr(0, 50),
+                            content: obj.content,
+                            markedread: false
+                        });
+                    }
+                });
             });
         });
         //推送给所有客户端
         socket.on('public message', function(obj) {
-
             summaries.find({}).toArray(function(err, docs) {
                 summaries.save({
-                    username: "",
+                    user_id: "",
+                    type: "public",
+                    user_brc: "",
                     id: docs.length + 1,
                     typeid: +obj.typeid,
                     title: obj.title,
@@ -147,25 +145,24 @@ connect(function(db) {
                     read: false
                 });
                 messages.save({
-                    username: "",
                     id: docs.length + 1,
                     typeid: +obj.typeid,
                     title: obj.title,
                     author: obj.author,
                     content: obj.content,
                     sendtime: nowTime(),
+                });
+                io.emit('public message', {
+                    id: docs.length + 1,
+                    typeid: +obj.typeid,
+                    title: obj.title,
+                    author: obj.author,
+                    sendtime: nowTime(),
+                    read: false,
+                    desc: obj.content.substr(0, 50),
+                    content: obj.content,
                     markedread: false
                 });
-            });
-            io.emit('public message', {
-                typeid: +obj.typeid,
-                title: obj.title,
-                author: obj.author,
-                sendtime: nowTime(),
-                read: false,
-                desc: obj.content.substr(0, 50),
-                content: obj.content,
-                markedread: false
             });
         });
 
@@ -184,27 +181,7 @@ connect(function(db) {
     });
 });
 
-//生成当前时间
+// 生成当前时间
 function nowTime() {
-    var reg = /^\d{1}$/;
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = now.getMonth() + 1;
-    var day = now.getDate();
-    var hours = now.getHours();
-    var minutes = now.getMinutes();
-    var seconds = now.getSeconds();
-    if (reg.test(minutes)) {
-        minutes = "0" + minutes;
-    }
-    if (reg.test(seconds)) {
-        seconds = "0" + seconds;
-    }
-    if (reg.test(month)) {
-        month = "0" + month;
-    }
-    if (reg.test(day)) {
-        day = "0" + day;
-    }
-    return year + "/" + month + "/" + day + " " + hours + ":" + minutes + ":" + seconds;
+    return moment().format('YYYY-MM-DD HH:mm:ss');
 }
