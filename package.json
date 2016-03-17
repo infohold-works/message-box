@@ -13,6 +13,7 @@
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-util": "^3.0.7",
+    "node-notifier": "^4.5.0",
     "q": "^1.4.1",
     "tree-kill": "^0.1.1",
     "vinyl-source-stream": "^1.1.0",
