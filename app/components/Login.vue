@@ -32,15 +32,18 @@
         <header class="login-screen-header">
             <h5>消息盒子</h5>
         </header>
+        <!-- <pre>
+            {{ $data | json }}
+        </pre> -->
         <div class="login-form">
             <div class="form-group" v-bind:class="{ 'has-error': errorA}">
-                <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="loginName">
+                <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="userName">
                 <label class="login-field-icon fui-user" for="login-name"></label>
                 <span class="notice pull-right ">{{noticeName}}</span>
             </div>
 
             <div class="form-group" v-bind:class="{'has-error':errorB}">
-                <input type="password" class="form-control" v-bind:class="{ 'login-field': loginB}" value="" placeholder="密码" v-model="passwd">
+                <input type="password" class="form-control" v-bind:class="{ 'login-field': loginB}" value="" placeholder="密码" v-model="password">
                 <label class="login-field-icon fui-lock" for="login-pass"></label>
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
@@ -61,8 +64,7 @@
             return {
                 noticeName: '',
                 noticePswd: '',
-                loginName: '',
-                passwd: '',
+                password: '',
                 errorA: false,
                 loginA: true,
                 errorB: false,
@@ -75,8 +77,10 @@
             'userName'
         ],
 
-
         methods: {
+            test: function() {
+                this.isLogin = true;
+            },
             login: function() {
                 //清空提示和恢复输入栏状态
                 this.errorA = false;
@@ -86,10 +90,10 @@
                 this.noticeName = '';
                 this.noticePswd = '';
                 //获取用户名和密码
-                var name = this.loginName;
-                var password = this.passwd;
+                var username = this.userName;
+                var password = this.password;
                 //判断用户名和密码是否为空
-                if (name == "") {
+                if (username == "") {
                     this.noticeName = '用户名不能为空';
                     this.errorA = true;
                     this.loginA = false;
@@ -105,21 +109,21 @@
                 } else {
                     var self = this;
                     socket.emit('login', {
-                        loginName:name,
+                        username: username,
                         password: password
                     });
                     socket.on('login', function(obj) {
                         if (obj.data == 0) {
-                            self.userName=name;
+                            self.userName = username;
                             self.isLogin = true;
                         } else if (obj.data == 1) {
                             self.errorB = true;
-                            sele.loginB = false;
+                            self.loginB = false;
                             self.noticePswd = '密码错误';
                         } else if (obj.data == 2) {
                             self.errorA = true;
-                            sele.loginA = false;
-                            self.noticeId = '用户名不存在';
+                            self.loginA = false;
+                            self.noticeName = '用户名不存在';
                         }
                     });
                 }
