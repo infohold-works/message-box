@@ -1,8 +1,8 @@
+
 <style>
     footer {
         background: none;
     }
-
     .dashboard .dashboard-header {
         background: #fff;
         border-bottom: 1px solid rgba(55, 53, 112, 0.1);
@@ -13,14 +13,12 @@
         left: 256px;
         right: 0;
     }
-
     .dashboard .dashboard-header h4 {
         color: #2C3E50;
         font-size: 24px;
         display: inline-block;
         margin-left: 20px;
     }
-
     .dashboard .dashboard-header .settings-trigger {
         -webkit-transition: color 150ms linear;
         -moz-transition: color 150ms linear;
@@ -33,17 +31,14 @@
         margin-right: 10px;
         top: -3px;
     }
-
     .dashboard-header .dropdown-toggle {
         color: #34495e;
         margin-right: 20px;
     }
     /* dropdown */
-
     .open .dropdown-toggle {
         color: #34495e !important;
     }
-
     .open .dropdown-menu,
     .dropdown-menu {
         margin: 8px !important;
@@ -51,16 +46,13 @@
         box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
         background: #fff;
     }
-
     .dropdown-menu .divider {
         margin: 0;
     }
-
     .open .dropdown-menu li > a:hover {
         color: rgba(52, 73, 94, 0.75);
         background: #
     }
-
     .dashboard-summaries {
         position: absolute;
         top: 60px;
@@ -71,7 +63,6 @@
         width: 320px;
         border-right: 1px solid rgba(55, 53, 112, 0.08);
     }
-
     .dashboard-message-detail {
         background: #fff;
         color: #2C3E50;
@@ -82,7 +73,6 @@
         bottom: 0;
         min-width: 448px;
     }
-
     .dashboard-message-detail .empty-placeholder {
         -webkit-transform: translateY(-50%);
         -moz-transform: translateY(-50%);
@@ -98,7 +88,6 @@
         text-align: center;
         width: 100%;
     }
-
     .dashboard-message-detail .manage-message {
         width: 100%;
         height: 48px;
@@ -108,11 +97,9 @@
         position: absolute;
         z-index: 99;
     }
-
     .dashboard-message-detail .manage-message .btn-marked {
         margin: 10px;
     }
-
     .form-control-feedback {
         position: absolute;
         top: 2px;
@@ -126,7 +113,6 @@
         border-radius: 6px;
     }
     /* 消息列表 */
-
     .summaries {
         box-shadow: 1px 0 3px rgba(55, 53, 112, 0.08);
         list-style-type: none;
@@ -134,7 +120,6 @@
         padding: 0;
         width: 100%;
     }
-
     .summaries .summary {
         background: #fff;
         background-clip: padding-box;
@@ -144,11 +129,9 @@
         margin: 0;
         padding: 8px 16px;
     }
-
     .summaries .summary:hover {
         background: #fafafa;
     }
-
     .summaries .summary .summary-title h6 {
         display: inline-block;
         margin: 0;
@@ -156,32 +139,26 @@
         font-weight: 600;
         color: #27AE60;
     }
-
     .summaries .summary .summary-time {
         margin: 3px 0;
         font-size: 14px;
         color: #666;
     }
-
     .summaries .summary .summary-desc {
         font-size: 14px;
         color: #666;
     }
-
     .summaries .summary.readed {
         opacity: .6;
     }
-
     .dashboard-summaries-search {
         margin: 6px 20px;
         width: 280px;
     }
-
     .summaries .summary.selected {
         background: #fafafa;
         box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     }
-
     .dashboard-summaries .empty-placeholder {
         -webkit-transform: translateY(-50%);
         transform: translateY(-50%);
@@ -194,7 +171,16 @@
         text-align: center;
         width: 100%;
     }
-
+    /* 动画 */
+    .staggered-transition {
+        overflow: hidden;
+        margin: 0;
+    }
+    .staggered-enter,
+    .staggered-leave {
+        opacity: 0;
+        height: 0;
+    }
 </style>
 
 <template>
@@ -206,7 +192,7 @@
         </div> -->
         <div class="btn-group pull-right">
             <section class="dropdown-toggle" data-toggle="dropdown">
-                欢迎您,{{userName}} <span class="caret"></span>
+                欢迎您,{{ userName }}<span class="caret"></span>
             </section>
             <ul class="dropdown-menu" role="menu">
                 <li><a href="#">设&emsp;&emsp;置</a></li>
@@ -223,7 +209,7 @@
         </div>
         <ul v-if="summaries.length > 0" class="summaries">
             <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)">
+            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)" transition="staggered" stagger="100">
                 <article>
                     <header class="summary-title">
                         <h6 v-if="summary.title.length > 12">{{ summary.title.substring(0,12) }} ...</h6>
@@ -274,10 +260,11 @@
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
+    var socket = require('socket.io-client')(env_conf.socketServerUrl);
 
     module.exports = {
         name: 'Main',
-        props:[
+        props: [
             'userName',
             'isLogin'
         ],
@@ -285,197 +272,199 @@
             data({
                 to
             }) {
-                if (to.params.type === "type") {
-                    this.title = to.params.name
-                    this.state = 'type'
-                } else if (to.params.type === "message" && to.params.name === "read") {
-                    this.title = "已读消息"
-                    this.state = 'read'
-                } else if (to.params.type === "message" && to.params.name === "unread") {
-                    this.title = "未读消息"
-                    this.state = "unread"
-                } else {
-                    this.title = "所有消息"
-                    this.state = "all"
-                }
-            },
-            activate: function(transition) {
-                return new Promise((resolve) => {
-                    console.log('hook-example activated!')
-                    resolve()
-                })
-            },
-            deactivate: function(transition) {
-                console.log('hook-example deactivated!')
-                transition.next()
-            },
-            canReuse: function(transition) {
-                return true;
-            }
-        },
-
-        data: function() {
-            return {
-                title: "所有消息",
-                refreshing: false,
-                state: '',
-                summaries: [],
-                searchQuery: '',
-                markedread: '',
-                selected: '',
-                id: '',
-                mestitle: '',
-                mescontent: '',
-                author: '',
-                sendtime: '',
-            }
-        },
-
-        ready: function() {
-            this.searchAllSummaries();
-        },
-
-        methods: {
-            exit:function(){
-                var this=self;
-              socket.emit('exit', {
-                    username: this.userName
-                });
-                socket.on('exit',function(obj){
-                    if(obj.data == 0){
-                        self.isLogin=false;
-                    }
-                });
-            },
-            searchAllSummaries() {
-                var self = this;
-                connect(function(db) {
-                    var collection = db.collection('mb_summaries');
-                    collection.find({}).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
-                    });
-                });
-            },
-            markRead(id) {
-                // 传参赋值
-                this.markedread = true;
-                // read样式绑定
-                for (var i in this.summaries) {
-                    if (this.summaries[i].id == id) {
-                        // this.summaries.$set(i,{read:true});        // 视图更新
-                        this.summaries[i].read = true; // 视图不变
-                        this.$dispatch('markRead', this.summaries[i].typeid);
-                    }
-                }
-                connect(function(db) {
-                    var collection = db.collection('mb_summaries');
-                    collection.update({
-                        id: id
-                    }, {
-                        $set: {
-                            read: true
-                        }
-                    });
-                })
-
-            },
-            markUnread(id) {
-                this.markedread = false;
-                for (var i in this.summaries) {
-                    if (this.summaries[i].id == id) {
-                        // this.summaries.$set(i,{read:true});        // 视图更新
-                        this.summaries[i].read = false; // 视图不变
-                        this.$dispatch('markUnread', this.summaries[i].typeid);
-                    }
-                }
-                connect(function(db) {
-                    var collection = db.collection('mb_summaries');
-                    collection.update({
-                        id: id
-                    }, {
-                        $set: {
-                            read: false
-                        }
-                    });
-                })
-            },
-            messageDetail(id) {
-                var self = this;
-                var messagesId = id - 1;
-                for (var i in this.summaries) {
-                    if (this.summaries[i].id == id) {
-                        // this.summaries[i].selected = '';
-                        if (this.summaries[i].read) {
-                            this.markedread = true;
-                        } else {
-                            this.markRead(id);
-                        }
-                        // this.summaries[i].selected = true;
-                    }
-                }
-                connect(function(db) {
-                    var collection = db.collection('mb_messages');
-                    collection.find({}).toArray(function(err, docs) {
-                        var messages = docs;
-                        self.typeid = messages[messagesId].typeid;
-                        self.id = messages[messagesId].id;
-                        self.mestitle = messages[messagesId].title;
-                        self.mescontent = messages[messagesId].content;
-                        self.author = messages[messagesId].author;
-                        self.sendtime = messages[messagesId].sendtime;
-                    });
-                });
-            }
-        },
-
-        events: {
-            'summaries-searchAll': 'searchAllSummaries',
-            'summaries-searchRead': function() {
-                var self = this;
-                connect(function(db) {
-                    var collection = db.collection('mb_summaries');
-                    collection.find({
-                        read: true
-                    }).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
-                    });
-                });
-            },
-            'summaries-searchUnread': function() {
-                var self = this;
-                connect(function(db) {
-                    var collection = db.collection('mb_summaries');
-                    collection.find({
-                        read: false
-                    }).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
-                    });
-                });
-            },
-            'summaries-searchType': function(id) {
-                var self = this;
-                connect(function(db) {
-                    var collection = db.collection('mb_summaries');
-                    collection.find({
-                        typeid: id
-                    }).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
-                    });
-                });
-            }
-        },
-
-        components: {
-            PulseLoader,
-            'message-detail': Message
+        if (to.params.type === "type") {
+            this.title = to.params.name
+            this.state = 'type'
+        } else if (to.params.type === "message" && to.params.name === "read") {
+            this.title = "已读消息"
+            this.state = 'read'
+        } else if (to.params.type === "message" && to.params.name === "unread") {
+            this.title = "未读消息"
+            this.state = "unread"
+        } else {
+            this.title = "所有消息"
+            this.state = "all"
         }
+    },
+    activate: function(transition) {
+        return new Promise((resolve) => {
+                console.log('hook-example activated!')
+        resolve()
+    })
+    },
+    deactivate: function(transition) {
+        console.log('hook-example deactivated!')
+        transition.next()
+    },
+    canReuse: function(transition) {
+        return true;
+    }
+    },
+    data: function() {
+        return {
+            title: "所有消息",
+            refreshing: false,
+            state: '',
+            summaries: [],
+            searchQuery: '',
+            markedread: '',
+            selected: '',
+            id: '',
+            mestitle: '',
+            mescontent: '',
+            author: '',
+            sendtime: '',
+        }
+    },
+    ready: function() {
+        this.searchAllSummaries();
+        var self = this;
+        // listen to news event raised by the server
+        socket.on('public message', function(data) {
+            // // raise an event on the server
+            // socket.emit('new message', mesContent);
+            console.log('into login socket' + data);
+            self.searchAllSummaries();
+        });
+    },
+    methods: {
+        exit:function(){
+            var self=this;
+            socket.emit('exit', {
+                username: self.userName
+            });
+            socket.on('exit',function(obj){
+                if(obj.data == 0){
+                    self.isLogin=false;
+                }
+            });
+        },
+        searchAllSummaries() {
+            var self = this;
+            connect(function(db) {
+                var collection = db.collection('mb_summaries');
+                collection.find({}).sort({
+                    "sendtime": -1
+                }).toArray(function(err, docs) {
+                    self.summaries = docs;
+                });
+            });
+        },
+        markRead(id) {
+            // 传参赋值
+            this.markedread = true;
+            // read样式绑定
+            for (var i in this.summaries) {
+                if (this.summaries[i].id == id) {
+                    // this.summaries.$set(i,{read:true});        // 视图更新
+                    this.summaries[i].read = true; // 视图不变
+                    this.$dispatch('markRead', this.summaries[i].typeid);
+                }
+            }
+            connect(function(db) {
+                var collection = db.collection('mb_summaries');
+                collection.update({
+                    id: id
+                }, {
+                    $set: {
+                        read: true
+                    }
+                });
+            })
+        },
+        markUnread(id) {
+            this.markedread = false;
+            for (var i in this.summaries) {
+                if (this.summaries[i].id == id) {
+                    // this.summaries.$set(i,{read:true});        // 视图更新
+                    this.summaries[i].read = false; // 视图不变
+                    this.$dispatch('markUnread', this.summaries[i].typeid);
+                }
+            }
+            connect(function(db) {
+                var collection = db.collection('mb_summaries');
+                collection.update({
+                    id: id
+                }, {
+                    $set: {
+                        read: false
+                    }
+                });
+            })
+        },
+        messageDetail(id) {
+            var self = this;
+            var messagesId = id - 1;
+            for (var i in this.summaries) {
+                if (this.summaries[i].id == id) {
+                    // this.summaries[i].selected = '';
+                    if (this.summaries[i].read) {
+                        this.markedread = true;
+                    } else {
+                        this.markRead(id);
+                    }
+                    // this.summaries[i].selected = true;
+                }
+            }
+            connect(function(db) {
+                var collection = db.collection('mb_messages');
+                collection.find({}).toArray(function(err, docs) {
+                    var messages = docs;
+                    self.typeid = messages[messagesId].typeid;
+                    self.id = messages[messagesId].id;
+                    self.mestitle = messages[messagesId].title;
+                    self.mescontent = messages[messagesId].content;
+                    self.author = messages[messagesId].author;
+                    self.sendtime = messages[messagesId].sendtime;
+                });
+            });
+        }
+    },
+    events: {
+        'summaries-searchAll': 'searchAllSummaries',
+            'summaries-searchRead': function() {
+            var self = this;
+            connect(function(db) {
+                var collection = db.collection('mb_summaries');
+                collection.find({
+                    read: true
+                }).sort({
+                    "sendtime": -1
+                }).toArray(function(err, docs) {
+                    self.summaries = docs;
+                });
+            });
+        },
+        'summaries-searchUnread': function() {
+            var self = this;
+            connect(function(db) {
+                var collection = db.collection('mb_summaries');
+                collection.find({
+                    read: false
+                }).sort({
+                    "sendtime": -1
+                }).toArray(function(err, docs) {
+                    self.summaries = docs;
+                });
+            });
+        },
+        'summaries-searchType': function(id) {
+            var self = this;
+            connect(function(db) {
+                var collection = db.collection('mb_summaries');
+                collection.find({
+                    typeid: id
+                }).sort({
+                    "sendtime": -1
+                }).toArray(function(err, docs) {
+                    self.summaries = docs;
+                });
+            });
+        }
+    },
+    components: {
+        PulseLoader,
+            'message-detail': Message
+    }
     }
 </script>
