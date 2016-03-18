@@ -212,7 +212,7 @@
                 <li><a href="#">设&emsp;&emsp;置</a></li>
                 <li><a href="#">关于我们</a></li>
                 <li class="divider"></li>
-                <li><a href="#">退&emsp;&emsp;出</a></li>
+                <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
             </ul>
         </div>
     </div>
@@ -278,7 +278,8 @@
     module.exports = {
         name: 'Main',
         props:[
-            'userName'
+            'userName',
+            'isLogin'
         ],
         route: {
             data({
@@ -335,8 +336,16 @@
         },
 
         methods: {
-            lol:function(){
-              console.log(this.userName)
+            exit:function(){
+                var this=self;
+              socket.emit('exit', {
+                    username: this.userName
+                });
+                socket.on('exit',function(obj){
+                    if(obj.data == 0){
+                        self.isLogin=false;
+                    }
+                });
             },
             searchAllSummaries() {
                 var self = this;
