@@ -169,7 +169,11 @@
     }
 
     .summaries .summary.readed {
-        opacity: .6;
+        opacity: .8;
+    }
+
+    .summaries .summary.readed .summary-title h6 {
+        color: #666;
     }
 
     .dashboard-summaries-search {
@@ -193,18 +197,6 @@
         left: 0;
         text-align: center;
         width: 100%;
-    }
-
-    /* 动画 */
-    .staggered-transition {
-        overflow: hidden;
-        margin: 0;
-    }
-
-    .staggered-enter,
-    .staggered-leave {
-        opacity: 0;
-        height: 0;
     }
 </style>
 
@@ -234,7 +226,7 @@
         </div>
         <ul v-if="summaries.length > 0" class="summaries">
             <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)" transition="staggered" stagger="100">
+            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)">
                 <article>
                     <header class="summary-title">
                         <h6 v-if="summary.title.length > 12">{{ summary.title.substring(0,12) }} ...</h6>

@@ -9,13 +9,16 @@ var env = require('./vendor/electron_boilerplate/env_config');
 var devHelper = require('./vendor/electron_boilerplate/dev_helper');
 var windowStateKeeper = require('./vendor/electron_boilerplate/window_state');
 
-// var notifier = require('node-notifier');
-var WindowsToaster = require('node-notifier').WindowsToaster;
-
-var notifier = new WindowsToaster({
-    withFallback: false, // Fallback to Growl or Balloons?
-    customPath: void 0 // Relative path if you want to use your fork of toast.exe
-});
+var env_conf = require('../config/env_development.json');
+var socket = require('socket.io-client')(env_conf.socketServerUrl);
+var notifier = require('node-notifier');
+// for win10
+// var WindowsToaster = require('node-notifier').WindowsToaster;
+//
+// var notifier = new WindowsToaster({
+//     withFallback: false, // Fallback to Growl or Balloons?
+//     customPath: void 0 // Relative path if you want to use your fork of toast.exe
+// });
 
 // var redis = require('redis'),
 //     RDS_PORT = 6379,
@@ -42,7 +45,8 @@ app.on('ready', function() {
         width: mainWindowState.width,
         height: mainWindowState.height
     });
-
+    console.log(mainWindowState);
+    console.log(mainWindowState.isMaximized);
     if (mainWindowState.isMaximized) {
         mainWindow.maximize();
     }
@@ -57,6 +61,17 @@ app.on('ready', function() {
         devHelper.setDevMenu();
         mainWindow.openDevTools();
     }
+
+    socket.on('public message',function(data) {
+        notifier.notify({
+            'title': '通知',
+            'message': '您有新的消息！',
+            'sound': true
+        }, function(error, response) {
+            console.log(error);
+            console.log(response);
+        });
+    })
 
     mainWindow.on('close', function() {
         mainWindowState.saveState(mainWindow);
