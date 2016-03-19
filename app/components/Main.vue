@@ -195,6 +195,17 @@
         width: 100%;
     }
 
+    /* 动画 */
+    .staggered-transition {
+        overflow: hidden;
+        margin: 0;
+    }
+
+    .staggered-enter,
+    .staggered-leave {
+        opacity: 0;
+        height: 0;
+    }
 </style>
 
 <template>
@@ -206,7 +217,7 @@
         </div> -->
         <div class="btn-group pull-right">
             <section class="dropdown-toggle" data-toggle="dropdown">
-                欢迎您,{{userName}} <span class="caret"></span>
+                欢迎您,{{ userName }}<span class="caret"></span>
             </section>
             <ul class="dropdown-menu" role="menu">
                 <li><a href="#">设&emsp;&emsp;置</a></li>
@@ -223,7 +234,7 @@
         </div>
         <ul v-if="summaries.length > 0" class="summaries">
             <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)">
+            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)" transition="staggered" stagger="100">
                 <article>
                     <header class="summary-title">
                         <h6 v-if="summary.title.length > 12">{{ summary.title.substring(0,12) }} ...</h6>
@@ -275,9 +286,11 @@
     var env_conf = require('../../config/env_development.json');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
 
+    var socket = require('socket.io-client')(env_conf.socketServerUrl);
+
     module.exports = {
         name: 'Main',
-        props:[
+        props: [
             'userName'
         ],
         route: {
@@ -332,12 +345,17 @@
 
         ready: function() {
             this.searchAllSummaries();
+            var self = this;
+            // listen to news event raised by the server
+            socket.on('public message', function(data) {
+                // // raise an event on the server
+                // socket.emit('new message', mesContent);
+                console.log('into login socket' + data);
+                self.searchAllSummaries();
+            });
         },
 
         methods: {
-            lol:function(){
-              console.log(this.userName)
-            },
             searchAllSummaries() {
                 var self = this;
                 connect(function(db) {

@@ -1,7 +1,7 @@
 {
   "name": "message-box",
   "productName": "Message Box",
-  "description": "基于Electron、Vue.js、socket.io等技术搭建的消息盒子",
+  "description": "基于Electron、Vue.js、socket.io、MongoDB等技术搭建的消息盒子",
   "version": "0.1.0",
   "author": "xiaoluoboding <xiaoluoboding@gmail.com>",
   "main": "main.js",
@@ -35,6 +35,7 @@
     "fs-jetpack": "^0.7.0",
     "html-loader": "^0.4.0",
     "json-loader": "^0.5.4",
+    "moment": "^2.12.0",
     "mongodb": "^2.1.7",
     "node-sass": "^3.4.2",
     "redis": "^2.5.0-1",

@@ -32,15 +32,18 @@
         <header class="login-screen-header">
             <h5>消息盒子</h5>
         </header>
+        <!-- <pre>
+            {{ $data | json }}
+        </pre> -->
         <div class="login-form">
             <div class="form-group" v-bind:class="{ 'has-error': errorA}">
-                <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="loginName">
+                <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="userName">
                 <label class="login-field-icon fui-user" for="login-name"></label>
                 <span class="notice pull-right ">{{noticeName}}</span>
             </div>
 
             <div class="form-group" v-bind:class="{'has-error':errorB}">
-                <input type="password" class="form-control" v-bind:class="{ 'login-field': loginB}" value="" placeholder="密码" v-model="passwd">
+                <input type="password" class="form-control" v-bind:class="{ 'login-field': loginB}" value="" placeholder="密码" v-model="password">
                 <label class="login-field-icon fui-lock" for="login-pass"></label>
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
@@ -54,6 +57,8 @@
     //连接网络接口3000
     var env_conf = require('../../config/env_development.json');
     var socket = require('socket.io-client')(env_conf.socketServerUrl);
+    var moment = require('moment');
+    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
     module.exports = {
         name: "Login",
 
@@ -61,8 +66,7 @@
             return {
                 noticeName: '',
                 noticePswd: '',
-                loginName: '',
-                passwd: '',
+                password: '',
                 errorA: false,
                 loginA: true,
                 errorB: false,
@@ -75,8 +79,10 @@
             'userName'
         ],
 
-
         methods: {
+            test: function() {
+                this.isLogin = true;
+            },
             login: function() {
                 //清空提示和恢复输入栏状态
                 this.errorA = false;
@@ -86,10 +92,10 @@
                 this.noticeName = '';
                 this.noticePswd = '';
                 //获取用户名和密码
-                var name = this.loginName;
-                var password = this.passwd;
+                var username = this.userName;
+                var password = this.password;
                 //判断用户名和密码是否为空
-                if (name == "") {
+                if (username == "") {
                     this.noticeName = '用户名不能为空';
                     this.errorA = true;
                     this.loginA = false;
@@ -104,26 +110,62 @@
                     this.noticePswd = '密码不能为空';
                 } else {
                     var self = this;
-                    socket.emit('login', {
-                        loginName:name,
-                        password: password
-                    });
-                    socket.on('login', function(obj) {
-                        if (obj.data == 0) {
-                            self.userName=name;
-                            self.isLogin = true;
-                        } else if (obj.data == 1) {
-                            self.errorB = true;
-                            sele.loginB = false;
-                            self.noticePswd = '密码错误';
-                        } else if (obj.data == 2) {
-                            self.errorA = true;
-                            sele.loginA = false;
-                            self.noticeId = '用户名不存在';
-                        }
+                    connect(function(db) {
+                        // Get the documents collection
+                        var collection = db.collection('mb_user');
+                        // Find some documents
+                        collection.find({username:username}).toArray(function(err, docs) {
+                            if(docs.length>0){   //如果有此username
+                                 if (!docs[0].online_stat) {  //判断此username是否在线
+                                    var pwd = docs[0].password;
+                                    if(password == pwd){  //密码正确
+                                        self.isLogin = true;
+                                        self.updateOnlineStat(username); //更改在线状态
+                                        self.updateLastLoginTime(username); //更新上一次登录时间
+                                        self.updateLoginTime(username, self.nowTime()); //添加当前时间
+                                        socket.emit('login',{username:username});
+                                        self.userName = username;
+                                    } else {  
+                                        self.errorB = true;
+                                        self.loginB = false;
+                                        // self.noticePswd = '密码错误'；
+                                    }
+                                 } else {
+                                    console.log("此用户已在线！")
+                                 }
+                            } else {  //如果没有此username
+                                self.errorA = true;
+                                self.loginA = false;
+                                self.noticeName = '用户名不存在';
+                            }
+                        });
                     });
                 }
+            },
+            nowTime: function(){  //生成当前时间
+                return moment().format('YYYY-MM-DD HH:mm:ss');
+            },
+            updateLoginTime:function(username,nowtime){  //更新当前登录时间
+                connect(function(db) {
+                    var collection = db.collection('mb_user');
+                    collection.update({ username: username }, { $set: { login_time: nowtime } });
+                });    
+            },
+            updateOnlineStat: function(username){  //更改登录状态
+                connect(function(db) {
+                    var collection = db.collection('mb_user');
+                    collection.update({ username: username }, { $set: { online_stat: true } });
+                });
+            },
+            updateLastLoginTime:function(username){  //更改上一次登录时间
+                connect(function(db) {
+                    var collection = db.collection('mb_user');
+                    collection.find({ username: username }).toArray(function(err, docs) {
+                        collection.update({ username: username }, { $set: { last_login_time: docs[0].login_time } });
+                    });
+                });    
             }
+            
         }
     }
 </script>
