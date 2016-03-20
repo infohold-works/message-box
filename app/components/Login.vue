@@ -48,7 +48,7 @@
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
 
-            <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
+            <a class="btn btn-primary btn-lg btn-block" href="#" @click="test">登录</a>
             <a class="login-link" href="#">忘记密码？</a>
         </div>
     </div>
@@ -114,26 +114,30 @@
                         // Get the documents collection
                         var collection = db.collection('mb_user');
                         // Find some documents
-                        collection.find({username:username}).toArray(function(err, docs) {
-                            if(docs.length>0){   //如果有此username
-                                 if (!docs[0].online_stat) {  //判断此username是否在线
-                                    var pwd = docs[0].password;
-                                    if(password == pwd){  //密码正确
+                        collection.find({
+                            username: username
+                        }).toArray(function(err, data) {
+                            if (data.length > 0) { //如果有此username
+                                if (!data[0].online_stat) { //判断此username是否在线
+                                    var pwd = data[0].password;
+                                    if (password == pwd) { //密码正确
                                         self.isLogin = true;
                                         self.updateOnlineStat(username); //更改在线状态
                                         self.updateLastLoginTime(username); //更新上一次登录时间
                                         self.updateLoginTime(username, self.nowTime()); //添加当前时间
-                                        socket.emit('login',{username:username});
+                                        socket.emit('login', {
+                                            username: username
+                                        });
                                         self.userName = username;
-                                    } else {  
+                                    } else {
                                         self.errorB = true;
                                         self.loginB = false;
                                         // self.noticePswd = '密码错误'；
                                     }
-                                 } else {
+                                } else {
                                     console.log("此用户已在线！")
-                                 }
-                            } else {  //如果没有此username
+                                }
+                            } else { //如果没有此username
                                 self.errorA = true;
                                 self.loginA = false;
                                 self.noticeName = '用户名不存在';
@@ -142,30 +146,50 @@
                     });
                 }
             },
-            nowTime: function(){  //生成当前时间
+            nowTime: function() { //生成当前时间
                 return moment().format('YYYY-MM-DD HH:mm:ss');
             },
-            updateLoginTime:function(username,nowtime){  //更新当前登录时间
+            updateLoginTime: function(username, nowtime) { //更新当前登录时间
                 connect(function(db) {
                     var collection = db.collection('mb_user');
-                    collection.update({ username: username }, { $set: { login_time: nowtime } });
-                });    
-            },
-            updateOnlineStat: function(username){  //更改登录状态
-                connect(function(db) {
-                    var collection = db.collection('mb_user');
-                    collection.update({ username: username }, { $set: { online_stat: true } });
+                    collection.update({
+                        username: username
+                    }, {
+                        $set: {
+                            login_time: nowtime
+                        }
+                    });
                 });
             },
-            updateLastLoginTime:function(username){  //更改上一次登录时间
+            updateOnlineStat: function(username) { //更改登录状态
                 connect(function(db) {
                     var collection = db.collection('mb_user');
-                    collection.find({ username: username }).toArray(function(err, docs) {
-                        collection.update({ username: username }, { $set: { last_login_time: docs[0].login_time } });
+                    collection.update({
+                        username: username
+                    }, {
+                        $set: {
+                            online_stat: true
+                        }
                     });
-                });    
+                });
+            },
+            updateLastLoginTime: function(username) { //更改上一次登录时间
+                connect(function(db) {
+                    var collection = db.collection('mb_user');
+                    collection.find({
+                        username: username
+                    }).toArray(function(err, data) {
+                        collection.update({
+                            username: username
+                        }, {
+                            $set: {
+                                last_login_time: data[0].login_time
+                            }
+                        });
+                    });
+                });
             }
-            
+
         }
     }
 </script>
