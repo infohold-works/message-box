@@ -215,7 +215,7 @@
                 <li><a href="#">设&emsp;&emsp;置</a></li>
                 <li><a href="#">关于我们</a></li>
                 <li class="divider"></li>
-                <li><a href="#">退&emsp;&emsp;出</a></li>
+                <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
             </ul>
         </div>
     </div>
@@ -283,7 +283,8 @@
     module.exports = {
         name: 'Main',
         props: [
-            'userName'
+            'userName',
+            'isLogin'
         ],
         route: {
             data({
@@ -348,6 +349,23 @@
         },
 
         methods: {
+            exit : function(){
+                var username=this.userName;
+                //连接数据库
+                connect(function(db) {
+                    //关联用户名表
+                    var collection = db.collection('mb_user');
+                    collection.update({
+                        username:username
+                    },{
+                        $set : {
+                            online_stat: false,
+                            socketID:''
+                        }
+                    });
+                })
+                this.isLogin=false;
+            },
             searchAllSummaries() {
                 var self = this;
                 connect(function(db) {
