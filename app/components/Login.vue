@@ -48,7 +48,7 @@
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
 
-            <a class="btn btn-primary btn-lg btn-block" href="#" @click="test">登录</a>
+            <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
             <a class="login-link" href="#">忘记密码？</a>
         </div>
     </div>
@@ -132,7 +132,7 @@
                                     } else {
                                         self.errorB = true;
                                         self.loginB = false;
-                                        // self.noticePswd = '密码错误'；
+                                        self.noticePswd = '密码错误';
                                     }
                                 } else {
                                     console.log("此用户已在线！")

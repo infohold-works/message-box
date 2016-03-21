@@ -48,6 +48,6 @@
     </div>
     <div class="dashboard animated fadeIn" v-if="isLogin">
         <sidebar></sidebar>
-        <router-view :user-name.once="userName"></router-view>
+        <router-view :is-login.sync="isLogin" :user-name.once="userName"></router-view>
     </div>
 </template>
