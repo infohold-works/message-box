@@ -169,7 +169,11 @@
     }
 
     .summaries .summary.readed {
-        opacity: .6;
+        opacity: .8;
+    }
+
+    .summaries .summary.readed .summary-title h6 {
+        color: #666;
     }
 
     .dashboard-summaries-search {
@@ -194,18 +198,6 @@
         text-align: center;
         width: 100%;
     }
-
-    /* 动画 */
-    .staggered-transition {
-        overflow: hidden;
-        margin: 0;
-    }
-
-    .staggered-enter,
-    .staggered-leave {
-        opacity: 0;
-        height: 0;
-    }
 </style>
 
 <template>
@@ -223,7 +215,7 @@
                 <li><a href="#">设&emsp;&emsp;置</a></li>
                 <li><a href="#">关于我们</a></li>
                 <li class="divider"></li>
-                <li><a href="#">退&emsp;&emsp;出</a></li>
+                <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
             </ul>
         </div>
     </div>
@@ -234,7 +226,7 @@
         </div>
         <ul v-if="summaries.length > 0" class="summaries">
             <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)" transition="staggered" stagger="100">
+            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)">
                 <article>
                     <header class="summary-title">
                         <h6 v-if="summary.title.length > 12">{{ summary.title.substring(0,12) }} ...</h6>
@@ -291,7 +283,8 @@
     module.exports = {
         name: 'Main',
         props: [
-            'userName'
+            'userName',
+            'isLogin'
         ],
         route: {
             data({
@@ -356,6 +349,23 @@
         },
 
         methods: {
+            exit : function(){
+                var username=this.userName;
+                //连接数据库
+                connect(function(db) {
+                    //关联用户名表
+                    var collection = db.collection('mb_user');
+                    collection.update({
+                        username:username
+                    },{
+                        $set : {
+                            online_stat: false,
+                            socketID:''
+                        }
+                    });
+                })
+                this.isLogin=false;
+            },
             searchAllSummaries() {
                 var self = this;
                 connect(function(db) {
