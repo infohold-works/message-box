@@ -121,21 +121,38 @@
                                 if (!data[0].online_stat) { //判断此username是否在线
                                     var pwd = data[0].password;
                                     if (password == pwd) { //密码正确
-                                        self.isLogin = true;
-                                        self.updateOnlineStat(username); //更改在线状态
-                                        self.updateLastLoginTime(username); //更新上一次登录时间
-                                        self.updateLoginTime(username, self.nowTime()); //添加当前时间
-                                        socket.emit('login', {
-                                            username: username
+                                        //验证服务端是否启动
+                                        var isOnlineStat = false;
+                                        socket.emit('serverOnlineStat', {
+                                            isOnlineStat:"isTrue"
                                         });
-                                        self.userName = username;
-                                    } else {
+                                        
+                                        socket.on('serverOnlineStat',function(obj){
+                                            isOnlineStat = obj.isOnlineStat;
+ 
+                                        });
+                                        setTimeout(function(){
+                                            if(isOnlineStat){
+                                                self.isLogin = true;
+                                                self.updateOnlineStat(username); //更改在线状态
+                                                self.updateLastLoginTime(username); //更新上一次登录时间
+                                                self.updateLoginTime(username, self.nowTime()); //添加当前时间
+                                                socket.emit('login', {
+                                                    username: username
+                                                });
+                                                self.userName = username;
+                                            } else {
+                                                //提示用户信息
+                                                console.log("服务端未启动");
+                                            }
+                                        },1000+Math.random()*1000);
+                                   } else {
                                         self.errorB = true;
                                         self.loginB = false;
                                         self.noticePswd = '密码错误';
                                     }
                                 } else {
-                                    console.log("此用户已在线！")
+                                    console.log("此用户已在线！");
                                 }
                             } else { //如果没有此username
                                 self.errorA = true;
@@ -144,6 +161,7 @@
                             }
                         });
                     });
+
                 }
             },
             nowTime: function() { //生成当前时间
