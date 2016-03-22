@@ -26,15 +26,17 @@
         font-size: 13px;
         color: #e74c3c;
     }
-    .timeOut{
-        width:320px;
+
+    .time-out {
+        width: 320px;
         height: 40px;
-        margin:-28px auto;
+        margin: -28px auto;
         color: #e74c3c;
         line-height: 15px;
     }
-    .glyphicon-remove-sign{
-        margin-top:-6px;
+
+    .glyphicon-remove-sign {
+        margin-top: -6px;
     }
 </style>
 <template>
@@ -58,13 +60,13 @@
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
 
-            <a class="btn btn-primary btn-lg btn-block" href="#" @click="test">登录</a>
+            <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
             <a class="login-link" href="#">忘记密码？</a>
-            
-        </div> 
-        <div class="alert alert-warning timeOut " role="alert" v-bind:class="{'hidden':timeOut}" >
-           <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
-           <span>登录超时</span>
+
+        </div>
+        <div class="alert alert-warning time-out" role="alert" v-bind:class="{'hidden':timeOut}">
+            <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
+            <span>登录超时</span>
         </div>
     </div>
 
@@ -87,18 +89,25 @@
                 loginA: true,
                 errorB: false,
                 loginB: true,
-                timeOut:true
-               
+                timeOut: true,
             }
         },
 
         props: [
             'isLogin',
-            'userName'
+            'userName',
+            'socket'
         ],
 
+        ready: function() {
+            this.socket = socket;
+            socket.on('private message',function(data) {
+                console.log('into login private message');
+            })
+        },
+
         methods: {
-            close: function(){
+            close: function() {
                 this.timeOut = true;
             },
             login: function() {
@@ -142,15 +151,15 @@
                                         //验证服务端是否启动
                                         var isOnlineStat = false;
                                         socket.emit('serverOnlineStat', {
-                                            isOnlineStat:"isTrue"
+                                            isOnlineStat: "isTrue"
                                         });
-                                        
-                                        socket.on('serverOnlineStat',function(obj){
+
+                                        socket.on('serverOnlineStat', function(obj) {
                                             isOnlineStat = obj.isOnlineStat;
- 
+
                                         });
-                                        setTimeout(function(){
-                                            if(isOnlineStat){
+                                        setTimeout(function() {
+                                            if (isOnlineStat) {
                                                 self.isLogin = true;
                                                 self.updateOnlineStat(username); //更改在线状态
                                                 self.updateLastLoginTime(username); //更新上一次登录时间
@@ -163,8 +172,8 @@
                                                 //提示用户信息
                                                 console.log("服务端未启动");
                                             }
-                                        },1000+Math.random()*1000);
-                                   } else {
+                                        }, 1000 + Math.random() * 1000);
+                                    } else {
                                         self.errorB = true;
                                         self.loginB = false;
                                         self.noticePswd = '密码错误';

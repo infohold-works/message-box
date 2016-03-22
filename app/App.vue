@@ -10,6 +10,7 @@
                 userName: '',
                 typeId: '',
                 markedRead: '',
+                socket: ''
             }
         },
         components: {
@@ -44,10 +45,10 @@
 </script>
 <template>
     <div class="login-style animated fadeIn" v-if="!isLogin">
-        <login :is-login.sync="isLogin" :user-name.sync="userName" keep-alive></login>
+        <login :is-login.sync="isLogin" :user-name.sync="userName" :socket.sync="socket" keep-alive></login>
     </div>
     <div class="dashboard animated fadeIn" v-if="isLogin">
         <sidebar></sidebar>
-        <router-view :is-login.sync="isLogin" :user-name.once="userName"></router-view>
+        <router-view :is-login.sync="isLogin" :user-name.once="userName" :socket.sync="socket"></router-view>
     </div>
 </template>
