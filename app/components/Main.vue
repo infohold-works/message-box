@@ -368,12 +368,18 @@
             },
             searchAllSummaries() {
                 var self = this;
+                var username = this.userName;
                 connect(function(db) {
+                    var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_summaries');
-                    collection.find({}).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
+                    userCollention.find({username:username}).toArray(function(err,doc){
+                        collection.find({
+                            $or:[{user_id:doc[0].userid},{type:'public'}]
+                        }).sort({
+                            "sendtime": -1
+                        }).toArray(function(err, docs) {
+                            self.summaries = docs;
+                        });
                     });
                 });
             },
@@ -453,40 +459,55 @@
             'summaries-searchAll': 'searchAllSummaries',
             'summaries-searchRead': function() {
                 var self = this;
+                var username = this.userName;
                 connect(function(db) {
+                    var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_summaries');
-                    collection.find({
-                        read: true
-                    }).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
+                    userCollention.find({username:username}).toArray(function(err,doc){
+                        collection.find({
+                            read:true, $or:[{user_id:doc[0].userid},{type:'public'}]
+                        }).sort({
+                            "sendtime": -1
+                        }).toArray(function(err, docs) {
+                            self.summaries = docs;
+                        });
+
                     });
                 });
             },
             'summaries-searchUnread': function() {
                 var self = this;
+                var username = this.userName;
                 connect(function(db) {
+                    var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_summaries');
-                    collection.find({
-                        read: false
-                    }).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
+                    userCollention.find({username:username}).toArray(function(err,doc){
+                        collection.find({
+                            read: false, $or:[{user_id:doc[0].userid},{type:'public'}]
+                        }).sort({
+                            "sendtime": -1
+                        }).toArray(function(err, docs) {
+                            self.summaries = docs;
+                        });
+
                     });
                 });
             },
             'summaries-searchType': function(id) {
                 var self = this;
+                var username = this.userName;
                 connect(function(db) {
+                    var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_summaries');
-                    collection.find({
-                        typeid: id
-                    }).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
+                    userCollention.find({username:username}).toArray(function(err,doc){
+                        collection.find({
+                            typeid: id, $or:[{user_id:doc[0].userid},{type:'public'}]
+                        }).sort({
+                            "sendtime": -1
+                        }).toArray(function(err, docs) {
+                            self.summaries = docs;
+                        });
+
                     });
                 });
             }
