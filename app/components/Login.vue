@@ -26,6 +26,16 @@
         font-size: 13px;
         color: #e74c3c;
     }
+    .timeOut{
+        width:320px;
+        height: 40px;
+        margin:-28px auto;
+        color: #e74c3c;
+        line-height: 15px;
+    }
+    .glyphicon-remove-sign{
+        margin-top:-6px;
+    }
 </style>
 <template>
     <div class="login-screen">
@@ -48,10 +58,16 @@
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
 
-            <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
+            <a class="btn btn-primary btn-lg btn-block" href="#" @click="test">登录</a>
             <a class="login-link" href="#">忘记密码？</a>
+            
+        </div> 
+        <div class="alert alert-warning timeOut " role="alert" v-bind:class="{'hidden':timeOut}" >
+           <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
+           <span>登录超时</span>
         </div>
     </div>
+
 </template>
 <script>
     //连接网络接口3000
@@ -70,7 +86,9 @@
                 errorA: false,
                 loginA: true,
                 errorB: false,
-                loginB: true
+                loginB: true,
+                timeOut:true
+               
             }
         },
 
@@ -80,8 +98,8 @@
         ],
 
         methods: {
-            test: function() {
-                this.isLogin = true;
+            close: function(){
+                this.timeOut = true;
             },
             login: function() {
                 //清空提示和恢复输入栏状态
