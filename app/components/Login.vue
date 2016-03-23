@@ -36,6 +36,22 @@
     .glyphicon-remove-sign{
         margin-top:-6px;
     }
+    .loading{
+        background-color: #1ABC9C;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        z-index: 99;
+        top: 0px;
+        left: 0px;
+    }
+    .loading-center{
+        position: absolute;
+        left: 50%;
+        top: 50%; 
+        margin-top: -25px;
+        margin-left: -75px;
+    }
 </style>
 <template>
     <div class="login-screen">
@@ -66,8 +82,11 @@
            <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
            <span>登录超时</span>
         </div>
+        <div class="loading" v-if="refreshing">
+            <scale-loader class="loading-center"  color="white" height="80px" width="10px"></scale-loader>
+        </div>
     </div>
-
+    
 </template>
 <script>
     //连接网络接口3000
@@ -75,6 +94,8 @@
     var socket = require('socket.io-client')(env_conf.socketServerUrl);
     var moment = require('moment');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
+    //引用PulseLoader插件
+    var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
     module.exports = {
         name: "Login",
 
@@ -87,7 +108,8 @@
                 loginA: true,
                 errorB: false,
                 loginB: true,
-                timeOut:true
+                timeOut:true,
+                refreshing:false
                
             }
         },
@@ -96,8 +118,14 @@
             'isLogin',
             'userName'
         ],
+        components: {
+            ScaleLoader
+          },
 
         methods: {
+            test: function(){
+                this.refreshing=true;
+            },
             close: function(){
                 this.timeOut = true;
             },
