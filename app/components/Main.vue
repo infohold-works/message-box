@@ -278,13 +278,12 @@
     var env_conf = require('../../config/env_development.json');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
 
-    var socket = require('socket.io-client')(env_conf.socketServerUrl);
-
     module.exports = {
         name: 'Main',
         props: [
             'userName',
-            'isLogin'
+            'isLogin',
+            'socket'
         ],
         route: {
             data({
@@ -337,13 +336,21 @@
         },
 
         ready: function() {
+            var socket = this.socket;
+            console.log(socket);
             this.searchAllSummaries();
             var self = this;
             // listen to news event raised by the server
             socket.on('public message', function(data) {
                 // // raise an event on the server
-                // socket.emit('new message', mesContent);
-                console.log('into login socket' + data);
+                console.log('public message' + data);
+                self.searchAllSummaries();
+            });
+
+            // listen to news event raised by the server
+            socket.on('private message', function(data) {
+                // // raise an event on the server
+                console.log('private message' + data);
                 self.searchAllSummaries();
             });
         },
