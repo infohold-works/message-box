@@ -26,15 +26,17 @@
         font-size: 13px;
         color: #e74c3c;
     }
-    .timeOut{
-        width:320px;
+
+    .time-out {
+        width: 320px;
         height: 40px;
-        margin:-28px auto;
+        margin: -28px auto;
         color: #e74c3c;
         line-height: 15px;
     }
-    .glyphicon-remove-sign{
-        margin-top:-6px;
+
+    .glyphicon-remove-sign {
+        margin-top: -6px;
     }
     .loading{
         background-color: #1ABC9C;
@@ -74,13 +76,13 @@
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
 
-            <a class="btn btn-primary btn-lg btn-block" href="#" @click="test">登录</a>
+            <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
             <a class="login-link" href="#">忘记密码？</a>
-            
-        </div> 
-        <div class="alert alert-warning timeOut " role="alert" v-bind:class="{'hidden':timeOut}" >
-           <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
-           <span>登录超时</span>
+
+        </div>
+        <div class="alert alert-warning time-out" role="alert" v-bind:class="{'hidden':timeOut}">
+            <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
+            <span>登录超时</span>
         </div>
         <div class="loading" v-if="refreshing">
             <scale-loader class="loading-center"  color="white" height="80px" width="10px"></scale-loader>
@@ -110,23 +112,32 @@
                 loginB: true,
                 timeOut:true,
                 refreshing:false
-               
+                timeOut: true,
             }
         },
 
         props: [
             'isLogin',
-            'userName'
+            'userName',
+            'socket'
         ],
         components: {
             ScaleLoader
           },
+
+        ready: function() {
+            this.socket = socket;
+            socket.on('private message',function(data) {
+                console.log('into login private message');
+            })
+        },
 
         methods: {
             test: function(){
                 this.refreshing=true;
             },
             close: function(){
+            close: function() {
                 this.timeOut = true;
             },
             login: function() {
@@ -167,21 +178,38 @@
                                 if (!data[0].online_stat) { //判断此username是否在线
                                     var pwd = data[0].password;
                                     if (password == pwd) { //密码正确
-                                        self.isLogin = true;
-                                        self.updateOnlineStat(username); //更改在线状态
-                                        self.updateLastLoginTime(username); //更新上一次登录时间
-                                        self.updateLoginTime(username, self.nowTime()); //添加当前时间
-                                        socket.emit('login', {
-                                            username: username
+                                        //验证服务端是否启动
+                                        var isOnlineStat = false;
+                                        socket.emit('serverOnlineStat', {
+                                            isOnlineStat: "isTrue"
                                         });
-                                        self.userName = username;
+
+                                        socket.on('serverOnlineStat', function(obj) {
+                                            isOnlineStat = obj.isOnlineStat;
+
+                                        });
+                                        setTimeout(function() {
+                                            if (isOnlineStat) {
+                                                self.isLogin = true;
+                                                self.updateOnlineStat(username); //更改在线状态
+                                                self.updateLastLoginTime(username); //更新上一次登录时间
+                                                self.updateLoginTime(username, self.nowTime()); //添加当前时间
+                                                socket.emit('login', {
+                                                    username: username
+                                                });
+                                                self.userName = username;
+                                            } else {
+                                                //提示用户信息
+                                                console.log("服务端未启动");
+                                            }
+                                        }, 1000 + Math.random() * 1000);
                                     } else {
                                         self.errorB = true;
                                         self.loginB = false;
                                         self.noticePswd = '密码错误';
                                     }
                                 } else {
-                                    console.log("此用户已在线！")
+                                    console.log("此用户已在线！");
                                 }
                             } else { //如果没有此username
                                 self.errorA = true;
@@ -190,6 +218,7 @@
                             }
                         });
                     });
+
                 }
             },
             nowTime: function() { //生成当前时间

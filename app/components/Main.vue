@@ -278,13 +278,12 @@
     var env_conf = require('../../config/env_development.json');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
 
-    var socket = require('socket.io-client')(env_conf.socketServerUrl);
-
     module.exports = {
         name: 'Main',
         props: [
             'userName',
-            'isLogin'
+            'isLogin',
+            'socket'
         ],
         route: {
             data({
@@ -337,13 +336,21 @@
         },
 
         ready: function() {
+            var socket = this.socket;
+            console.log(socket);
             this.searchAllSummaries();
             var self = this;
             // listen to news event raised by the server
             socket.on('public message', function(data) {
                 // // raise an event on the server
-                // socket.emit('new message', mesContent);
-                console.log('into login socket' + data);
+                console.log('public message' + data);
+                self.searchAllSummaries();
+            });
+
+            // listen to news event raised by the server
+            socket.on('private message', function(data) {
+                // // raise an event on the server
+                console.log('private message' + data);
                 self.searchAllSummaries();
             });
         },
@@ -368,12 +375,18 @@
             },
             searchAllSummaries() {
                 var self = this;
+                var username = this.userName;
                 connect(function(db) {
+                    var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_summaries');
-                    collection.find({}).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
+                    userCollention.find({username:username}).toArray(function(err,doc){
+                        collection.find({
+                            $or:[{user_id:doc[0].userid},{type:'public'}]
+                        }).sort({
+                            "sendtime": -1
+                        }).toArray(function(err, docs) {
+                            self.summaries = docs;
+                        });
                     });
                 });
             },
@@ -453,40 +466,55 @@
             'summaries-searchAll': 'searchAllSummaries',
             'summaries-searchRead': function() {
                 var self = this;
+                var username = this.userName;
                 connect(function(db) {
+                    var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_summaries');
-                    collection.find({
-                        read: true
-                    }).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
+                    userCollention.find({username:username}).toArray(function(err,doc){
+                        collection.find({
+                            read:true, $or:[{user_id:doc[0].userid},{type:'public'}]
+                        }).sort({
+                            "sendtime": -1
+                        }).toArray(function(err, docs) {
+                            self.summaries = docs;
+                        });
+
                     });
                 });
             },
             'summaries-searchUnread': function() {
                 var self = this;
+                var username = this.userName;
                 connect(function(db) {
+                    var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_summaries');
-                    collection.find({
-                        read: false
-                    }).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
+                    userCollention.find({username:username}).toArray(function(err,doc){
+                        collection.find({
+                            read: false, $or:[{user_id:doc[0].userid},{type:'public'}]
+                        }).sort({
+                            "sendtime": -1
+                        }).toArray(function(err, docs) {
+                            self.summaries = docs;
+                        });
+
                     });
                 });
             },
             'summaries-searchType': function(id) {
                 var self = this;
+                var username = this.userName;
                 connect(function(db) {
+                    var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_summaries');
-                    collection.find({
-                        typeid: id
-                    }).sort({
-                        "sendtime": -1
-                    }).toArray(function(err, docs) {
-                        self.summaries = docs;
+                    userCollention.find({username:username}).toArray(function(err,doc){
+                        collection.find({
+                            typeid: id, $or:[{user_id:doc[0].userid},{type:'public'}]
+                        }).sort({
+                            "sendtime": -1
+                        }).toArray(function(err, docs) {
+                            self.summaries = docs;
+                        });
+
                     });
                 });
             }
