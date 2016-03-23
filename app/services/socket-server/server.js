@@ -64,7 +64,8 @@ connect(function(db) {
                     console.log(socketid);
                     io.sockets.connected[socketid].emit('private message', {
                         title: obj.title,
-                        desc: obj.desc
+                        desc: obj.desc,
+                        typeid: obj.typeid
                     });
                 }
             });
@@ -73,7 +74,8 @@ connect(function(db) {
         socket.on('public message', function(obj) {
             io.emit('public message', {
                 title: obj.title,
-                desc: obj.desc
+                desc: obj.desc,
+                typeid: obj.typeid
             });
         });
 
