@@ -11,6 +11,7 @@
         margin-top: 128px;
         color: #fff;
         text-align: center;
+        margin-bottom: 32px;
     }
 
     .login-form {
@@ -29,14 +30,15 @@
 
     .time-out {
         width: 320px;
-        height: 40px;
+        height: 30px;
         margin: -28px auto;
         color: #e74c3c;
-        line-height: 15px;
+        line-height: 4px;
+        font-size: 13px;
     }
 
     .glyphicon-remove-sign {
-        margin-top: -6px;
+        margin-top: -7px;
     }
     .loading{
         background-color: #1ABC9C;
@@ -63,6 +65,10 @@
         <!-- <pre>
             {{ $data | json }}
         </pre> -->
+        <div class="alert alert-warning time-out" role="alert" v-bind:class="{'hidden':timeOut}">
+            <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
+            <span>{{noticeError}}</span>
+        </div>
         <div class="login-form">
             <div class="form-group" v-bind:class="{ 'has-error': errorA}">
                 <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="userName">
@@ -80,15 +86,12 @@
             <a class="login-link" href="#">忘记密码？</a>
 
         </div>
-        <div class="alert alert-warning time-out" role="alert" v-bind:class="{'hidden':timeOut}">
-            <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
-            <span>登录超时</span>
-        </div>
+        
         <div class="loading" v-if="refreshing">
             <scale-loader class="loading-center"  color="white" height="80px" width="10px"></scale-loader>
         </div>
     </div>
-    
+
 </template>
 <script>
     //连接网络接口3000
@@ -110,9 +113,9 @@
                 loginA: true,
                 errorB: false,
                 loginB: true,
-                timeOut:true,
-                refreshing:false
                 timeOut: true,
+                noticeError: '',
+                refreshing:false
             }
         },
 
@@ -123,8 +126,7 @@
         ],
         components: {
             ScaleLoader
-          },
-
+        },
         ready: function() {
             this.socket = socket;
             socket.on('private message',function(data) {
@@ -183,7 +185,6 @@
 
                                         socket.on('serverOnlineStat', function(obj) {
                                             isOnlineStat = obj.isOnlineStat;
-
                                         });
                                         setTimeout(function() {
                                             if (isOnlineStat) {
@@ -196,25 +197,28 @@
                                                 });
                                                 self.userName = username;
                                             } else {
-                                                self.refreshing=false;
                                                 //提示用户信息
-                                                console.log("服务端未启动");
+                                                self.refreshing=false;
+                                                self.noticeError = '登录超时！';
+                                                self.timeOut = false;
                                             }
                                         }, 1000 + Math.random() * 1000);
                                     } else {
-                                        self.refreshing=false;
                                         self.errorB = true;
                                         self.loginB = false;
+                                        self.refreshing=false;
                                         self.noticePswd = '密码错误';
                                     }
                                 } else {
+                                    self.timeOut = false;
                                     self.refreshing=false;
+                                    self.noticeError = '此用户已在线！';
                                     console.log("此用户已在线！");
                                 }
                             } else { //如果没有此username
-                                self.refreshing=false;
                                 self.errorA = true;
                                 self.loginA = false;
+                                self.refreshing=false;
                                 self.noticeName = '用户名不存在';
                             }
                         });
