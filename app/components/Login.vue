@@ -11,6 +11,7 @@
         margin-top: 128px;
         color: #fff;
         text-align: center;
+        margin-bottom: 32px;
     }
 
     .login-form {
@@ -39,6 +40,22 @@
     .glyphicon-remove-sign {
         margin-top: -7px;
     }
+    .loading{
+        background-color: #1ABC9C;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        z-index: 99;
+        top: 0px;
+        left: 0px;
+    }
+    .loading-center{
+        position: absolute;
+        left: 50%;
+        top: 50%; 
+        margin-top: -25px;
+        margin-left: -75px;
+    }
 </style>
 <template>
     <div class="login-screen">
@@ -48,6 +65,10 @@
         <!-- <pre>
             {{ $data | json }}
         </pre> -->
+        <div class="alert alert-warning time-out" role="alert" v-bind:class="{'hidden':timeOut}">
+            <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
+            <span>{{noticeError}}</span>
+        </div>
         <div class="login-form">
             <div class="form-group" v-bind:class="{ 'has-error': errorA}">
                 <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="userName">
@@ -65,9 +86,9 @@
             <a class="login-link" href="#">忘记密码？</a>
 
         </div>
-        <div class="alert alert-warning time-out" role="alert" v-bind:class="{'hidden':timeOut}">
-            <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
-            <span>{{noticeError}}</span>
+        
+        <div class="loading" v-if="refreshing">
+            <scale-loader class="loading-center"  color="white" height="80px" width="10px"></scale-loader>
         </div>
     </div>
 
@@ -78,6 +99,8 @@
     var socket = require('socket.io-client')(env_conf.socketServerUrl);
     var moment = require('moment');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
+    //引用PulseLoader插件
+    var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
     module.exports = {
         name: "Login",
 
@@ -92,6 +115,7 @@
                 loginB: true,
                 timeOut: true,
                 noticeError: '',
+                refreshing:false
             }
         },
 
@@ -100,7 +124,9 @@
             'userName',
             'socket'
         ],
-
+        components: {
+            ScaleLoader
+        },
         ready: function() {
             this.socket = socket;
             socket.on('private message',function(data) {
@@ -139,6 +165,7 @@
                     this.noticePswd = '密码不能为空';
                 } else {
                     var self = this;
+                    self.refreshing=true;
                     connect(function(db) {
                         // Get the documents collection
                         var collection = db.collection('mb_user');
@@ -158,7 +185,6 @@
 
                                         socket.on('serverOnlineStat', function(obj) {
                                             isOnlineStat = obj.isOnlineStat;
-
                                         });
                                         setTimeout(function() {
                                             if (isOnlineStat) {
@@ -172,6 +198,7 @@
                                                 self.userName = username;
                                             } else {
                                                 //提示用户信息
+                                                self.refreshing=false;
                                                 self.noticeError = '登录超时！';
                                                 self.timeOut = false;
                                             }
@@ -179,15 +206,19 @@
                                     } else {
                                         self.errorB = true;
                                         self.loginB = false;
+                                        self.refreshing=false;
                                         self.noticePswd = '密码错误';
                                     }
                                 } else {
+                                    self.timeOut = false;
+                                    self.refreshing=false;
                                     self.noticeError = '此用户已在线！';
                                     console.log("此用户已在线！");
                                 }
                             } else { //如果没有此username
                                 self.errorA = true;
                                 self.loginA = false;
+                                self.refreshing=false;
                                 self.noticeName = '用户名不存在';
                             }
                         });
