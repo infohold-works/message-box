@@ -133,10 +133,6 @@
         },
 
         methods: {
-            test: function(){
-                this.refreshing=true;
-            },
-            close: function(){
             close: function() {
                 this.timeOut = true;
             },
@@ -167,6 +163,7 @@
                     this.noticePswd = '密码不能为空';
                 } else {
                     var self = this;
+                    self.refreshing=true;
                     connect(function(db) {
                         // Get the documents collection
                         var collection = db.collection('mb_user');
@@ -199,19 +196,23 @@
                                                 });
                                                 self.userName = username;
                                             } else {
+                                                self.refreshing=false;
                                                 //提示用户信息
                                                 console.log("服务端未启动");
                                             }
                                         }, 1000 + Math.random() * 1000);
                                     } else {
+                                        self.refreshing=false;
                                         self.errorB = true;
                                         self.loginB = false;
                                         self.noticePswd = '密码错误';
                                     }
                                 } else {
+                                    self.refreshing=false;
                                     console.log("此用户已在线！");
                                 }
                             } else { //如果没有此username
+                                self.refreshing=false;
                                 self.errorA = true;
                                 self.loginA = false;
                                 self.noticeName = '用户名不存在';
