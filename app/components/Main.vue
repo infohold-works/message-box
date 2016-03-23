@@ -345,6 +345,7 @@
                 // // raise an event on the server
                 console.log('public message' + data);
                 self.searchAllSummaries();
+                self.$dispatch('newMsg', data.typeid);
             });
 
             // listen to news event raised by the server
@@ -352,6 +353,7 @@
                 // // raise an event on the server
                 console.log('private message' + data);
                 self.searchAllSummaries();
+                self.$dispatch('newMsg', data.typeid);
             });
         },
 

@@ -39,6 +39,9 @@
             'notified': function() {
                 console.log('into app notified func');
                 this.$broadcast('public-message');
+            },
+            'newMsg': function(typeid){
+                this.$broadcast('siderbar-newMsg', typeid);
             }
         }
     }

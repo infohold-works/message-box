@@ -64,8 +64,18 @@ app.on('ready', function() {
 
     socket.on('public message',function(data) {
         notifier.notify({
-            'title': '通知',
-            'message': '您有新的消息！',
+            'title': "您有新消息："+data.title,
+            'message': data.desc,
+            'sound': true
+        }, function(error, response) {
+            console.log(error);
+            console.log(response);
+        });
+    });
+    socket.on('private message',function(data) {
+        notifier.notify({
+            'title': data.title,
+            'message': data.desc,
             'sound': true
         }, function(error, response) {
             console.log(error);

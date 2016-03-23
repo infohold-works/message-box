@@ -276,6 +276,9 @@
                         }
                     });
                 })
+            },
+            'siderbar-newMsg': function(typeid){
+                this.messageTypes[typeid - 1].count += 1;
             }
         }
     }
