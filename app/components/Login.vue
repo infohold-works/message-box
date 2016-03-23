@@ -29,14 +29,15 @@
 
     .time-out {
         width: 320px;
-        height: 40px;
+        height: 30px;
         margin: -28px auto;
         color: #e74c3c;
-        line-height: 15px;
+        line-height: 4px;
+        font-size: 13px;
     }
 
     .glyphicon-remove-sign {
-        margin-top: -6px;
+        margin-top: -7px;
     }
 </style>
 <template>
@@ -66,7 +67,7 @@
         </div>
         <div class="alert alert-warning time-out" role="alert" v-bind:class="{'hidden':timeOut}">
             <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
-            <span>登录超时</span>
+            <span>{{noticeError}}</span>
         </div>
     </div>
 
@@ -90,6 +91,7 @@
                 errorB: false,
                 loginB: true,
                 timeOut: true,
+                noticeError: '',
             }
         },
 
@@ -170,7 +172,8 @@
                                                 self.userName = username;
                                             } else {
                                                 //提示用户信息
-                                                console.log("服务端未启动");
+                                                self.noticeError = '登录超时！';
+                                                self.timeOut = false;
                                             }
                                         }, 1000 + Math.random() * 1000);
                                     } else {
@@ -179,6 +182,7 @@
                                         self.noticePswd = '密码错误';
                                     }
                                 } else {
+                                    self.noticeError = '此用户已在线！';
                                     console.log("此用户已在线！");
                                 }
                             } else { //如果没有此username
