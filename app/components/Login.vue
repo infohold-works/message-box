@@ -38,6 +38,22 @@
     .glyphicon-remove-sign {
         margin-top: -6px;
     }
+    .loading{
+        background-color: #1ABC9C;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        z-index: 99;
+        top: 0px;
+        left: 0px;
+    }
+    .loading-center{
+        position: absolute;
+        left: 50%;
+        top: 50%; 
+        margin-top: -25px;
+        margin-left: -75px;
+    }
 </style>
 <template>
     <div class="login-screen">
@@ -68,8 +84,11 @@
             <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
             <span>登录超时</span>
         </div>
+        <div class="loading" v-if="refreshing">
+            <scale-loader class="loading-center"  color="white" height="80px" width="10px"></scale-loader>
+        </div>
     </div>
-
+    
 </template>
 <script>
     //连接网络接口3000
@@ -77,6 +96,8 @@
     var socket = require('socket.io-client')(env_conf.socketServerUrl);
     var moment = require('moment');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
+    //引用PulseLoader插件
+    var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
     module.exports = {
         name: "Login",
 
@@ -89,6 +110,8 @@
                 loginA: true,
                 errorB: false,
                 loginB: true,
+                timeOut:true,
+                refreshing:false
                 timeOut: true,
             }
         },
@@ -98,6 +121,9 @@
             'userName',
             'socket'
         ],
+        components: {
+            ScaleLoader
+          },
 
         ready: function() {
             this.socket = socket;
@@ -137,6 +163,7 @@
                     this.noticePswd = '密码不能为空';
                 } else {
                     var self = this;
+                    self.refreshing=true;
                     connect(function(db) {
                         // Get the documents collection
                         var collection = db.collection('mb_user');
@@ -169,19 +196,23 @@
                                                 });
                                                 self.userName = username;
                                             } else {
+                                                self.refreshing=false;
                                                 //提示用户信息
                                                 console.log("服务端未启动");
                                             }
                                         }, 1000 + Math.random() * 1000);
                                     } else {
+                                        self.refreshing=false;
                                         self.errorB = true;
                                         self.loginB = false;
                                         self.noticePswd = '密码错误';
                                     }
                                 } else {
+                                    self.refreshing=false;
                                     console.log("此用户已在线！");
                                 }
                             } else { //如果没有此username
+                                self.refreshing=false;
                                 self.errorA = true;
                                 self.loginA = false;
                                 self.noticeName = '用户名不存在';
