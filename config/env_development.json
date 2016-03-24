@@ -3,7 +3,7 @@
   "description": "Add here any environment specific stuff you like.",
   "socketServerUrl": "http://localhost:3000",
   "test": {
-    "url": "mongodb://localhost:27017/test",
+    "url": "mongodb://8.1.3.213:27017/test",
     "options": {
       "server": {
         "poolSize": 10
