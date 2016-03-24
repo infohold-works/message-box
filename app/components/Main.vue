@@ -226,8 +226,8 @@
         </div>
         <ul v-if="summaries.length > 0" class="summaries">
             <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'  " class="summary" @click="messageDetail(summary.id)">
-                <article>
+            filterBy searchQuery in 'title' 'desc'  " class="animated fadeIn summary" @click="messageDetail(summary.id)">
+                <article >
                     <header class="summary-title">
                         <h6 v-if="summary.title.length > 12">{{ summary.title.substring(0,12) }} ...</h6>
                         <h6 v-else>{{ summary.title }}</h6>
