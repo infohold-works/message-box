@@ -7,11 +7,11 @@
         top: 60px;
         bottom: 0;
         left: 0;
-        width: 256px;
+        width: 192px;
     }
 
     .dashboard-sidebar .dashboard-sidebar-header {
-        width: 256px;
+        width: 192px;
         height: 60px;
         padding: 0 20px;
         background: #1ABC9C;

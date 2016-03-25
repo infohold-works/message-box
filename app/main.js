@@ -10,8 +10,16 @@ var devHelper = require('./vendor/electron_boilerplate/dev_helper');
 var windowStateKeeper = require('./vendor/electron_boilerplate/window_state');
 
 var env_conf = require('../config/env_development.json');
-var socket = require('socket.io-client')(env_conf.socketServerUrl);
+
 var notifier = require('node-notifier');
+// 全局notifier
+global.notifier = notifier;
+
+var os = require('os');
+console.log(os.platform());
+// ipc进程间通讯主进程
+var ipcMain = require('electron').ipcMain;
+
 // for win10
 // var WindowsToaster = require('node-notifier').WindowsToaster;
 //
@@ -36,6 +44,7 @@ var mainWindowState = windowStateKeeper('main', {
     width: 1024,
     height: 768
 });
+var tray = null;
 
 app.on('ready', function() {
 
@@ -45,8 +54,6 @@ app.on('ready', function() {
         width: mainWindowState.width,
         height: mainWindowState.height
     });
-    console.log(mainWindowState);
-    console.log(mainWindowState.isMaximized);
     if (mainWindowState.isMaximized) {
         mainWindow.maximize();
     }
@@ -62,26 +69,14 @@ app.on('ready', function() {
         mainWindow.openDevTools();
     }
 
-    socket.on('public message',function(data) {
-        notifier.notify({
-            'title': "您有新消息："+data.title,
-            'message': data.desc,
-            'sound': true
-        }, function(error, response) {
-            console.log(error);
-            console.log(response);
-        });
-    });
-    socket.on('private message',function(data) {
-        notifier.notify({
-            'title': data.title,
-            'message': data.desc,
-            'sound': true
-        }, function(error, response) {
-            console.log(error);
-            console.log(response);
-        });
-    })
+    // mainWindow.webContents.on('did-finish-load', function() {
+    //     mainWindow.webContents.send('ping', 'whoooooooh!');
+    // });
+
+    // ipcMain.on('asynchronous-message', function(event, arg) {
+    //     console.log(arg);  // prints "ping"
+    //     event.sender.send('asynchronous-reply', 'pong');
+    // });
 
     mainWindow.on('close', function() {
         mainWindowState.saveState(mainWindow);

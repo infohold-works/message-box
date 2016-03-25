@@ -10,7 +10,7 @@
         height: 60px;
         line-height: 60px;
         position: absolute;
-        left: 256px;
+        left: 192px;
         right: 0;
     }
 
@@ -65,7 +65,7 @@
         position: absolute;
         top: 60px;
         bottom: 0;
-        left: 256px;
+        left: 192px;
         background: #fafafa;
         overflow-y: auto;
         width: 320px;
@@ -77,7 +77,7 @@
         color: #2C3E50;
         position: absolute;
         top: 60px;
-        left: 576px;
+        left: 512px;
         right: 0;
         bottom: 0;
         min-width: 448px;
@@ -233,7 +233,10 @@
                         <h6 v-else>{{ summary.title }}</h6>
                         <time class="summary-time pull-right">{{ summary.sendtime.substr(0,10) }}</time>
                     </header>
-                    <section class="summary-desc">
+                    <section class="summary-desc" v-if="summary.desc.length > 24">
+                        {{ summary.desc.substr(0,64) }} ...
+                    </section>
+                    <section class="summary-desc" v-else>
                         {{ summary.desc }}
                     </section>
                 </article>
@@ -277,6 +280,8 @@
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
+
+    var notifier = require('electron').remote.getGlobal('notifier');
 
     module.exports = {
         name: 'Main',
@@ -337,44 +342,20 @@
 
         ready: function() {
             var socket = this.socket;
-            console.log(socket);
             this.searchAllSummaries();
             var self = this;
             // listen to news event raised by the server
             socket.on('public message', function(data) {
-                // // raise an event on the server
-                console.log('public message' + data);
-                self.searchAllSummaries();
-                self.$dispatch('newMsg', data.typeid);
+                self.newMessage(data);
             });
 
             // listen to news event raised by the server
             socket.on('private message', function(data) {
-                // // raise an event on the server
-                console.log('private message' + data);
-                self.searchAllSummaries();
-                self.$dispatch('newMsg', data.typeid);
+                self.newMessage(data);
             });
         },
 
         methods: {
-            exit : function(){
-                var username=this.userName;
-                //连接数据库
-                connect(function(db) {
-                    //关联用户名表
-                    var collection = db.collection('mb_user');
-                    collection.update({
-                        username:username
-                    },{
-                        $set : {
-                            online_stat: false,
-                            socketID:''
-                        }
-                    });
-                })
-                this.isLogin=false;
-            },
             searchAllSummaries() {
                 var self = this;
                 var username = this.userName;
@@ -460,6 +441,36 @@
                         self.author = messages[messagesId].author;
                         self.sendtime = messages[messagesId].sendtime;
                     });
+                });
+            },
+            exit : function(){
+                var username=this.userName;
+                //连接数据库
+                connect(function(db) {
+                    //关联用户名表
+                    var collection = db.collection('mb_user');
+                    collection.update({
+                        username:username
+                    },{
+                        $set : {
+                            online_stat: false,
+                            socketID:''
+                        }
+                    });
+                })
+                this.isLogin=false;
+            },
+            newMessage(data) {
+                console.log('private message' + data);
+                this.searchAllSummaries();
+                this.$dispatch('newMsg', data.typeid);
+                notifier.notify({
+                    'title': "您有新的消息：" + data.title,
+                    'message': data.desc,
+                    'sound': true
+                }, function(error, response) {
+                    console.log(error);
+                    console.log(response);
                 });
             }
         },
