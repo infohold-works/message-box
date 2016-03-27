@@ -2,14 +2,12 @@
 // app starts. This script is running through entire life of your application.
 // It doesn't have any windows which you can see on screen, but we can open
 // window from here.
-
+var electron = require('electron');
 var app = require('app');
 var BrowserWindow = require('browser-window');
 var env = require('./vendor/electron_boilerplate/env_config');
 var devHelper = require('./vendor/electron_boilerplate/dev_helper');
 var windowStateKeeper = require('./vendor/electron_boilerplate/window_state');
-
-var env_conf = require('../config/env_development.json');
 
 var notifier = require('node-notifier');
 // 全局notifier
@@ -18,7 +16,9 @@ global.notifier = notifier;
 var os = require('os');
 console.log(os.platform());
 // ipc进程间通讯主进程
-var ipcMain = require('electron').ipcMain;
+var ipcMain = electron.ipcMain;
+var Menu = electron.Menu;
+var Tray = electron.Tray;
 
 // for win10
 // var WindowsToaster = require('node-notifier').WindowsToaster;
@@ -66,7 +66,7 @@ app.on('ready', function() {
 
     if (env.name !== 'production') {
         devHelper.setDevMenu();
-        mainWindow.openDevTools();
+        // mainWindow.openDevTools();
     }
 
     // mainWindow.webContents.on('did-finish-load', function() {
@@ -89,6 +89,39 @@ app.on('ready', function() {
     }, function(error, response) {
         console.log(response);
     });
+
+    tray = new Tray(__dirname + '\\assets\\img\\icon.png');
+    var trayMenuTemplate = [{
+        label: '显示主窗口',
+        click: function() {
+            // ipc.send('open-main-window');
+            if (mainWindow) {
+                return;
+            }
+        }
+    }, {
+        label: '最小化窗口',
+        accelerator: 'CmdOrCtrl+M',
+        role: 'minimize'
+    }, {
+        type: 'separator'
+    }, {
+        label: '设置',
+        click: function() {
+            // ipc.send('open-settings-window');
+        }
+    }, {
+        type: 'separator'
+    }, {
+        label: '退出',
+        click: function() {
+            // ipc.send('close-main-window');
+            app.quit();
+        }
+    }];
+    var contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
+    tray.setToolTip('消息盒子');
+    tray.setContextMenu(contextMenu);
 
 });
 
