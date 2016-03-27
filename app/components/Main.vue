@@ -257,7 +257,7 @@
             <br/>
             <br/>
             <br/>
-            <p>获取信息消息 ...</p>
+            <p>获取消息 ...</p>
         </div>
     </div>
     <div class="dashboard-message-detail">
@@ -372,6 +372,7 @@
                         });
                     });
                 });
+                this.mescontent = false;
             },
             markRead(id) {
                 // 传参赋值
@@ -494,6 +495,7 @@
 
                     });
                 });
+                this.mescontent = false;
             },
             'summaries-searchUnread': function() {
                 var self = this;
@@ -512,6 +514,7 @@
 
                     });
                 });
+                this.mescontent = false;
             },
             'summaries-searchType': function(id) {
                 var self = this;
@@ -530,6 +533,7 @@
 
                     });
                 });
+                this.mescontent = false;
             }
         },
 
