@@ -14,7 +14,6 @@
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-util": "^3.0.7",
-    "node-notifier": "^4.5.0",
     "q": "^1.4.1",
     "tree-kill": "^0.1.1",
     "vinyl-source-stream": "^1.1.0",
@@ -32,6 +31,8 @@
     "release": "gulp release --env=production",
     "start": "node ./tasks/start",
     "test": "node ./tasks/start --env=test",
-    "package": "electron-packager ./ app --out MessageBox --platform=win32 --arch=x64 --version 0.36.9 --overwrite --icon=./app/assets/img/app-icon.ico"
+    "package": "node ./tasks/package.js --platform=all --arch=all",
+    "package:osx": "node ./tasks/package.js --platform=darwin --arch=x64",
+    "package:win": "node ./tasks/package.js --platform=win32 --arch=all"
   }
 }
