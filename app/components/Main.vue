@@ -445,6 +445,7 @@
                 });
             },
             exit : function(){
+                var socket = this.socket;
                 var username=this.userName;
                 //连接数据库
                 connect(function(db) {
@@ -459,6 +460,9 @@
                         }
                     });
                 })
+                socket.emit('exit', {
+                    username:username
+                });
                 this.isLogin=false;
             },
             newMessage(data) {

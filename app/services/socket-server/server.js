@@ -7,6 +7,7 @@ connect(function(db) {
     // Get the documents collection
     var collection = db.collection('mb_user');
     var socketid;
+    var onlineCount = 0;
     //更改登录状态
     function updateOnlineStat(username, stat) {
         collection.update({
@@ -44,24 +45,24 @@ connect(function(db) {
     io.on('connection', function(socket) {
         console.log("a user connection");
         socket.on('login', function(obj) {
-            console.log(obj.username + "加入")
+            onlineCount++; //在线人数+1
+            console.log(obj.username + "加入! 当前在线人数:" + onlineCount)
             socket.name = obj.username;
             updateSocketId(obj.username, socket.id);
         });
         //客户端验证服务端是否启动
         socket.on('serverOnlineStat', function() {
-            io.emit('serverOnlineStat', {
-                isOnlineStat: true
+                io.emit('serverOnlineStat', {
+                    isOnlineStat: true
+                })
             })
-        })
-        //接收消息并发送给指定客户端
+            //接收消息并发送给指定客户端
         socket.on('private message', function(obj) {
             collection.find({
                 username: obj.username
             }).toArray(function(err, docs) {
                 if (docs[0].online_stat) { //查询用户是否在线
                     socketid = docs[0].socketID;
-                    console.log(socketid);
                     io.sockets.connected[socketid].emit('private message', {
                         title: obj.title,
                         desc: obj.desc,
@@ -86,7 +87,8 @@ connect(function(db) {
             }).toArray(function(err, docs) {
                 try {
                     if (docs[0].online_stat) {
-                        console.log(socket.name + "退出了");
+                        onlineCount--;
+                        console.log(socket.name + "退出! 当前在线人数:" + onlineCount);
                         updateOnlineStat(socket.name, false);
                         updateSocketId(socket.name, "");
                     }
@@ -94,6 +96,10 @@ connect(function(db) {
                     //异常处理
                 }
             });
+        });
+        socket.on('exit', function(obj) {
+            onlineCount--;
+            console.log(obj.username + "退出! 当前在线人数:" + onlineCount);
         });
     });
 });

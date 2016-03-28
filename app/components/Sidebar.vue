@@ -133,7 +133,9 @@
 
     module.exports = {
         name: "Sidebar",
-
+        props: [
+            'userName'
+        ],
         data: function() {
             return {
                 messageTypes: [],
@@ -164,15 +166,29 @@
             var self = this;
             connect(function(db) {
                 // Get the documents collection
+                var userCollection = db.collection('mb_user');
                 var collection = db.collection('mb_message_types');
+                var username = self.userName;
                 // Find some documents
-                collection.find({}).toArray(function(err, docs) {
-                    // assert.equal(err, null);
-                    // assert.equal(5, docs.length);
-                    // console.log("Sidebar found the following records");
-                    // console.dir(docs);
-                    self.messageTypes = docs;
+                userCollection.find({username:username}).toArray(function(err,docs){
+                    var msgCount = docs[0].count;
+                    var msgTypes = env_conf.messageTypes;
+                    for(var i=0;i<msgTypes.length;i++){
+                        self.messageTypes.push({
+                            title:msgTypes[i],
+                            count:msgCount[i],
+                            id:i+1
+                        });
+                    }
                 });
+                // collection.find({}).toArray(function(err, docs) {
+                //     // assert.equal(err, null);
+                //     // assert.equal(5, docs.length);
+                //     // console.log("Sidebar found the following records");
+                //     // console.dir(docs);
+                //     self.messageTypes = docs;
+                //     console.log(docs)
+                // });
             });
 
             // 删除写法
@@ -243,43 +259,43 @@
                 return this.$route.router.go({
                     path: '/type/' + messageType.title
                 });
+            },
+            updateCount(typeid,username){
+                var self = this;
+                connect(function(db) {
+                    var collection = db.collection('mb_user');
+                    // var countIndex = typeid - 1;
+                    collection.update({
+                        username:username
+                    }, {
+                        $set: {
+                            [`count.${typeid - 1}`]:self.messageTypes[typeid - 1].count
+                        }
+                    });
+                });
             }
+
         },
 
         events: {
             'siderbar-markRead': function(typeid) {
                 var self = this;
+                var username = this.userName;
                 console.log('-1');
                 this.messageTypes[typeid - 1].count -= 1;
-                connect(function(db) {
-                    var collection = db.collection('mb_message_types');
-                    collection.update({
-                        id: typeid
-                    }, {
-                        $set: {
-                            count: self.messageTypes[typeid - 1].count
-                        }
-                    });
-                })
+                this.updateCount(typeid,username);
             },
             'siderbar-markUnread': function(typeid) {
                 var self = this;
+                var username = this.userName;
                 console.log('+1');
                 this.messageTypes[typeid - 1].count += 1;
-                connect(function(db) {
-                    var collection = db.collection('mb_message_types');
-                    collection.update({
-                        id: typeid
-                    }, {
-                        $set: {
-                            count: self.messageTypes[typeid - 1].count
-                        }
-                    });
-                })
+                this.updateCount(typeid,username);
             },
             'siderbar-newMsg': function(typeid){
                 this.messageTypes[typeid - 1].count += 1;
             }
+
         }
     }
 </script>
