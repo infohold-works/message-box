@@ -51,7 +51,7 @@
         <login :is-login.sync="isLogin" :user-name.sync="userName" :socket.sync="socket" keep-alive></login>
     </div>
     <div class="dashboard animated fadeIn" v-if="isLogin">
-        <sidebar></sidebar>
+        <sidebar :user-name.once="userName"></sidebar>
         <router-view :is-login.sync="isLogin" :user-name.once="userName" :socket.sync="socket"></router-view>
     </div>
 </template>

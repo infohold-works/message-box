@@ -96,8 +96,13 @@ var env_conf = require('../../config/env_development.json');
 var socket = require('socket.io-client')(env_conf.socketServerUrl);
 var moment = require('moment');
 var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
-//引用PulseLoader插件
+//引用vue-spinner插件
 var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
+var ipcRenderer = require('electron').ipcRenderer;
+// ipcRenderer.on('asynchronous-reply', function(event, arg) {
+//     console.log(arg); // prints "pong"
+// });
+// ipcRenderer.send('asynchronous-message', 'ping');
 module.exports = {
     name: "Login",
 
@@ -199,7 +204,7 @@ module.exports = {
                                             self.noticeError = '登录超时！';
                                             self.timeOut = false;
                                         }
-                                    }, 1000 + Math.random() * 1000);
+                                    }, 1000*3 + Math.random() * 1000);
                                 } else {
                                     self.errorB = true;
                                     self.loginB = false;
