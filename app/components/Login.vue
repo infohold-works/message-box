@@ -108,6 +108,8 @@ module.exports = {
 
     data: function() {
         return {
+            userName: '',
+            password: '',
             noticeName: '',
             noticePswd: '',
             password: '',
@@ -134,6 +136,7 @@ module.exports = {
         socket.on('private message', function(data) {
             console.log('into login private message');
         })
+        this.userName = localStorage.lastname;
     },
 
     methods: {
@@ -191,6 +194,7 @@ module.exports = {
                                     setTimeout(function() {
                                         if (isOnlineStat) {
                                             self.isLogin = true;
+                                            localStorage.lastname = username;
                                             self.updateOnlineStat(username); //更改在线状态
                                             self.updateLastLoginTime(username); //更新上一次登录时间
                                             self.updateLoginTime(username, self.nowTime()); //添加当前时间
