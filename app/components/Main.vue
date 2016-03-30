@@ -361,7 +361,7 @@
                 var username = this.userName;
                 connect(function(db) {
                     var userCollention = db.collection('mb_user');
-                    var collection = db.collection('mb_summaries');
+                    var collection = db.collection('mb_messages');
                     userCollention.find({username:username}).toArray(function(err,doc){
                         collection.find({
                             $or:[{user_id:doc[0].userid},{type:'public'}]
@@ -386,7 +386,7 @@
                     }
                 }
                 connect(function(db) {
-                    var collection = db.collection('mb_summaries');
+                    var collection = db.collection('mb_messages');
                     collection.update({
                         id: id
                     }, {
@@ -407,7 +407,7 @@
                     }
                 }
                 connect(function(db) {
-                    var collection = db.collection('mb_summaries');
+                    var collection = db.collection('mb_messages');
                     collection.update({
                         id: id
                     }, {
@@ -487,7 +487,7 @@
                 var username = this.userName;
                 connect(function(db) {
                     var userCollention = db.collection('mb_user');
-                    var collection = db.collection('mb_summaries');
+                    var collection = db.collection('mb_messages');
                     userCollention.find({username:username}).toArray(function(err,doc){
                         collection.find({
                             read:true, $or:[{user_id:doc[0].userid},{type:'public'}]
@@ -506,7 +506,7 @@
                 var username = this.userName;
                 connect(function(db) {
                     var userCollention = db.collection('mb_user');
-                    var collection = db.collection('mb_summaries');
+                    var collection = db.collection('mb_messages');
                     userCollention.find({username:username}).toArray(function(err,doc){
                         collection.find({
                             read: false, $or:[{user_id:doc[0].userid},{type:'public'}]
@@ -525,7 +525,7 @@
                 var username = this.userName;
                 connect(function(db) {
                     var userCollention = db.collection('mb_user');
-                    var collection = db.collection('mb_summaries');
+                    var collection = db.collection('mb_messages');
                     userCollention.find({username:username}).toArray(function(err,doc){
                         collection.find({
                             typeid: id, $or:[{user_id:doc[0].userid},{type:'public'}]
