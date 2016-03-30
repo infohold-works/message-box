@@ -30,6 +30,11 @@
     .message .message-content {
         margin-top: 20px;
     }
+
+    .message .message-content h1 {
+        font-size: 24px;
+        margin: 20px 0;
+    }
 </style>
 <template>
     <article class="message" v-if="mescontent">

@@ -282,6 +282,18 @@
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
 
     var notifier = require('electron').remote.getGlobal('notifier');
+    var marked = require('marked');
+
+    marked.setOptions({
+        renderer: new marked.Renderer(),
+        gfm: true,
+        tables: true,
+        breaks: false,
+        pedantic: false,
+        sanitize: true,
+        smartLists: true,
+        smartypants: false
+    });
 
     module.exports = {
         name: 'Main',
@@ -438,7 +450,7 @@
                         self.typeid = messages[messagesId].typeid;
                         self.id = messages[messagesId].id;
                         self.mestitle = messages[messagesId].title;
-                        self.mescontent = messages[messagesId].content;
+                        self.mescontent = marked(messages[messagesId].content);
                         self.author = messages[messagesId].author;
                         self.sendtime = messages[messagesId].sendtime;
                     });

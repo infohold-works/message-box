@@ -22,6 +22,7 @@
     "font-awesome": "^4.5.0",
     "fs-jetpack": "^0.7.0",
     "jquery": "^2.2.1",
+    "marked": "^0.3.5",
     "moment": "^2.12.0",
     "mongodb": "^2.1.7",
     "node-notifier": "^4.5.0",
