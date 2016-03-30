@@ -73,7 +73,7 @@ body {
         </div>
         <div class="login-form">
             <div class="form-group" v-bind:class="{ 'has-error': errorA}">
-                <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="userName">
+                <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="loginName">
                 <label class="login-field-icon fui-user" for="login-name"></label>
                 <span class="notice pull-right ">{{noticeName}}</span>
             </div>
@@ -134,6 +134,7 @@ module.exports = {
         socket.on('private message', function(data) {
             console.log('into login private message');
         })
+        this.loginName = localStorage.lastname;
     },
 
     methods: {
@@ -149,7 +150,7 @@ module.exports = {
             this.noticeName = '';
             this.noticePswd = '';
             //获取用户名和密码
-            var username = this.userName;
+            var username = this.loginName;
             var password = this.password;
             //判断用户名和密码是否为空
             if (username == "") {
@@ -190,6 +191,7 @@ module.exports = {
                                     });
                                     setTimeout(function() {
                                         if (isOnlineStat) {
+                                            localStorage.lastname = username;
                                             self.isLogin = true;
                                             self.updateOnlineStat(username); //更改在线状态
                                             self.updateLastLoginTime(username); //更新上一次登录时间
