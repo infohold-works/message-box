@@ -170,14 +170,17 @@
                 var collection = db.collection('mb_message_types');
                 var username = self.userName;
                 // Find some documents
-                userCollection.find({username:username}).toArray(function(err,docs){
+                userCollection.find({
+                    username: username
+                }).toArray(function(err, docs) {
                     var msgCount = docs[0].count;
                     var msgTypes = env_conf.messageTypes;
-                    for(var i=0;i<msgTypes.length;i++){
+                    for (var i = 0; i < msgTypes.length; i++) {
                         self.messageTypes.push({
-                            title:msgTypes[i],
-                            count:msgCount[i],
-                            id:i+1
+                            title: msgTypes[i],
+                            count: msgCount[i],
+                            id: i + 1,
+                            selected: false
                         });
                     }
                 });
@@ -260,16 +263,16 @@
                     path: '/type/' + messageType.title
                 });
             },
-            updateCount(typeid,username){
+            updateCount(typeid, username) {
                 var self = this;
                 connect(function(db) {
                     var collection = db.collection('mb_user');
                     // var countIndex = typeid - 1;
                     collection.update({
-                        username:username
+                        username: username
                     }, {
                         $set: {
-                            [`count.${typeid - 1}`]:self.messageTypes[typeid - 1].count
+                            [`count.${typeid - 1}`]: self.messageTypes[typeid - 1].count
                         }
                     });
                 });
@@ -283,16 +286,16 @@
                 var username = this.userName;
                 console.log('-1');
                 this.messageTypes[typeid - 1].count -= 1;
-                this.updateCount(typeid,username);
+                this.updateCount(typeid, username);
             },
             'siderbar-markUnread': function(typeid) {
                 var self = this;
                 var username = this.userName;
                 console.log('+1');
                 this.messageTypes[typeid - 1].count += 1;
-                this.updateCount(typeid,username);
+                this.updateCount(typeid, username);
             },
-            'siderbar-newMsg': function(typeid){
+            'siderbar-newMsg': function(typeid) {
                 this.messageTypes[typeid - 1].count += 1;
             }
 
