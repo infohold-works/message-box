@@ -72,16 +72,27 @@
             <span>{{noticeError}}</span>
         </div>
         <div class="login-form">
-            <div class="form-group" v-bind:class="{ 'has-error': errorA}">
-                <input type="text" class="form-control" v-bind:class="{ 'login-field': loginA}" value="" placeholder="用户名" v-model="userName">
+            <div class="form-group" :class="{'has-error': errorA}">
+                <input type="text" class="form-control" :class="{'login-field': loginA}" value="" placeholder="用户名" v-model="userName">
                 <label class="login-field-icon fui-user" for="login-name"></label>
                 <span class="notice pull-right ">{{noticeName}}</span>
             </div>
-            <div class="form-group" v-bind:class="{'has-error':errorB}">
-                <input type="password" class="form-control" v-bind:class="{ 'login-field': loginB}" value="" placeholder="密码" v-model="password">
+            <div class="form-group" :class="{'has-error':errorB}">
+                <input type="password" class="form-control" :class="{'login-field': loginB}" value="" placeholder="密码" v-model="password">
                 <label class="login-field-icon fui-lock" for="login-pass"></label>
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
+            <label class="checkbox" for="checkbox">
+            	<input class="custom-checkbox" id="checkbox" data-toggle="checkbox"
+                type="checkbox" @click="savePasswd" v-if="!isChecked">
+                <input class="custom-checkbox" id="checkbox" checked="checked"
+                data-toggle="checkbox" type="checkbox" @click="removePasswd" v-if="isChecked">
+            	<span class="icons">
+            	    <span class="icon-unchecked"></span>
+            	    <span class="icon-checked"></span>
+                </span>
+            	记住密码
+            </label>
             <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
             <a class="login-link" href="#">忘记密码？</a>
         </div>
@@ -117,7 +128,8 @@
                 loginB: true,
                 timeOut: true,
                 noticeError: '',
-                refreshing: false
+                refreshing: false,
+                isChecked: false,
             }
         },
 
@@ -126,12 +138,20 @@
             'userName',
             'socket'
         ],
+
         components: {
             ScaleLoader
         },
+
         ready: function() {
             this.socket = socket;
             this.userName = localStorage.lastname;
+            this.password = localStorage.password;
+            if( localStorage.isChecked == 'true') {
+                this.isChecked = true;
+            } else {
+                this.isChecked = false;
+            }
         },
 
         methods: {
@@ -189,6 +209,11 @@
                                         setTimeout(function() {
                                             if (isOnlineStat) {
                                                 localStorage.lastname = username;
+                                                if(self.isChecked) {
+                                                    localStorage.password = password;
+                                                } else {
+                                                    localStorage.password = '';
+                                                }
                                                 self.isLogin = true;
                                                 self.updateOnlineStat(username); //更改在线状态
                                                 self.updateLastLoginTime(username); //更新上一次登录时间
@@ -269,8 +294,16 @@
                         });
                     });
                 });
+            },
+            savePasswd: function() {
+                this.isChecked = true;
+                localStorage.isChecked = this.isChecked;
+            },
+            removePasswd: function() {
+                this.isChecked = false;
+                localStorage.password = '';
+                localStorage.isChecked = this.isChecked;
             }
-
         }
     }
 </script>

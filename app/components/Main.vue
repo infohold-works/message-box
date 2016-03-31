@@ -215,7 +215,7 @@
                 <li><a href="#">设&emsp;&emsp;置</a></li>
                 <li><a href="#">关于我们</a></li>
                 <li class="divider"></li>
-                <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
+                <li><a href="#" @click="exit">登&emsp;&emsp;出</a></li>
             </ul>
         </div>
     </div>
@@ -344,6 +344,7 @@
                 searchQuery: '',
                 markedread: '',
                 selected: '',
+                typeid: '',
                 id: '',
                 mestitle: '',
                 mescontent: '',
