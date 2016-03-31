@@ -55,20 +55,31 @@ gulp.task('clean', function() {
 
 gulp.task('css', function () {
     var stylesheets = [
-        './app/node_modules/bootstrap/dist/css/bootstrap.min.css',
+        './app/assets/plugins/bootstrap/css/bootstrap.min.css',
         './app/node_modules/font-awesome/css/font-awesome.min.css',
-        './app/node_modules/flat-ui/css/flat-ui.css'
+        './app/assets/plugins/flat-ui/css/flat-ui.min.css'
     ];
     return gulp.src(stylesheets)
         .pipe(concat('plugins.min.css'))
         .pipe(gulp.dest(dest + '/assets/css'))
 })
 
+gulp.task('js', function () {
+    var stylesheets = [
+        './app/assets/plugins/plugins.js',
+        './app/assets/plugins/bootstrap/js/bootstrap.min.js',
+        './app/assets/plugins/flat-ui/js/flat-ui.min.js'
+    ];
+    return gulp.src(stylesheets)
+        .pipe(concat('plugins.min.js'))
+        .pipe(gulp.dest(dest + '/assets/js'))
+})
+
 gulp.task('fonts', function() {
     var fonts = [
-        './app/node_modules/bootstrap/dist/fonts/*',
+        './app/assets/plugins/bootstrap/fonts/*',
         './app/node_modules/font-awesome/fonts/*',
-        './app/node_modules/flat-ui/fonts/**/*'
+        './app/assets/plugins/flat-ui/fonts/**/*'
     ];
     return gulp.src(fonts)
         .pipe(gulp.dest(dest + '/assets/fonts'))
@@ -116,7 +127,7 @@ gulp.task('finalize', ['clean'], function () {
 })
 
 // Dev builds of assets with source maps and debug enabled
-gulp.task('compile', ['css', 'fonts', 'copy'])
+gulp.task('compile', ['css', 'js', 'fonts', 'copy'])
 gulp.task('build-dev', ['clean', 'compile', 'webpack:build-dev'])
 gulp.task('build', ['build-dev', 'finalize'])
 
