@@ -388,6 +388,7 @@
                 this.mescontent = false;
             },
             markRead(id) {
+                var self = this;
                 // 传参赋值
                 this.markedread = true;
                 // read样式绑定
@@ -399,18 +400,19 @@
                     }
                 }
                 connect(function(db) {
-                    var collection = db.collection('mb_messages');
-                    collection.update({
-                        id: id
-                    }, {
-                        $set: {
-                            read: true
-                        }
+                    var userCollention = db.collection('mb_user');
+                    var statusCollection = db.collection('mb_status');
+                    var username = self.userName;
+                    userCollention.find({username:username}).toArray(function(err,docs){
+                        statusCollection.update({
+                            userid:docs[0].userid,"message.id":id
+                        },{$set: {"message.$.read":true}});
                     });
                 })
 
             },
             markUnread(id) {
+                var self = this;
                 this.markedread = false;
                 for (var i in this.summaries) {
                     if (this.summaries[i].id == id) {
@@ -420,13 +422,13 @@
                     }
                 }
                 connect(function(db) {
-                    var collection = db.collection('mb_messages');
-                    collection.update({
-                        id: id
-                    }, {
-                        $set: {
-                            read: false
-                        }
+                    var userCollention = db.collection('mb_user');
+                    var statusCollection = db.collection('mb_status');
+                    var username = self.userName;
+                    userCollention.find({username:username}).toArray(function(err,docs){
+                        statusCollection.update({
+                            userid:docs[0].userid,"message.id":id
+                        },{$set: {"message.$.read":false}});
                     });
                 })
             },
