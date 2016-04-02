@@ -143,7 +143,7 @@
                 isAll: false,
                 isRead: false,
                 isUnRead: false,
-                isType: false
+                isType: false,
             }
         },
 
@@ -167,19 +167,26 @@
             connect(function(db) {
                 // Get the documents collection
                 var userCollection = db.collection('mb_user');
-                var collection = db.collection('mb_message_types');
+                var statusCollection = db.collection('mb_status');
                 var username = self.userName;
                 // Find some documents
-                userCollection.find({username:username}).toArray(function(err,docs){
-                    var msgCount = docs[0].count;
+                userCollection.find({
+                    username: username
+                }).toArray(function(err, docs) {
                     var msgTypes = env_conf.messageTypes;
-                    for(var i=0;i<msgTypes.length;i++){
-                        self.messageTypes.push({
-                            title:msgTypes[i],
-                            count:msgCount[i],
-                            id:i+1
-                        });
-                    }
+                    var msgCount = [];
+                    statusCollection.find({userid:docs[0].userid}).sort({
+                        "typeid":1
+                    }).toArray(function(err,doc){
+                        for (var i = 0; i < msgTypes.length; i++) {
+                            self.messageTypes.push({
+                                title: msgTypes[i],
+                                count: doc[i].count,
+                                id: i + 1,
+                                selected: false
+                            });
+                        }
+                    });
                 });
                 // collection.find({}).toArray(function(err, docs) {
                 //     // assert.equal(err, null);
@@ -260,17 +267,16 @@
                     path: '/type/' + messageType.title
                 });
             },
-            updateCount(typeid,username){
+            //修改数据库count
+            updateCount(typeid, username) {
                 var self = this;
                 connect(function(db) {
-                    var collection = db.collection('mb_user');
-                    // var countIndex = typeid - 1;
-                    collection.update({
-                        username:username
-                    }, {
-                        $set: {
-                            [`count.${typeid - 1}`]:self.messageTypes[typeid - 1].count
-                        }
+                    var userCollection = db.collection('mb_user');
+                    var statusCollection = db.collection('mb_status');
+                    userCollection.find({username:username}).toArray(function(err,docs){
+                        statusCollection.update({
+                            userid:docs[0].userid,typeid:typeid
+                        },{$set: {count: self.messageTypes[typeid - 1].count }});
                     });
                 });
             }
@@ -283,16 +289,16 @@
                 var username = this.userName;
                 console.log('-1');
                 this.messageTypes[typeid - 1].count -= 1;
-                this.updateCount(typeid,username);
+                this.updateCount(typeid, username);
             },
             'siderbar-markUnread': function(typeid) {
                 var self = this;
                 var username = this.userName;
                 console.log('+1');
                 this.messageTypes[typeid - 1].count += 1;
-                this.updateCount(typeid,username);
+                this.updateCount(typeid, username);
             },
-            'siderbar-newMsg': function(typeid){
+            'siderbar-newMsg': function(typeid) {
                 this.messageTypes[typeid - 1].count += 1;
             }
 

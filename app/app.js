@@ -7,6 +7,8 @@ var Main = require('./components/Main.vue')
 var About = require('./components/About.vue')
 var Dropdown = require('./components/Dropdown.vue');
 
+Vue.config.debug = true
+
 // Install plugins
 Vue.use(Router)
 Vue.use(Resource)

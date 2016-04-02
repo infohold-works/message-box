@@ -215,7 +215,7 @@
                 <li><a href="#">设&emsp;&emsp;置</a></li>
                 <li><a href="#">关于我们</a></li>
                 <li class="divider"></li>
-                <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
+                <li><a href="#" @click="exit">登&emsp;&emsp;出</a></li>
             </ul>
         </div>
     </div>
@@ -282,6 +282,18 @@
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
 
     var notifier = require('electron').remote.getGlobal('notifier');
+    var marked = require('marked');
+
+    marked.setOptions({
+        renderer: new marked.Renderer(),
+        gfm: true,
+        tables: true,
+        breaks: false,
+        pedantic: false,
+        sanitize: true,
+        smartLists: true,
+        smartypants: false
+    });
 
     module.exports = {
         name: 'Main',
@@ -332,6 +344,7 @@
                 searchQuery: '',
                 markedread: '',
                 selected: '',
+                typeid: '',
                 id: '',
                 mestitle: '',
                 mescontent: '',
@@ -375,6 +388,7 @@
                 this.mescontent = false;
             },
             markRead(id) {
+                var self = this;
                 // 传参赋值
                 this.markedread = true;
                 // read样式绑定
@@ -386,18 +400,19 @@
                     }
                 }
                 connect(function(db) {
-                    var collection = db.collection('mb_messages');
-                    collection.update({
-                        id: id
-                    }, {
-                        $set: {
-                            read: true
-                        }
+                    var userCollention = db.collection('mb_user');
+                    var statusCollection = db.collection('mb_status');
+                    var username = self.userName;
+                    userCollention.find({username:username}).toArray(function(err,docs){
+                        statusCollection.update({
+                            userid:docs[0].userid,"message.id":id
+                        },{$set: {"message.$.read":true}});
                     });
                 })
 
             },
             markUnread(id) {
+                var self = this;
                 this.markedread = false;
                 for (var i in this.summaries) {
                     if (this.summaries[i].id == id) {
@@ -407,13 +422,13 @@
                     }
                 }
                 connect(function(db) {
-                    var collection = db.collection('mb_messages');
-                    collection.update({
-                        id: id
-                    }, {
-                        $set: {
-                            read: false
-                        }
+                    var userCollention = db.collection('mb_user');
+                    var statusCollection = db.collection('mb_status');
+                    var username = self.userName;
+                    userCollention.find({username:username}).toArray(function(err,docs){
+                        statusCollection.update({
+                            userid:docs[0].userid,"message.id":id
+                        },{$set: {"message.$.read":false}});
                     });
                 })
             },
@@ -438,7 +453,7 @@
                         self.typeid = messages[messagesId].typeid;
                         self.id = messages[messagesId].id;
                         self.mestitle = messages[messagesId].title;
-                        self.mescontent = messages[messagesId].content;
+                        self.mescontent = marked(messages[messagesId].content);
                         self.author = messages[messagesId].author;
                         self.sendtime = messages[messagesId].sendtime;
                     });

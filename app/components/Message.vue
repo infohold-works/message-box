@@ -30,6 +30,40 @@
     .message .message-content {
         margin-top: 20px;
     }
+
+    .message .message-content h1 {
+        font-size: 29px;
+        margin: 20px 0;
+    }
+
+    .message .message-content h2 {
+        font-size: 26px;
+        margin: 20px 0;
+    }
+
+    .message .message-content h3 {
+        font-size: 24px;
+        margin: 20px 0;
+    }
+
+    .message .message-content h4 {
+        font-size: 22px;
+        margin: 20px 0;
+    }
+
+    .message .message-content h5 {
+        font-size: 20px;
+        margin: 20px 0;
+    }
+
+    .message .message-content h6 {
+        font-size: 20px;
+        margin: 20px 0;
+    }
+
+    .message .message-content p {
+        font-size: 16px;
+    }
 </style>
 <template>
     <article class="message" v-if="mescontent">

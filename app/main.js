@@ -82,14 +82,6 @@ app.on('ready', function() {
         mainWindowState.saveState(mainWindow);
     });
 
-    notifier.notify({
-        'title': 'Tada!!!',
-        'message': 'MessageBox is open',
-        'sound': true
-    }, function(error, response) {
-        console.log(response);
-    });
-
     tray = new Tray(__dirname + '\\assets\\img\\icon.png');
     var trayMenuTemplate = [{
         label: '显示主窗口',
