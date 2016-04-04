@@ -227,7 +227,7 @@
         <ul v-if="summaries.length > 0" class="summaries">
             <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
             filterBy searchQuery in 'title' 'desc'  " class="animated fadeIn summary" @click="messageDetail(summary.id)">
-                <article >
+                <article>
                     <header class="summary-title">
                         <h6 v-if="summary.title.length > 12">{{ summary.title.substring(0,12) }} ...</h6>
                         <h6 v-else>{{ summary.title }}</h6>
@@ -375,9 +375,15 @@
                 connect(function(db) {
                     var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_messages');
-                    userCollention.find({username:username}).toArray(function(err,doc){
+                    userCollention.find({
+                        username: username
+                    }).toArray(function(err, doc) {
                         collection.find({
-                            $or:[{user_id:doc[0].userid},{type:'public'}]
+                            $or: [{
+                                userid: doc[0].userid
+                            }, {
+                                type: 'public'
+                            }]
                         }).sort({
                             "sendtime": -1
                         }).toArray(function(err, docs) {
@@ -403,10 +409,17 @@
                     var userCollention = db.collection('mb_user');
                     var statusCollection = db.collection('mb_status');
                     var username = self.userName;
-                    userCollention.find({username:username}).toArray(function(err,docs){
+                    userCollention.find({
+                        username: username
+                    }).toArray(function(err, docs) {
                         statusCollection.update({
-                            userid:docs[0].userid,"message.id":id
-                        },{$set: {"message.$.read":true}});
+                            userid: docs[0].userid,
+                            "message.id": id
+                        }, {
+                            $set: {
+                                "message.$.read": true
+                            }
+                        });
                     });
                 })
 
@@ -425,10 +438,17 @@
                     var userCollention = db.collection('mb_user');
                     var statusCollection = db.collection('mb_status');
                     var username = self.userName;
-                    userCollention.find({username:username}).toArray(function(err,docs){
+                    userCollention.find({
+                        username: username
+                    }).toArray(function(err, docs) {
                         statusCollection.update({
-                            userid:docs[0].userid,"message.id":id
-                        },{$set: {"message.$.read":false}});
+                            userid: docs[0].userid,
+                            "message.id": id
+                        }, {
+                            $set: {
+                                "message.$.read": false
+                            }
+                        });
                     });
                 })
             },
@@ -459,26 +479,26 @@
                     });
                 });
             },
-            exit : function(){
+            exit: function() {
                 var socket = this.socket;
-                var username=this.userName;
+                var username = this.userName;
                 //连接数据库
                 connect(function(db) {
                     //关联用户名表
                     var collection = db.collection('mb_user');
                     collection.update({
-                        username:username
-                    },{
-                        $set : {
+                        username: username
+                    }, {
+                        $set: {
                             online_stat: false,
-                            socketID:''
+                            socketID: ''
                         }
                     });
                 })
                 socket.emit('exit', {
-                    username:username
+                    username: username
                 });
-                this.isLogin=false;
+                this.isLogin = false;
             },
             newMessage(data) {
                 console.log('private message' + data);
@@ -503,9 +523,16 @@
                 connect(function(db) {
                     var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_messages');
-                    userCollention.find({username:username}).toArray(function(err,doc){
+                    userCollention.find({
+                        username: username
+                    }).toArray(function(err, doc) {
                         collection.find({
-                            read:true, $or:[{user_id:doc[0].userid},{type:'public'}]
+                            read: true,
+                            $or: [{
+                                userid: doc[0].userid
+                            }, {
+                                type: 'public'
+                            }]
                         }).sort({
                             "sendtime": -1
                         }).toArray(function(err, docs) {
@@ -522,9 +549,16 @@
                 connect(function(db) {
                     var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_messages');
-                    userCollention.find({username:username}).toArray(function(err,doc){
+                    userCollention.find({
+                        username: username
+                    }).toArray(function(err, doc) {
                         collection.find({
-                            read: false, $or:[{user_id:doc[0].userid},{type:'public'}]
+                            read: false,
+                            $or: [{
+                                userid: doc[0].userid
+                            }, {
+                                type: 'public'
+                            }]
                         }).sort({
                             "sendtime": -1
                         }).toArray(function(err, docs) {
@@ -541,9 +575,16 @@
                 connect(function(db) {
                     var userCollention = db.collection('mb_user');
                     var collection = db.collection('mb_messages');
-                    userCollention.find({username:username}).toArray(function(err,doc){
+                    userCollention.find({
+                        username: username
+                    }).toArray(function(err, doc) {
                         collection.find({
-                            typeid: id, $or:[{user_id:doc[0].userid},{type:'public'}]
+                            typeid: id,
+                            $or: [{
+                                userid: doc[0].userid
+                            }, {
+                                type: 'public'
+                            }]
                         }).sort({
                             "sendtime": -1
                         }).toArray(function(err, docs) {
