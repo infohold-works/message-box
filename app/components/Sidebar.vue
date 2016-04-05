@@ -167,7 +167,7 @@
             connect(function(db) {
                 // Get the documents collection
                 var userCollection = db.collection('mb_user');
-                var statusCollection = db.collection('mb_status');
+                var summaryCollection = db.collection('mb_summary');
                 var username = self.userName;
                 // Find some documents
                 userCollection.find({
@@ -175,7 +175,7 @@
                 }).toArray(function(err, docs) {
                     var msgTypes = env_conf.messageTypes;
                     var msgCount = [];
-                    statusCollection.find({userid:docs[0].userid}).sort({
+                    summaryCollection.find({userid:docs[0].userid}).sort({
                         "typeid":1
                     }).toArray(function(err,doc){
                         for (var i = 0; i < msgTypes.length; i++) {
@@ -272,9 +272,9 @@
                 var self = this;
                 connect(function(db) {
                     var userCollection = db.collection('mb_user');
-                    var statusCollection = db.collection('mb_status');
+                    var summaryCollection = db.collection('mb_summary');
                     userCollection.find({username:username}).toArray(function(err,docs){
-                        statusCollection.update({
+                        summaryCollection.update({
                             userid:docs[0].userid,typeid:typeid
                         },{$set: {count: self.messageTypes[typeid - 1].count }});
                     });
