@@ -355,7 +355,6 @@
 
         ready: function() {
             var socket = this.socket;
-            this.searchAllSummaries();
             var self = this;
             // listen to news event raised by the server
             socket.on('public message', function(data) {
@@ -366,6 +365,7 @@
             socket.on('private message', function(data) {
                 self.newMessage(data);
             });
+            this.searchAllSummaries();
         },
 
         methods: {
@@ -460,7 +460,7 @@
                     });
                 });
             },
-            exit: function() {
+            exit() {
                 var socket = this.socket;
                 var username = this.userName;
                 //连接数据库
@@ -541,7 +541,6 @@
                             }
                         });
                         cursor.toArray(function(err, result) {
-                            console.log(result);
                             self.summaries = result;
                         });
                     });
