@@ -262,10 +262,10 @@
     </div>
     <div class="dashboard-message-detail">
         <div class="manage-message" v-if="mescontent">
-            <button v-if="!markedread" v-on:click="markRead(id)" type="button" class="btn btn-xs btn-primary btn-marked">
+            <button v-if="!markedread" @click="markRead(id)" type="button" class="btn btn-xs btn-primary btn-marked">
                 <i class="fa fa-fw fa-check"></i> 标记为已读
             </button>
-            <button v-if="markedread" v-on:click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
+            <button v-if="markedread" @click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
                 <i class="fa fa-fw fa-history"></i> 标记为未读
             </button>
         </div>

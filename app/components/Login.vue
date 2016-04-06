@@ -91,7 +91,7 @@
             	    <span class="icon-unchecked"></span>
             	    <span class="icon-checked"></span>
                 </span>
-            	记住密码
+            	保持登录
             </label>
             <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
             <a class="login-link" href="#">忘记密码？</a>
