@@ -86,15 +86,16 @@ app.on('ready', function() {
     var trayMenuTemplate = [{
         label: '显示主窗口',
         click: function() {
-            // ipc.send('open-main-window');
-            if (mainWindow) {
-                return;
-            }
+            // 恢复窗口
+            mainWindow.restore();
         }
     }, {
         label: '最小化窗口',
         accelerator: 'CmdOrCtrl+M',
-        role: 'minimize'
+        click: function() {
+            // 最小化窗口
+            mainWindow.minimize();
+        }
     }, {
         type: 'separator'
     }, {
