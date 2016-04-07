@@ -52,11 +52,11 @@ connect(function(db) {
         });
         //客户端验证服务端是否启动
         socket.on('serverOnlineStat', function() {
-                io.emit('serverOnlineStat', {
-                    isOnlineStat: true
-                })
-            })
-            //接收消息并发送给指定客户端
+            io.emit('serverOnlineStat', {
+                isOnlineStat: true
+            });
+        });
+        //接收消息并发送给指定客户端
         socket.on('private message', function(obj) {
             collection.find({
                 username: obj.username

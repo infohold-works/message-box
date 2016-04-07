@@ -55,7 +55,7 @@ gulp.task('clean', function() {
 
 gulp.task('css', function () {
     var stylesheets = [
-        './app/assets/plugins/bootstrap/css/bootstrap.min.css',
+        './app/node_modules/bootstrap/dist/css/bootstrap.min.css',
         './app/node_modules/font-awesome/css/font-awesome.min.css',
         './app/assets/plugins/flat-ui/css/flat-ui.min.css'
     ];
@@ -67,7 +67,7 @@ gulp.task('css', function () {
 gulp.task('js', function () {
     var stylesheets = [
         './app/assets/plugins/plugins.js',
-        './app/assets/plugins/bootstrap/js/bootstrap.min.js',
+        './app/node_modules/bootstrap/dist/js/bootstrap.min.js',
         './app/assets/plugins/flat-ui/js/flat-ui.min.js'
     ];
     return gulp.src(stylesheets)
@@ -77,7 +77,7 @@ gulp.task('js', function () {
 
 gulp.task('fonts', function() {
     var fonts = [
-        './app/assets/plugins/bootstrap/fonts/*',
+        './app/node_modules/bootstrap/dist/fonts/*',
         './app/node_modules/font-awesome/fonts/*',
         './app/assets/plugins/flat-ui/fonts/**/*'
     ];

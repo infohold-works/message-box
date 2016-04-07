@@ -482,7 +482,7 @@
                 this.isLogin = false;
             },
             newMessage(data) {
-                console.log('private message' + data);
+                console.log('new message' + data);
                 this.searchAllSummaries();
                 this.$dispatch('newMsg', data.typeid);
                 notifier.notify({
