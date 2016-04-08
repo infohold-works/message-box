@@ -281,8 +281,14 @@
     var env_conf = require('../../config/env_development.json');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
 
-    var notifier = require('electron').remote.getGlobal('notifier');
+    var remote = require('electron').remote;
+    var notifier = remote.getGlobal('notifier');
     var marked = require('marked');
+    var ipcRenderer = require('electron').ipcRenderer;
+    // ipcRenderer.on('asynchronous-reply', function(event, arg) {
+    //     console.log(arg); // prints "pong"
+    // });
+    // ipcRenderer.send('asynchronous-message', 'ping');
 
     marked.setOptions({
         renderer: new marked.Renderer(),
@@ -479,6 +485,7 @@
                 socket.emit('exit', {
                     username: username
                 });
+                ipcRenderer.send('exit', 'exit');
                 this.isLogin = false;
             },
             newMessage(data) {

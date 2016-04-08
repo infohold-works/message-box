@@ -109,7 +109,7 @@
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
     //引用vue-spinner插件
     var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
-    var ipcRenderer = require('electron').ipcRenderer;
+    // var ipcRenderer = require('electron').ipcRenderer;
     // ipcRenderer.on('asynchronous-reply', function(event, arg) {
     //     console.log(arg); // prints "pong"
     // });

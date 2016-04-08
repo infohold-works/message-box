@@ -52,8 +52,10 @@ app.on('ready', function() {
         x: mainWindowState.x,
         y: mainWindowState.y,
         width: mainWindowState.width,
-        height: mainWindowState.height
+        height: mainWindowState.height,
+        title: "消息盒子"
     });
+    
     if (mainWindowState.isMaximized) {
         mainWindow.maximize();
     }
@@ -77,6 +79,20 @@ app.on('ready', function() {
     //     console.log(arg);  // prints "ping"
     //     event.sender.send('asynchronous-reply', 'pong');
     // });
+
+    ipcMain.on('exit', function(event, arg) {
+        console.log(arg);  // prints "exit"
+        // event.sender.send('asynchronous-reply', 'pong');
+    });
+
+    mainWindow.onbeforeunload = function(e) {
+        console.log('I do not want to be closed');
+        // Unlike usual browsers, in which a string should be returned and the user is
+        // prompted to confirm the page unload, Electron gives developers more options.
+        // Returning empty string or false would prevent the unloading now.
+        // You can also use the dialog API to let the user confirm closing the application.
+        e.returnValue = false;
+    };
 
     mainWindow.on('close', function() {
         mainWindowState.saveState(mainWindow);
@@ -114,6 +130,14 @@ app.on('ready', function() {
     }];
     var contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
     tray.setToolTip('消息盒子');
+    tray.setTitle('消息盒子');
+    tray.setHighlightMode(true);
+    tray.on('click',function() {
+        // 显示主窗口
+        mainWindow.restore();
+        // 获取焦点
+        mainWindow.show();
+    })
     tray.setContextMenu(contextMenu);
 
 });
