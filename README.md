@@ -1,15 +1,16 @@
 # message-box
-基于Electron、Vue.js、socket.io、MongoDB等技术搭建的消息盒子桌面客户端（Windows）
+基于Electron、Vue.js、Socket.io、MongoDB等技术搭建的消息盒子桌面客户端（Windows）
 
 # Usages
 
 - `clone this repo`
+- `cd message-box`
 - `npm install`
 - `npm start`
 
 # Features
 
-- [x] 搭建基本框架模板，技术栈：Node.js/Electron/Vue.js/socket.io/Webpack/Gulp/
+- [x] 搭建基本框架模板，技术栈：Node.js/Electron/Vue.js/Socket.io/Webpack/Gulp/
 - [x] 三栏式设计，左侧栏为 **消息分类** ， 消息栏为 **消息摘记**  ，内容栏为 **消息内容**
 - [x] 界面UI采用Flat-ui统一风格
 - [x] 用户登录
@@ -22,7 +23,7 @@
 - [x] 全文搜索功能
 - [x] 消息显示支持markdown格式
 - [x] 数据持久化支持
-- [ ] 最小化客户端到系统托盘
+- [ ] 系统托盘图标功能
 - [ ] 本地缓存机制
 - [ ] socket.io集群
 - [ ] 制作客户端图标
