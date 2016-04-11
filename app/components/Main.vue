@@ -143,7 +143,9 @@
 </style>
 
 <template>
-    <dashboard-header :socket.sync="socket" :title="title" :user-name="userName"></dashboard-header>
+    <div class="dashboard-header">
+        <dashboard-header :socket.sync="socket" :title="title" :user-name="userName"></dashboard-header>
+    </div>
     <div class="dashboard-summaries">
         <div class="form-group has-feedback dashboard-summaries-search pull-right">
             <input type="text" value="" placeholder="搜索" class="form-control input-sm" v-model="searchQuery" />
