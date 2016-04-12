@@ -1,4 +1,4 @@
-<style media="screen">
+<style>
     .dashboard .dashboard-header {
         background: #fff;
         border-bottom: 1px solid rgba(55, 53, 112, 0.1);
@@ -58,23 +58,21 @@
     }
 </style>
 <template>
-    <div class="dashboard-header">
-        <h4>{{ title }}</h4>
-        <!-- <div class="form-group has-feedback dashboard-header-search pull-right">
+    <h4>{{ title }}</h4>
+    <!-- <div class="form-group has-feedback dashboard-header-search pull-right">
         <input type="text" value="" placeholder="搜索" class="form-control" v-model="searchQuery" />
         <span class="form-control-feedback fui-search"></span>
     </div> -->
-        <div class="btn-group pull-right">
-            <section class="dropdown-toggle" data-toggle="dropdown">
-                欢迎您,{{ userName }}<span class="caret"></span>
-            </section>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="#">设&emsp;&emsp;置</a></li>
-                <li><a href="#">关于我们</a></li>
-                <li class="divider"></li>
-                <li><a href="#" @click="exit">登&emsp;&emsp;出</a></li>
-            </ul>
-        </div>
+    <div class="btn-group pull-right">
+        <section class="dropdown-toggle" data-toggle="dropdown">
+            欢迎您,{{ userName }}<span class="caret"></span>
+        </section>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="#">设&emsp;&emsp;置</a></li>
+            <li><a href="#">关于我们</a></li>
+            <li class="divider"></li>
+            <li><a href="#" @click="exit">登&emsp;&emsp;出</a></li>
+        </ul>
     </div>
 </template>
 <script>
