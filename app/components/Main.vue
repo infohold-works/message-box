@@ -200,16 +200,21 @@
 </template>
 
 <script>
-    var PulseLoader = require('vue-spinner/src/PulseLoader.vue'); // PulseLoader插件
+    // PulseLoader插件
+    var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
+    // Child Component
     var Header = require('./Header.vue');
     var Message = require('./Message.vue');
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
-
+    // Electron API
     var remote = require('electron').remote;
+    var ipcRenderer = require('electron').ipcRenderer;
     var notifier = remote.getGlobal('notifier');
+    // Markdown Parser
     var marked = require('marked');
+
 
     marked.setOptions({
         renderer: new marked.Renderer(),
@@ -390,7 +395,8 @@
             newMessage(data) {
                 console.log('new message' + data);
                 this.searchAllSummaries();
-                this.$dispatch('newMsg', data.typeid);
+                ipcRenderer.send('update-icon', 'newMessage');
+                this.$dispatch('newMessage', data.typeid);
                 notifier.notify({
                     'title': "您有新的消息：" + data.title,
                     'message': data.desc,

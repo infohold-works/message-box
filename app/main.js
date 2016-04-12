@@ -5,16 +5,14 @@
 var electron = require('electron');
 var app = require('app');
 var BrowserWindow = require('browser-window');
+var Dialog = require('dialog');
 var env = require('./vendor/electron_boilerplate/env_config');
 var devHelper = require('./vendor/electron_boilerplate/dev_helper');
 var windowStateKeeper = require('./vendor/electron_boilerplate/window_state');
-
+var path = require('path');
 var notifier = require('node-notifier');
 // 全局notifier
 global.notifier = notifier;
-
-var os = require('os');
-console.log(os.platform());
 // ipc进程间通讯主进程
 var ipcMain = electron.ipcMain;
 var Menu = electron.Menu;
@@ -45,6 +43,8 @@ var mainWindowState = windowStateKeeper('main', {
     height: 768
 });
 var tray = null;
+var iconNew = path.join(__dirname, 'assets/img', 'iconNew.png');
+var icon = path.join(__dirname, 'assets/img', 'icon.png');
 
 app.on('ready', function() {
 
@@ -55,7 +55,7 @@ app.on('ready', function() {
         height: mainWindowState.height,
         title: "消息盒子"
     });
-    
+
     if (mainWindowState.isMaximized) {
         mainWindow.maximize();
     }
@@ -75,30 +75,7 @@ app.on('ready', function() {
     //     mainWindow.webContents.send('ping', 'whoooooooh!');
     // });
 
-    // ipcMain.on('asynchronous-message', function(event, arg) {
-    //     console.log(arg);  // prints "ping"
-    //     event.sender.send('asynchronous-reply', 'pong');
-    // });
-
-    ipcMain.on('exit', function(event, arg) {
-        console.log(arg);  // prints "exit"
-        // event.sender.send('asynchronous-reply', 'pong');
-    });
-
-    mainWindow.onbeforeunload = function(e) {
-        console.log('I do not want to be closed');
-        // Unlike usual browsers, in which a string should be returned and the user is
-        // prompted to confirm the page unload, Electron gives developers more options.
-        // Returning empty string or false would prevent the unloading now.
-        // You can also use the dialog API to let the user confirm closing the application.
-        e.returnValue = false;
-    };
-
-    mainWindow.on('close', function() {
-        mainWindowState.saveState(mainWindow);
-    });
-
-    tray = new Tray(__dirname + '\\assets\\img\\icon.png');
+    tray = new Tray(icon);
     var trayMenuTemplate = [{
         label: '显示主窗口',
         click: function() {
@@ -132,7 +109,7 @@ app.on('ready', function() {
     tray.setToolTip('消息盒子');
     tray.setTitle('消息盒子');
     tray.setHighlightMode(true);
-    tray.on('click',function() {
+    tray.on('click', function() {
         // 显示主窗口
         mainWindow.restore();
         // 获取焦点
@@ -140,6 +117,38 @@ app.on('ready', function() {
     })
     tray.setContextMenu(contextMenu);
 
+    // ipcMain.on('asynchronous-message', function(event, arg) {
+    //     console.log(arg);  // prints "ping"
+    //     event.sender.send('asynchronous-reply', 'pong');
+    // });
+
+    // 新消息修改托盘图标事件
+    ipcMain.on('update-icon', function(event, arg) {
+        if (arg === 'newMessage') {
+            tray.setImage(iconNew);
+        } else {
+            tray.setImage(icon);
+        }
+    });
+
+    // 登出事件
+    ipcMain.on('exit', function(event, arg) {
+        Dialog.showMessageBox({
+            type: 'question',
+            buttons: ['确定', '取消'],
+            title: '退出消息盒子',
+            cancelId: 99,
+            message: '确定退出吗?'
+        }, function(response) {
+            console.log('Exit: ' + response);
+        });
+        console.log(arg); // prints "exit"
+        // event.sender.send('asynchronous-reply', 'pong');
+    });
+
+    mainWindow.on('close', function() {
+        mainWindowState.saveState(mainWindow);
+    });
 });
 
 // Quit when all windows are closed.

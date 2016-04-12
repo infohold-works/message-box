@@ -298,7 +298,7 @@
                 this.messageTypes[typeid - 1].count += 1;
                 this.updateCount(typeid, username);
             },
-            'siderbar-newMsg': function(typeid) {
+            'siderbar-newMessage': function(typeid) {
                 this.messageTypes[typeid - 1].count += 1;
             }
 
