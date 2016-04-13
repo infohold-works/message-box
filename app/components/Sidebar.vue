@@ -53,7 +53,12 @@
     }
 
     .dashboard-sidebar .dashboard-list .dashboard-list-item.selected {
-        background: #34495E;
+        background: #1ABC9C;
+        color: #fff;
+    }
+
+    .dashboard-sidebar .dashboard-list .dashboard-list-item.selected:hover {
+        background: #1ABC9C;
         color: #fff;
     }
 
@@ -63,8 +68,7 @@
     }
 
     .dashboard-sidebar .dashboard-list .dashboard-list-item:hover {
-        background: #34495E;
-        color: rgba(255, 255, 255, 0.9);
+        color: #1ABC9C;
     }
 
     .dashboard-sidebar .dashboard-list .dashboard-list-item {
@@ -74,7 +78,7 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         color: rgba(255, 255, 255, 0.66);
         cursor: pointer;
-        font-size: 1.4rem;
+        font-size: 1.6rem;
         height: 42px;
         line-height: 42px;
         padding: 0 20px;
@@ -114,7 +118,7 @@
         </div>
         <ul class="dashboard-list">
             <li @click="typeMessages(messageType,messageTypes.length)" v-for="messageType in messageTypes" class="dashboard-list-item" :class="[messageType.selected ? isType ? selected : '' : '']">
-                <i class="fa fa-fw fa-rss"></i> {{ messageType.title }}
+                <i class="fa fa-fw fa-paperclip"></i> {{ messageType.title }}
                 <span class="type-count pull-right badge" v-if="messageType.count > 0">{{ messageType.count }}</span>
             </li>
             <!-- <pre>
@@ -175,9 +179,11 @@
                 }).toArray(function(err, docs) {
                     var msgTypes = env_conf.messageTypes;
                     var msgCount = [];
-                    summaryCollection.find({userid:docs[0].userid}).sort({
-                        "typeid":1
-                    }).toArray(function(err,doc){
+                    summaryCollection.find({
+                        userid: docs[0].userid
+                    }).sort({
+                        "typeid": 1
+                    }).toArray(function(err, doc) {
                         for (var i = 0; i < msgTypes.length; i++) {
                             self.messageTypes.push({
                                 title: msgTypes[i],
@@ -273,10 +279,17 @@
                 connect(function(db) {
                     var userCollection = db.collection('mb_user');
                     var summaryCollection = db.collection('mb_summary');
-                    userCollection.find({username:username}).toArray(function(err,docs){
+                    userCollection.find({
+                        username: username
+                    }).toArray(function(err, docs) {
                         summaryCollection.update({
-                            userid:docs[0].userid,typeid:typeid
-                        },{$set: {count: self.messageTypes[typeid - 1].count }});
+                            userid: docs[0].userid,
+                            typeid: typeid
+                        }, {
+                            $set: {
+                                count: self.messageTypes[typeid - 1].count
+                            }
+                        });
                     });
                 });
             }
