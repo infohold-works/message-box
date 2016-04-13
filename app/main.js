@@ -101,8 +101,16 @@ app.on('ready', function() {
     }, {
         label: '退出',
         click: function() {
-            // ipc.send('close-main-window');
-            app.quit();
+            Dialog.showMessageBox({
+                type: 'question',
+                buttons: ['确定', '取消'],
+                title: '退出消息盒子',
+                cancelId: 99,
+                message: '确定退出吗?'
+            }, function(response) {
+                console.log('Exit: ' + response);
+                if (!response) app.quit();
+            });
         }
     }];
     var contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
@@ -131,7 +139,7 @@ app.on('ready', function() {
         }
     });
 
-    // 登出事件
+    // 退出事件
     ipcMain.on('exit', function(event, arg) {
         Dialog.showMessageBox({
             type: 'question',
@@ -141,11 +149,10 @@ app.on('ready', function() {
             message: '确定退出吗?'
         }, function(response) {
             console.log('Exit: ' + response);
+            if (!response) app.quit();
         });
-        console.log(arg); // prints "exit"
-        // event.sender.send('asynchronous-reply', 'pong');
     });
-
+    
     mainWindow.on('close', function() {
         mainWindowState.saveState(mainWindow);
     });
