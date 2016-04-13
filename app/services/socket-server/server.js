@@ -97,7 +97,7 @@ connect(function(db) {
                 }
             });
         });
-        socket.on('exit', function(obj) {
+        socket.on('logout', function(obj) {
             onlineCount--;
             console.log(obj.username + "退出! 当前在线人数:" + onlineCount);
         });

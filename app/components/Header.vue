@@ -71,7 +71,7 @@
             <li><a href="#">设&emsp;&emsp;置</a></li>
             <li><a href="#">关于我们</a></li>
             <li class="divider"></li>
-            <li><a href="#" @click="exit">登&emsp;&emsp;出</a></li>
+            <li><a href="#" @click="logout">登&emsp;&emsp;出</a></li>
         </ul>
     </div>
 </template>
@@ -79,7 +79,7 @@
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
     var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
-    var ipcRenderer = require('electron').ipcRenderer;
+    // var ipcRenderer = require('electron').ipcRenderer;
     // ipcRenderer.on('asynchronous-reply', function(event, arg) {
     //     console.log(arg); // prints "pong"
     // });
@@ -91,7 +91,7 @@
         props: ['socket', 'title', 'userName'],
 
         methods: {
-            exit() {
+            logout() {
                 var socket = this.socket;
                 var username = this.userName;
                 //连接数据库
@@ -107,11 +107,10 @@
                         }
                     });
                 })
-                socket.emit('exit', {
+                socket.emit('logout', {
                     username: username
                 });
-                ipcRenderer.send('exit', 'exit');
-                this.$dispatch('exit');
+                this.$dispatch('logout');
             }
         }
     }

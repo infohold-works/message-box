@@ -217,7 +217,6 @@
     // Markdown Parser
     var marked = require('marked');
 
-
     marked.setOptions({
         renderer: new marked.Renderer(),
         gfm: true,
@@ -479,7 +478,7 @@
                 this.getSummaries(typeid,[true,false]);
                 this.mescontent = false;
             },
-            'exit': function() {
+            'logout': function() {
                 this.isLogin = false;
             }
         },
