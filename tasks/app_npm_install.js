@@ -54,3 +54,10 @@ var install = childProcess.spawn(installCommand, params, {
     env: process.env,
     stdio: 'inherit'
 });
+
+var installCmd = "git clone https://github.com/infohold-works/mb-flat-ui.git";
+var installFlatUI = childProcess.exec(installCmd, {
+        cwd: __dirname + '/../app/node_modules',
+        env: process.env,
+    }
+)

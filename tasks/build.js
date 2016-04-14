@@ -57,7 +57,7 @@ gulp.task('css', function () {
     var stylesheets = [
         './app/node_modules/bootstrap/dist/css/bootstrap.min.css',
         './app/node_modules/font-awesome/css/font-awesome.min.css',
-        './app/assets/plugins/flat-ui/css/flat-ui.min.css'
+        './app/node_modules/mb-flat-ui/css/flat-ui.min.css'
     ];
     return gulp.src(stylesheets)
         .pipe(concat('plugins.min.css'))
@@ -66,9 +66,9 @@ gulp.task('css', function () {
 
 gulp.task('js', function () {
     var stylesheets = [
-        './app/assets/plugins/plugins.js',
+        './app/assets/js/requrieJQuery.js',
         './app/node_modules/bootstrap/dist/js/bootstrap.min.js',
-        './app/assets/plugins/flat-ui/js/flat-ui.min.js'
+        './app/node_modules/mb-flat-ui/js/flat-ui.min.js'
     ];
     return gulp.src(stylesheets)
         .pipe(concat('plugins.min.js'))
@@ -79,7 +79,7 @@ gulp.task('fonts', function() {
     var fonts = [
         './app/node_modules/bootstrap/dist/fonts/*',
         './app/node_modules/font-awesome/fonts/*',
-        './app/assets/plugins/flat-ui/fonts/**/*'
+        './app/node_modules/mb-flat-ui/fonts/**/*'
     ];
     return gulp.src(fonts)
         .pipe(gulp.dest(dest + '/assets/fonts'))
