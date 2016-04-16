@@ -58,10 +58,6 @@
 </style>
 <template>
     <h4>{{ title }}</h4>
-    <!-- <div class="form-group has-feedback dashboard-header-search pull-right">
-        <input type="text" value="" placeholder="搜索" class="form-control" v-model="searchQuery" />
-        <span class="form-control-feedback fui-search"></span>
-    </div> -->
     <div class="btn-group pull-right">
         <section class="dropdown-toggle" data-toggle="dropdown">
             欢迎您,{{ userName }}<span class="caret"></span>

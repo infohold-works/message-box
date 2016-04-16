@@ -83,15 +83,13 @@
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
             <label class="checkbox" for="checkbox">
-            	<input class="custom-checkbox" id="checkbox" data-toggle="checkbox"
-                type="checkbox" @click="savePasswd" v-if="!isChecked">
-                <input class="custom-checkbox" id="checkbox" checked="checked"
-                data-toggle="checkbox" type="checkbox" @click="removePasswd" v-if="isChecked">
-            	<span class="icons">
+                <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="savePasswd" v-if="!isChecked">
+                <input class="custom-checkbox" id="checkbox" checked="checked" data-toggle="checkbox" type="checkbox" @click="removePasswd" v-if="isChecked">
+                <span class="icons">
             	    <span class="icon-unchecked"></span>
-            	    <span class="icon-checked"></span>
+                    <span class="icon-checked"></span>
                 </span>
-            	保持登录状态
+                保持登录状态
             </label>
             <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
             <a class="login-link" href="#">忘记密码？</a>
@@ -147,7 +145,7 @@
             this.socket = socket;
             this.userName = localStorage.lastname;
             this.password = localStorage.password;
-            if( localStorage.isChecked == 'true') {
+            if (localStorage.isChecked == 'true') {
                 this.isChecked = true;
             } else {
                 this.isChecked = false;
@@ -209,7 +207,7 @@
                                         setTimeout(function() {
                                             if (isOnlineStat) {
                                                 localStorage.lastname = username;
-                                                if(self.isChecked) {
+                                                if (self.isChecked) {
                                                     localStorage.password = password;
                                                 } else {
                                                     localStorage.password = '';
