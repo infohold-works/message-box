@@ -139,6 +139,14 @@ app.on('ready', function() {
         }
     });
 
+    // 新消息修改托盘图标事件
+    ipcMain.on('restore-window', function(event, arg) {
+        // 显示主窗口
+        mainWindow.restore();
+        // 获取焦点
+        mainWindow.show();
+    });
+
     // 退出事件
     ipcMain.on('exit', function(event, arg) {
         Dialog.showMessageBox({
@@ -152,7 +160,7 @@ app.on('ready', function() {
             if (!response) app.quit();
         });
     });
-    
+
     mainWindow.on('close', function() {
         mainWindowState.saveState(mainWindow);
     });

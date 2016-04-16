@@ -299,6 +299,11 @@
                 self.newMessage(data);
             });
             this.searchAllSummaries();
+
+            notifier.on('click', function (notifierObject, options) {
+            // Triggers if `wait: true` and user clicks notification
+                ipcRenderer.send('restore-window', 'newMessage');
+            });
         },
 
         methods: {
@@ -401,7 +406,8 @@
                 notifier.notify({
                     'title': "您有新的消息：" + data.title,
                     'message': data.desc,
-                    'sound': true
+                    'sound': true,
+                    'wait': true
                 }, function(error, response) {
                     console.log(error);
                     console.log(response);
