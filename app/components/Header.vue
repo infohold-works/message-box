@@ -1,4 +1,65 @@
-<style>    .dashboard .dashboard-header {
+<script>
+    // 连接mongodb
+    var env_conf = require('../../config/env_development.json');
+    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
+    var ipcRenderer = require('electron').ipcRenderer;
+    // ipcRenderer.on('asynchronous-reply', function(event, arg) {
+    //     console.log(arg); // prints "pong"
+    // });
+    // ipcRenderer.send('asynchronous-message', 'ping');
+    module.exports = {
+        name: 'Header',
+
+        props: ['socket', 'title', 'userName'],
+
+        methods: {
+            setting() {
+                this.$dispatch('setting');
+            },
+            logout() {
+                var socket = this.socket;
+                var username = this.userName;
+                //连接数据库
+                connect(function(db) {
+                    //关联用户名表
+                    var collection = db.collection('mb_user');
+                    collection.update({
+                        username: username
+                    }, {
+                        $set: {
+                            online_stat: false,
+                            socketID: ''
+                        }
+                    });
+                })
+                socket.emit('logout', {
+                    username: username
+                });
+                this.$dispatch('logout');
+            },
+            exit() {
+                ipcRenderer.send('exit', 'exit');
+            }
+        }
+    }
+</script>
+<template>
+    <h4>{{ title }}</h4>
+    <div class="btn-group pull-right">
+        <section class="dropdown-toggle" data-toggle="dropdown">
+            欢迎您,{{ userName }}<span class="caret"></span>
+        </section>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="#" @click="setting">设&emsp;&emsp;置</a></li>
+            <li><a href="#">关于我们</a></li>
+            <li class="divider"></li>
+            <li><a href="#" @click="logout">登&emsp;&emsp;出</a></li>
+            <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
+        </ul>
+    </div>
+</template>
+<style>
+    .dashboard .dashboard-header {
         background: #fff;
         border-bottom: 1px solid rgba(55, 53, 112, 0.1);
         color: #fff;
@@ -56,61 +117,3 @@
         background: #
     }
 </style>
-<template>
-    <h4>{{ title }}</h4>
-    <div class="btn-group pull-right">
-        <section class="dropdown-toggle" data-toggle="dropdown">
-            欢迎您,{{ userName }}<span class="caret"></span>
-        </section>
-        <ul class="dropdown-menu" role="menu">
-            <li><a href="#">设&emsp;&emsp;置</a></li>
-            <li><a href="#">关于我们</a></li>
-            <li class="divider"></li>
-            <li><a href="#" @click="logout">登&emsp;&emsp;出</a></li>
-            <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
-        </ul>
-    </div>
-</template>
-<script>
-    // 连接mongodb
-    var env_conf = require('../../config/env_development.json');
-    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
-    var ipcRenderer = require('electron').ipcRenderer;
-    // ipcRenderer.on('asynchronous-reply', function(event, arg) {
-    //     console.log(arg); // prints "pong"
-    // });
-    // ipcRenderer.send('asynchronous-message', 'ping');
-
-    module.exports = {
-        name: 'Header',
-
-        props: ['socket', 'title', 'userName'],
-
-        methods: {
-            logout() {
-                var socket = this.socket;
-                var username = this.userName;
-                //连接数据库
-                connect(function(db) {
-                    //关联用户名表
-                    var collection = db.collection('mb_user');
-                    collection.update({
-                        username: username
-                    }, {
-                        $set: {
-                            online_stat: false,
-                            socketID: ''
-                        }
-                    });
-                })
-                socket.emit('logout', {
-                    username: username
-                });
-                this.$dispatch('logout');
-            },
-            exit() {
-                ipcRenderer.send('exit','exit');
-            }
-        }
-    }
-</script>

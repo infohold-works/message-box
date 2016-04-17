@@ -1,3 +1,363 @@
+<script>
+    // PulseLoader插件
+    var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
+    // Child Component
+    var Header = require('./Header.vue');
+    var Message = require('./Message.vue');
+    var Setting = require('./Setting.vue');
+    // 连接mongodb
+    var env_conf = require('../../config/env_development.json');
+    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
+    // Electron API
+    var remote = require('electron').remote;
+    var ipcRenderer = require('electron').ipcRenderer;
+    var notifier = remote.getGlobal('notifier');
+    // Markdown Parser
+    var marked = require('marked');
+
+    marked.setOptions({
+        renderer: new marked.Renderer(),
+        gfm: true,
+        tables: true,
+        breaks: false,
+        pedantic: false,
+        sanitize: true,
+        smartLists: true,
+        smartypants: false
+    });
+
+    module.exports = {
+        name: 'Main',
+        props: [
+            'userName',
+            'isLogin',
+            'socket'
+        ],
+        route: {
+            data({
+                to
+            }) {
+                if (to.params.type === "type") {
+                    this.title = to.params.name
+                    this.state = 'type'
+                } else if (to.params.type === "message" && to.params.name === "read") {
+                    this.title = "已读消息"
+                    this.state = 'read'
+                } else if (to.params.type === "message" && to.params.name === "unread") {
+                    this.title = "未读消息"
+                    this.state = "unread"
+                } else {
+                    this.title = "所有消息"
+                    this.state = "all"
+                }
+            },
+            activate: function(transition) {
+                return new Promise((resolve) => {
+                    console.log('hook-example activated!')
+                    resolve()
+                })
+            },
+            deactivate: function(transition) {
+                console.log('hook-example deactivated!')
+                transition.next()
+            },
+            canReuse: function(transition) {
+                return true;
+            }
+        },
+
+        data: function() {
+            return {
+                title: "所有消息",
+                refreshing: false,
+                state: '',
+                summaries: [],
+                searchQuery: '',
+                markedread: '',
+                selected: '',
+                typeid: '',
+                id: '',
+                mestitle: '',
+                mescontent: '',
+                author: '',
+                sendtime: '',
+                showSetting: false
+            }
+        },
+
+        ready: function() {
+            var socket = this.socket;
+            var self = this;
+            // listen to news event raised by the server
+            socket.on('public message', function(data) {
+                self.newMessage(data);
+            });
+
+            // listen to news event raised by the server
+            socket.on('private message', function(data) {
+                self.newMessage(data);
+            });
+            this.searchAllSummaries();
+
+            notifier.on('click', function(notifierObject, options) {
+                // Triggers if `wait: true` and user clicks notification
+                ipcRenderer.send('restore-window', 'newMessage');
+            });
+        },
+
+        methods: {
+            searchAllSummaries() {
+                var typeid = env_conf.typeid;
+                this.getSummaries(typeid, [true, false]);
+                this.mescontent = false;
+            },
+            markRead(id) {
+                var self = this;
+                // 传参赋值
+                this.markedread = true;
+                // read样式绑定
+                for (var i in this.summaries) {
+                    if (this.summaries[i].id == id) {
+                        // this.summaries.$set(i,{read:true});        // 视图更新
+                        this.summaries[i].read = true; // 视图不变
+                        this.$dispatch('markRead', this.summaries[i].typeid);
+                    }
+                }
+                connect(function(db) {
+                    var userCollention = db.collection('mb_user');
+                    var summaryCollection = db.collection('mb_summary');
+                    var username = self.userName;
+                    userCollention.find({
+                        username: username
+                    }).toArray(function(err, docs) {
+                        summaryCollection.update({
+                            userid: docs[0].userid,
+                            "message.id": id
+                        }, {
+                            $set: {
+                                "message.$.read": true
+                            }
+                        });
+                    });
+                })
+
+            },
+            markUnread(id) {
+                var self = this;
+                this.markedread = false;
+                for (var i in this.summaries) {
+                    if (this.summaries[i].id == id) {
+                        // this.summaries.$set(i,{read:true});        // 视图更新
+                        this.summaries[i].read = false; // 视图不变
+                        this.$dispatch('markUnread', this.summaries[i].typeid);
+                    }
+                }
+                connect(function(db) {
+                    var userCollention = db.collection('mb_user');
+                    var summaryCollection = db.collection('mb_summary');
+                    var username = self.userName;
+                    userCollention.find({
+                        username: username
+                    }).toArray(function(err, docs) {
+                        summaryCollection.update({
+                            userid: docs[0].userid,
+                            "message.id": id
+                        }, {
+                            $set: {
+                                "message.$.read": false
+                            }
+                        });
+                    });
+                })
+            },
+            messageDetail(id) {
+                var self = this;
+                var messagesId = id - 1;
+                for (var i in this.summaries) {
+                    if (this.summaries[i].id == id) {
+                        // this.summaries[i].selected = '';
+                        if (this.summaries[i].read) {
+                            this.markedread = true;
+                        } else {
+                            this.markRead(id);
+                        }
+                        // this.summaries[i].selected = true;
+                    }
+                }
+                connect(function(db) {
+                    var collection = db.collection('mb_message');
+                    collection.find({}).toArray(function(err, docs) {
+                        var messages = docs;
+                        self.typeid = messages[messagesId].typeid;
+                        self.id = messages[messagesId].id;
+                        self.mestitle = messages[messagesId].title;
+                        self.mescontent = marked(messages[messagesId].content);
+                        self.author = messages[messagesId].author;
+                        self.sendtime = messages[messagesId].sendtime;
+                    });
+                });
+            },
+            newMessage(data) {
+                console.log('new message' + data);
+                this.searchAllSummaries();
+                ipcRenderer.send('update-icon', 'newMessage');
+                this.$dispatch('newMessage', data.typeid);
+                notifier.notify({
+                    'title': "您有新的消息：" + data.title,
+                    'message': data.desc,
+                    'sound': true,
+                    'wait': true
+                }, function(error, response) {
+                    console.log(error);
+                    console.log(response);
+                });
+            },
+            getSummaries(typeid, readStat) {
+                var self = this;
+                var username = this.userName;
+                connect(function(db) {
+                    var userCollention = db.collection('mb_user');
+                    var summaryCollection = db.collection('mb_summary');
+                    userCollention.find({
+                        username: username
+                    }).toArray(function(err, docs) {
+                        var cursor = summaryCollection.aggregate([{
+                                $match: {
+                                    userid: docs[0].userid,
+                                    typeid: {
+                                        $in: typeid
+                                    }
+                                }
+                            }, {
+                                $unwind: "$message"
+                            }, {
+                                $project: {
+                                    _id: 0,
+                                    userid: 1,
+                                    typeid: 1,
+                                    id: "$message.id",
+                                    title: "$message.title",
+                                    desc: "$message.desc",
+                                    sendtime: "$message.sendtime",
+                                    read: "$message.read"
+                                }
+                            }, {
+                                $match: {
+                                    read: {
+                                        $in: readStat
+                                    }
+                                }
+                            }, {
+                                $sort: {
+                                    sendtime: -1
+                                }
+                            }
+                            // { $out: "mb_temp" }     // 输出到数据库
+                        ], {
+                            cursor: {
+                                batchSize: 1
+                            }
+                        });
+                        cursor.toArray(function(err, result) {
+                            self.summaries = result;
+                        });
+                    });
+                });
+            }
+        },
+
+        events: {
+            'summaries-searchAll': 'searchAllSummaries',
+            'summaries-searchRead': function() {
+                var typeid = env_conf.typeid;
+                this.getSummaries(typeid, [true]);
+                this.mescontent = false;
+            },
+            'summaries-searchUnread': function() {
+                var typeid = env_conf.typeid;
+                this.getSummaries(typeid, [false]);
+                this.mescontent = false;
+            },
+            'summaries-searchType': function(id) {
+                var typeid = [id];
+                this.getSummaries(typeid, [true, false]);
+                this.mescontent = false;
+            },
+            'logout': function() {
+                this.isLogin = false;
+            },
+            'setting': function() {
+                this.showSetting = true;
+            }
+        },
+
+        components: {
+            PulseLoader,
+            Setting,
+            'dashboard-header': Header,
+            'message-detail': Message
+        }
+    }
+</script>
+<template>
+    <div class="dashboard-header">
+        <dashboard-header :socket.sync="socket" :title="title" :user-name="userName"></dashboard-header>
+    </div>
+    <div class="dashboard-summaries">
+        <div class="form-group has-feedback dashboard-summaries-search pull-right">
+            <input type="text" value="" placeholder="搜索" class="form-control input-sm" v-model="searchQuery" />
+            <span class="form-control-feedback fui-search"></span>
+        </div>
+        <ul v-if="summaries.length > 0" class="summaries">
+            <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
+            filterBy searchQuery in 'title' 'desc'  " class="animated fadeIn summary" @click="messageDetail(summary.id)">
+                <article>
+                    <header class="summary-title">
+                        <h6 v-if="summary.title.length > 10">{{ summary.title.substring(0,10) }} ...</h6>
+                        <h6 v-else>{{ summary.title }}</h6>
+                        <time class="summary-time pull-right">{{ summary.sendtime.substr(0,10) }}</time>
+                    </header>
+                    <section class="summary-desc" v-if="summary.desc.length > 24">
+                        {{ summary.desc.substr(0,64) }} ...
+                    </section>
+                    <section class="summary-desc" v-else>
+                        {{ summary.desc }}
+                    </section>
+                </article>
+            </li>
+        </ul>
+        <!-- vue.js 调试日志 -->
+        <!-- <div>
+            <p>当前路径: {{$route.path}}</p>
+            <p>当前路由参数: {{$route.params | json}}</p>
+        </div>
+        <pre>
+            {{ $data.summaries | json }} -->
+        </pre>
+        <div class="empty-placeholder" v-if="summaries.length == 0">暂时没有消息</div>
+        <div class="empty-placeholder" v-if="refreshing">
+            <pulse-loader></pulse-loader>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <p>获取消息 ...</p>
+        </div>
+    </div>
+    <div class="dashboard-message-detail">
+        <div class="manage-message" v-if="mescontent">
+            <button v-if="!markedread" @click="markRead(id)" type="button" class="btn btn-xs btn-primary btn-marked">
+                <i class="fa fa-fw fa-check"></i> 标记为已读
+            </button>
+            <button v-if="markedread" @click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
+                <i class="fa fa-fw fa-history"></i> 标记为未读
+            </button>
+        </div>
+        <message-detail :mestitle="mestitle" :sendtime="sendtime" :author="author" :mescontent="mescontent" v-if="mescontent"></message-detail>
+        <div class="empty-placeholder" v-if="!mescontent">没有选择消息</div>
+    </div>
+    <setting v-if="showSetting" :show.sync="showSetting"></setting>
+</template>
 <style>
     footer {
         background: none;
@@ -141,358 +501,3 @@
         width: 100%;
     }
 </style>
-
-<template>
-    <div class="dashboard-header">
-        <dashboard-header :socket.sync="socket" :title="title" :user-name="userName"></dashboard-header>
-    </div>
-    <div class="dashboard-summaries">
-        <div class="form-group has-feedback dashboard-summaries-search pull-right">
-            <input type="text" value="" placeholder="搜索" class="form-control input-sm" v-model="searchQuery" />
-            <span class="form-control-feedback fui-search"></span>
-        </div>
-        <ul v-if="summaries.length > 0" class="summaries">
-            <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'  " class="animated fadeIn summary" @click="messageDetail(summary.id)">
-                <article>
-                    <header class="summary-title">
-                        <h6 v-if="summary.title.length > 10">{{ summary.title.substring(0,10) }} ...</h6>
-                        <h6 v-else>{{ summary.title }}</h6>
-                        <time class="summary-time pull-right">{{ summary.sendtime.substr(0,10) }}</time>
-                    </header>
-                    <section class="summary-desc" v-if="summary.desc.length > 24">
-                        {{ summary.desc.substr(0,64) }} ...
-                    </section>
-                    <section class="summary-desc" v-else>
-                        {{ summary.desc }}
-                    </section>
-                </article>
-            </li>
-        </ul>
-        <!-- vue.js 调试日志 -->
-        <!-- <div>
-            <p>当前路径: {{$route.path}}</p>
-            <p>当前路由参数: {{$route.params | json}}</p>
-        </div>
-        <pre>
-            {{ $data.summaries | json }}
-        </pre> -->
-        <div class="empty-placeholder" v-if="summaries.length == 0">暂时没有消息</div>
-        <div class="empty-placeholder" v-if="refreshing">
-            <pulse-loader></pulse-loader>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <p>获取消息 ...</p>
-        </div>
-    </div>
-    <div class="dashboard-message-detail">
-        <div class="manage-message" v-if="mescontent">
-            <button v-if="!markedread" @click="markRead(id)" type="button" class="btn btn-xs btn-primary btn-marked">
-                <i class="fa fa-fw fa-check"></i> 标记为已读
-            </button>
-            <button v-if="markedread" @click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
-                <i class="fa fa-fw fa-history"></i> 标记为未读
-            </button>
-        </div>
-        <message-detail :mestitle="mestitle" :sendtime="sendtime" :author="author" :mescontent="mescontent" v-if="mescontent"></message-detail>
-        <div class="empty-placeholder" v-if="!mescontent">没有选择消息</div>
-    </div>
-</template>
-
-<script>
-    // PulseLoader插件
-    var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
-    // Child Component
-    var Header = require('./Header.vue');
-    var Message = require('./Message.vue');
-    // 连接mongodb
-    var env_conf = require('../../config/env_development.json');
-    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
-    // Electron API
-    var remote = require('electron').remote;
-    var ipcRenderer = require('electron').ipcRenderer;
-    var notifier = remote.getGlobal('notifier');
-    // Markdown Parser
-    var marked = require('marked');
-
-    marked.setOptions({
-        renderer: new marked.Renderer(),
-        gfm: true,
-        tables: true,
-        breaks: false,
-        pedantic: false,
-        sanitize: true,
-        smartLists: true,
-        smartypants: false
-    });
-
-    module.exports = {
-        name: 'Main',
-        props: [
-            'userName',
-            'isLogin',
-            'socket'
-        ],
-        route: {
-            data({
-                to
-            }) {
-                if (to.params.type === "type") {
-                    this.title = to.params.name
-                    this.state = 'type'
-                } else if (to.params.type === "message" && to.params.name === "read") {
-                    this.title = "已读消息"
-                    this.state = 'read'
-                } else if (to.params.type === "message" && to.params.name === "unread") {
-                    this.title = "未读消息"
-                    this.state = "unread"
-                } else {
-                    this.title = "所有消息"
-                    this.state = "all"
-                }
-            },
-            activate: function(transition) {
-                return new Promise((resolve) => {
-                    console.log('hook-example activated!')
-                    resolve()
-                })
-            },
-            deactivate: function(transition) {
-                console.log('hook-example deactivated!')
-                transition.next()
-            },
-            canReuse: function(transition) {
-                return true;
-            }
-        },
-
-        data: function() {
-            return {
-                title: "所有消息",
-                refreshing: false,
-                state: '',
-                summaries: [],
-                searchQuery: '',
-                markedread: '',
-                selected: '',
-                typeid: '',
-                id: '',
-                mestitle: '',
-                mescontent: '',
-                author: '',
-                sendtime: '',
-            }
-        },
-
-        ready: function() {
-            var socket = this.socket;
-            var self = this;
-            // listen to news event raised by the server
-            socket.on('public message', function(data) {
-                self.newMessage(data);
-            });
-
-            // listen to news event raised by the server
-            socket.on('private message', function(data) {
-                self.newMessage(data);
-            });
-            this.searchAllSummaries();
-
-            notifier.on('click', function (notifierObject, options) {
-            // Triggers if `wait: true` and user clicks notification
-                ipcRenderer.send('restore-window', 'newMessage');
-            });
-        },
-
-        methods: {
-            searchAllSummaries() {
-                var typeid = env_conf.typeid;
-                this.getSummaries(typeid,[true,false]);
-                this.mescontent = false;
-            },
-            markRead(id) {
-                var self = this;
-                // 传参赋值
-                this.markedread = true;
-                // read样式绑定
-                for (var i in this.summaries) {
-                    if (this.summaries[i].id == id) {
-                        // this.summaries.$set(i,{read:true});        // 视图更新
-                        this.summaries[i].read = true; // 视图不变
-                        this.$dispatch('markRead', this.summaries[i].typeid);
-                    }
-                }
-                connect(function(db) {
-                    var userCollention = db.collection('mb_user');
-                    var summaryCollection = db.collection('mb_summary');
-                    var username = self.userName;
-                    userCollention.find({
-                        username: username
-                    }).toArray(function(err, docs) {
-                        summaryCollection.update({
-                            userid: docs[0].userid,
-                            "message.id": id
-                        }, {
-                            $set: {
-                                "message.$.read": true
-                            }
-                        });
-                    });
-                })
-
-            },
-            markUnread(id) {
-                var self = this;
-                this.markedread = false;
-                for (var i in this.summaries) {
-                    if (this.summaries[i].id == id) {
-                        // this.summaries.$set(i,{read:true});        // 视图更新
-                        this.summaries[i].read = false; // 视图不变
-                        this.$dispatch('markUnread', this.summaries[i].typeid);
-                    }
-                }
-                connect(function(db) {
-                    var userCollention = db.collection('mb_user');
-                    var summaryCollection = db.collection('mb_summary');
-                    var username = self.userName;
-                    userCollention.find({
-                        username: username
-                    }).toArray(function(err, docs) {
-                        summaryCollection.update({
-                            userid: docs[0].userid,
-                            "message.id": id
-                        }, {
-                            $set: {
-                                "message.$.read": false
-                            }
-                        });
-                    });
-                })
-            },
-            messageDetail(id) {
-                var self = this;
-                var messagesId = id - 1;
-                for (var i in this.summaries) {
-                    if (this.summaries[i].id == id) {
-                        // this.summaries[i].selected = '';
-                        if (this.summaries[i].read) {
-                            this.markedread = true;
-                        } else {
-                            this.markRead(id);
-                        }
-                        // this.summaries[i].selected = true;
-                    }
-                }
-                connect(function(db) {
-                    var collection = db.collection('mb_message');
-                    collection.find({}).toArray(function(err, docs) {
-                        var messages = docs;
-                        self.typeid = messages[messagesId].typeid;
-                        self.id = messages[messagesId].id;
-                        self.mestitle = messages[messagesId].title;
-                        self.mescontent = marked(messages[messagesId].content);
-                        self.author = messages[messagesId].author;
-                        self.sendtime = messages[messagesId].sendtime;
-                    });
-                });
-            },
-            newMessage(data) {
-                console.log('new message' + data);
-                this.searchAllSummaries();
-                ipcRenderer.send('update-icon', 'newMessage');
-                this.$dispatch('newMessage', data.typeid);
-                notifier.notify({
-                    'title': "您有新的消息：" + data.title,
-                    'message': data.desc,
-                    'sound': true,
-                    'wait': true
-                }, function(error, response) {
-                    console.log(error);
-                    console.log(response);
-                });
-            },
-            getSummaries(typeid,readStat) {
-                var self = this;
-                var username = this.userName;
-                connect(function(db) {
-                    var userCollention = db.collection('mb_user');
-                    var summaryCollection = db.collection('mb_summary');
-                    userCollention.find({
-                        username: username
-                    }).toArray(function(err, docs) {
-                        var cursor = summaryCollection.aggregate([{
-                                $match: {
-                                    userid: docs[0].userid,
-                                    typeid: {
-                                        $in: typeid
-                                    }
-                                }
-                            }, {
-                                $unwind: "$message"
-                            }, {
-                                $project: {
-                                    _id: 0,
-                                    userid: 1,
-                                    typeid: 1,
-                                    id: "$message.id",
-                                    title: "$message.title",
-                                    desc: "$message.desc",
-                                    sendtime: "$message.sendtime",
-                                    read: "$message.read"
-                                }
-                            }, {
-                                $match: {
-                                    read: {
-                                        $in: readStat
-                                    }
-                                }
-                            }, {
-                                $sort: {
-                                    sendtime: -1
-                                }
-                            }
-                            // { $out: "mb_temp" }     // 输出到数据库
-                        ], {
-                            cursor: {
-                                batchSize: 1
-                            }
-                        });
-                        cursor.toArray(function(err, result) {
-                            self.summaries = result;
-                        });
-                    });
-                });
-            }
-        },
-
-        events: {
-            'summaries-searchAll': 'searchAllSummaries',
-            'summaries-searchRead': function() {
-                var typeid = env_conf.typeid;
-                this.getSummaries(typeid,[true]);
-                this.mescontent = false;
-            },
-            'summaries-searchUnread': function() {
-                var typeid = env_conf.typeid;
-                this.getSummaries(typeid,[false]);
-                this.mescontent = false;
-            },
-            'summaries-searchType': function(id) {
-                var typeid = [id];
-                this.getSummaries(typeid,[true,false]);
-                this.mescontent = false;
-            },
-            'logout': function() {
-                this.isLogin = false;
-            }
-        },
-
-        components: {
-            PulseLoader,
-            'dashboard-header': Header,
-            'message-detail': Message
-        }
-    }
-</script>
