@@ -11,6 +11,7 @@
     //     console.log(arg); // prints "pong"
     // });
     // ipcRenderer.send('asynchronous-message', 'ping');
+    var storage = require('electron-json-storage');
     module.exports = {
         name: "Login",
 
@@ -19,10 +20,10 @@
                 noticeName: '',
                 noticePswd: '',
                 password: '',
-                errorA: false,
-                loginA: true,
-                errorB: false,
-                loginB: true,
+                errorName: false,
+                loginName: true,
+                errorPswd: false,
+                loginPswd: true,
                 timeOut: true,
                 noticeError: '',
                 refreshing: false,
@@ -41,14 +42,14 @@
         },
 
         ready: function() {
+            var self = this;
             this.socket = socket;
-            this.userName = localStorage.lastname;
-            this.password = localStorage.password;
-            if (localStorage.isChecked == 'true') {
-                this.isChecked = true;
-            } else {
-                this.isChecked = false;
-            }
+            storage.get('login-user', function(error, data) {
+                if (error) throw error;
+                self.userName = data.username;
+                self.password = data.password;
+                self.isChecked = data.isChecked;
+            });
         },
 
         methods: {
@@ -57,10 +58,10 @@
             },
             login: function() {
                 //清空提示和恢复输入栏状态
-                this.errorA = false;
-                this.loginA = true;
-                this.errorB = false;
-                this.loginB = true;
+                this.errorName = false;
+                this.loginName = true;
+                this.errorPswd = false;
+                this.loginPswd = true;
                 this.noticeName = '';
                 this.noticePswd = '';
                 //获取用户名和密码
@@ -69,16 +70,16 @@
                 //判断用户名和密码是否为空
                 if (username == "") {
                     this.noticeName = '用户名不能为空!';
-                    this.errorA = true;
-                    this.loginA = false;
+                    this.errorName = true;
+                    this.loginName = false;
                     if (password == "") {
                         this.noticePswd = '密码不能为空!';
-                        this.errorB = true;
-                        this.loginB = false;
+                        this.errorPswd = true;
+                        this.loginPswd = false;
                     }
                 } else if (password == "") {
-                    this.errorB = true;
-                    this.loginB = false;
+                    this.errorPswd = true;
+                    this.loginPswd = false;
                     this.noticePswd = '密码不能为空!';
                 } else {
                     var self = this;
@@ -105,12 +106,7 @@
                                         });
                                         setTimeout(function() {
                                             if (isOnlineStat) {
-                                                localStorage.lastname = username;
-                                                if (self.isChecked) {
-                                                    localStorage.password = password;
-                                                } else {
-                                                    localStorage.password = '';
-                                                }
+                                                if (!self.isChecked) password = "";
                                                 self.isLogin = true;
                                                 self.updateOnlineStat(username); //更改在线状态
                                                 self.updateLastLoginTime(username); //更新上一次登录时间
@@ -119,6 +115,13 @@
                                                     username: username
                                                 });
                                                 self.userName = username;
+                                                storage.set('login-user', {
+                                                    username: username,
+                                                    password: password,
+                                                    isChecked: self.isChecked
+                                                }, function(error) {
+                                                    if (error) throw error;
+                                                });
                                             } else {
                                                 //提示用户信息
                                                 self.refreshing = false;
@@ -127,8 +130,8 @@
                                             }
                                         }, 1000 * 3 + Math.random() * 1000);
                                     } else {
-                                        self.errorB = true;
-                                        self.loginB = false;
+                                        self.errorPswd = true;
+                                        self.loginPswd = false;
                                         self.refreshing = false;
                                         self.noticePswd = '密码错误!';
                                     }
@@ -139,8 +142,8 @@
                                     console.log("此用户已在线！");
                                 }
                             } else { //如果没有此username
-                                self.errorA = true;
-                                self.loginA = false;
+                                self.errorName = true;
+                                self.loginName = false;
                                 self.refreshing = false;
                                 self.noticeName = '用户名不存在!';
                             }
@@ -194,12 +197,20 @@
             },
             savePasswd: function() {
                 this.isChecked = true;
-                localStorage.isChecked = this.isChecked;
+                storage.set('login-user', {
+                    isChecked: this.isChecked
+                }, function(error) {
+                    if (error) throw error;
+                });
             },
             removePasswd: function() {
                 this.isChecked = false;
-                localStorage.password = '';
-                localStorage.isChecked = this.isChecked;
+                storage.set('login-user', {
+                    password: '',
+                    isChecked: this.isChecked
+                }, function(error) {
+                    if (error) throw error;
+                });
             }
         }
     }
@@ -217,13 +228,13 @@
             <span>{{noticeError}}</span>
         </div>
         <div class="login-form">
-            <div class="form-group" :class="{'has-error': errorA}">
-                <input type="text" class="form-control" :class="{'login-field': loginA}" value="" placeholder="用户名" v-model="userName">
+            <div class="form-group" :class="{'has-error': errorName}">
+                <input type="text" class="form-control" :class="{'login-field': loginName}" value="" placeholder="用户名" v-model="userName">
                 <label class="login-field-icon fui-user" for="login-name"></label>
                 <span class="notice pull-right ">{{noticeName}}</span>
             </div>
-            <div class="form-group" :class="{'has-error':errorB}">
-                <input type="password" class="form-control" :class="{'login-field': loginB}" value="" placeholder="密码" v-model="password">
+            <div class="form-group" :class="{'has-error': errorPswd}">
+                <input type="password" class="form-control" :class="{'login-field': loginPswd}" value="" placeholder="密码" v-model="password">
                 <label class="login-field-icon fui-lock" for="login-pass"></label>
                 <span class="notice pull-right" id="">{{noticePswd}}</span>
             </div>
