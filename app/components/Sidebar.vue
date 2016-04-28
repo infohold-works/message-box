@@ -1,8 +1,8 @@
 <script>
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
-    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
-    var assert = require('assert');
+    var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
+    // var assert = require('assert');
 
     module.exports = {
         name: "Sidebar",

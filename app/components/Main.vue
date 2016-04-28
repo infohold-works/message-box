@@ -7,7 +7,7 @@
     var Setting = require('./Setting.vue');
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
-    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
+    var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
     // Electron API
     var remote = require('electron').remote;
     var ipcRenderer = require('electron').ipcRenderer;

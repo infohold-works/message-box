@@ -3,7 +3,7 @@
     var env_conf = require('../../config/env_development.json');
     var socket = require('socket.io-client')(env_conf.socketServerUrl);
     var moment = require('moment');
-    var connect = require('../services/mongodb-server/server').connect(env_conf.test.url, env_conf.test.options);
+    var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
     //引用vue-spinner插件
     var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
     // var ipcRenderer = require('electron').ipcRenderer;
