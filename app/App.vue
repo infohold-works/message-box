@@ -1,4 +1,5 @@
 <script>
+    import store from './vuex/store'
     var Sidebar = require('./components/Sidebar.vue')
     var Login = require('./components/Login.vue')
 
@@ -10,6 +11,8 @@
                 userName: '',
             }
         },
+
+        store,
 
         vuex: {
             getters: {

@@ -41,8 +41,7 @@
         vuex: {
           getters: {
             loading: ({ login }) => login.loading,
-            isLogin: ({ login }) => login.isLogin,
-            socket: ({ login }) => global.socket,
+            isLogin: ({ login }) => login.isLogin
           },
           actions: {
             toggleLoading,
