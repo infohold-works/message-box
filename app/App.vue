@@ -55,11 +55,13 @@
     }
 </script>
 <template>
-    <div class="login-style animated fadeIn" v-if="!isLogin">
+    <div id="app">
+      <div class="login-style animated fadeIn" v-if="!isLogin">
         <login :user-name.sync="userName" keep-alive></login>
-    </div>
-    <div class="dashboard animated fadeIn" v-if="isLogin">
+      </div>
+      <div class="dashboard animated fadeIn" v-if="isLogin">
         <sidebar :user-name.once="userName"></sidebar>
         <router-view :user-name.once="userName"></router-view>
-    </div>
+      </div>
+    </div> 
 </template>

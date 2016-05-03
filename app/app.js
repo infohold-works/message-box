@@ -36,4 +36,4 @@ router.redirect({
 })
 
 // Start up our app
-router.start(App, '#app')
+router.start(App, '#root')
