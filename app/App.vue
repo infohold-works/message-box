@@ -4,19 +4,19 @@
 
     module.exports = {
         name: "App",
+
         data: function() {
             return {
-                isLogin: false,
                 userName: '',
-                typeId: '',
-                markedRead: '',
-                socket: ''
             }
         },
-        components: {
-            Login,
-            Sidebar
+
+        vuex: {
+            getters: {
+                isLogin: ({ login }) => login.isLogin,
+            }
         },
+
         events: {
             'markRead': function(typeid) {
                 this.$broadcast('siderbar-markRead', typeid);
@@ -43,15 +43,20 @@
             'newMessage': function(typeid){
                 this.$broadcast('siderbar-newMessage', typeid);
             }
+        },
+
+        components: {
+            Login,
+            Sidebar
         }
     }
 </script>
 <template>
     <div class="login-style animated fadeIn" v-if="!isLogin">
-        <login :is-login.sync="isLogin" :user-name.sync="userName" :socket.sync="socket" keep-alive></login>
+        <login :user-name.sync="userName" keep-alive></login>
     </div>
     <div class="dashboard animated fadeIn" v-if="isLogin">
         <sidebar :user-name.once="userName"></sidebar>
-        <router-view :is-login.sync="isLogin" :user-name.once="userName" :socket.sync="socket"></router-view>
+        <router-view :user-name.once="userName"></router-view>
     </div>
 </template>

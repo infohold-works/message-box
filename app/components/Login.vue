@@ -1,17 +1,20 @@
 <script>
-    //连接网络接口3000
     var env_conf = require('../../config/env_development.json');
     var socket = require('socket.io-client')(env_conf.socketServerUrl);
     var moment = require('moment');
     var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
-    //引用vue-spinner插件
     var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
+    var storage = require('electron-json-storage');
+    import {
+      toggleLoading,
+      toggleLogin,
+      setSocket
+    } from '../vuex/actions'
     // var ipcRenderer = require('electron').ipcRenderer;
     // ipcRenderer.on('asynchronous-reply', function(event, arg) {
     //     console.log(arg); // prints "pong"
     // });
     // ipcRenderer.send('asynchronous-message', 'ping');
-    var storage = require('electron-json-storage');
     module.exports = {
         name: "Login",
 
@@ -19,31 +22,38 @@
             return {
                 noticeName: '',
                 noticePswd: '',
-                password: '',
                 errorName: false,
                 loginName: true,
                 errorPswd: false,
                 loginPswd: true,
                 timeOut: true,
                 noticeError: '',
-                refreshing: false,
+                loading: false,
+                password: '',
                 isChecked: false,
             }
         },
 
         props: [
-            'isLogin',
             'userName',
-            'socket'
         ],
 
-        components: {
-            ScaleLoader
+        vuex: {
+          getters: {
+            loading: ({ login }) => login.loading,
+            isLogin: ({ login }) => login.isLogin,
+            socket: ({ login }) => global.socket,
+          },
+          actions: {
+            toggleLoading,
+            toggleLogin,
+            setSocket
+          }
         },
 
         ready: function() {
             var self = this;
-            this.socket = socket;
+            this.setSocket(socket);
             storage.get('login-user', function(error, data) {
                 if (error) throw error;
                 self.userName = data.username;
@@ -83,7 +93,7 @@
                     this.noticePswd = '密码不能为空!';
                 } else {
                     var self = this;
-                    self.refreshing = true;
+                    self.loading = true;
                     connect(function(db) {
                         // Get the documents collection
                         var collection = db.collection('mb_user');
@@ -107,7 +117,7 @@
                                         setTimeout(function() {
                                             if (isOnlineStat) {
                                                 if (!self.isChecked) password = "";
-                                                self.isLogin = true;
+                                                self.toggleLogin()
                                                 self.updateOnlineStat(username); //更改在线状态
                                                 self.updateLastLoginTime(username); //更新上一次登录时间
                                                 self.updateLoginTime(username, self.nowTime()); //添加当前时间
@@ -123,28 +133,26 @@
                                                     if (error) throw error;
                                                 });
                                             } else {
-                                                //提示用户信息
-                                                self.refreshing = false;
-                                                self.noticeError = '登录超时！';
+                                                self.loading = false;
                                                 self.timeOut = false;
+                                                self.noticeError = '登录超时！';
                                             }
                                         }, 1000 * 3 + Math.random() * 1000);
                                     } else {
                                         self.errorPswd = true;
                                         self.loginPswd = false;
-                                        self.refreshing = false;
+                                        self.loading = false;
                                         self.noticePswd = '密码错误!';
                                     }
                                 } else {
+                                    self.loading = false;
                                     self.timeOut = false;
-                                    self.refreshing = false;
                                     self.noticeError = '此用户已在线！';
-                                    console.log("此用户已在线！");
                                 }
                             } else { //如果没有此username
                                 self.errorName = true;
                                 self.loginName = false;
-                                self.refreshing = false;
+                                self.loading = false;
                                 self.noticeName = '用户名不存在!';
                             }
                         });
@@ -212,6 +220,10 @@
                     if (error) throw error;
                 });
             }
+        },
+
+        components: {
+            ScaleLoader
         }
     }
 </script>
@@ -223,7 +235,7 @@
         <!-- <pre>
             {{ $data | json }}
         </pre> -->
-        <div class="alert alert-warning time-out" role="alert" v-bind:class="{'hidden':timeOut}">
+        <div class="alert alert-warning time-out" role="alert" :class="{'hidden':timeOut}">
             <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
             <span>{{noticeError}}</span>
         </div>
@@ -250,7 +262,7 @@
             <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
             <a class="login-link" href="#">忘记密码？</a>
         </div>
-        <div class="loading" v-if="refreshing">
+        <div class="loading" v-if="loading">
             <scale-loader class="loading-center" color="white" height="60px" width="7px"></scale-loader>
         </div>
     </div>

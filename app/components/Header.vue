@@ -10,14 +10,19 @@
     module.exports = {
         name: 'Header',
 
-        props: ['socket', 'title', 'userName'],
+        props: ['title', 'userName'],
+
+        vuex: {
+            getters: {
+                socket: ({ global }) => global.socket,
+            }
+        },
 
         methods: {
             setting() {
                 this.$dispatch('setting');
             },
             logout() {
-                var socket = this.socket;
                 var username = this.userName;
                 //连接数据库
                 connect(function(db) {
