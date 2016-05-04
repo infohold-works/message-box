@@ -6,12 +6,6 @@
     module.exports = {
         name: "App",
 
-        data: function() {
-            return {
-                userName: '',
-            }
-        },
-
         store,
 
         vuex: {
@@ -21,12 +15,6 @@
         },
 
         events: {
-            'markRead': function(typeid) {
-                this.$broadcast('siderbar-markRead', typeid);
-            },
-            'markUnread': function(typeid) {
-                this.$broadcast('siderbar-markUnread', typeid);
-            },
             'searchAll': function() {
                 this.$broadcast('summaries-searchAll');
             },
@@ -39,9 +27,11 @@
             'searchType': function(id) {
                 this.$broadcast('summaries-searchType', id);
             },
-            'notified': function() {
-                console.log('into app notified func');
-                this.$broadcast('public-message');
+            'markRead': function(typeid) {
+                this.$broadcast('siderbar-markRead', typeid);
+            },
+            'markUnread': function(typeid) {
+                this.$broadcast('siderbar-markUnread', typeid);
             },
             'newMessage': function(typeid){
                 this.$broadcast('siderbar-newMessage', typeid);
@@ -57,11 +47,11 @@
 <template>
     <div id="app">
       <div class="login-style animated fadeIn" v-if="!isLogin">
-        <login :user-name.sync="userName" keep-alive></login>
+        <login keep-alive></login>
       </div>
       <div class="dashboard animated fadeIn" v-if="isLogin">
-        <sidebar :user-name.once="userName"></sidebar>
-        <router-view :user-name.once="userName"></router-view>
+        <sidebar></sidebar>
+        <router-view></router-view>
       </div>
-    </div> 
+    </div>
 </template>

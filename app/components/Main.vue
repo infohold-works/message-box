@@ -14,9 +14,6 @@
     var notifier = remote.getGlobal('notifier');
     // Markdown Parser
     var marked = require('marked');
-    import {
-      toggleLogin
-    } from '../vuex/actions'
 
     marked.setOptions({
         renderer: new marked.Renderer(),
@@ -38,11 +35,8 @@
 
         vuex: {
             getters: {
-                isLogin: ({ login }) => login.isLogin,
                 socket: ({ global }) => global.socket,
-            },
-            actions: {
-                toggleLogin
+                userName: ({ login }) => login.userName
             }
         },
 
@@ -296,9 +290,6 @@
                 this.getSummaries(typeid, [true, false]);
                 this.mescontent = false;
             },
-            'logout': function() {
-                this.toggleLogin()
-            },
             'setting': function() {
                 this.showSetting = true;
             }
@@ -314,7 +305,7 @@
 </script>
 <template>
     <div class="dashboard-header">
-        <dashboard-header :title="title" :user-name="userName"></dashboard-header>
+        <dashboard-header :title="title"></dashboard-header>
     </div>
     <div class="dashboard-summaries">
         <div class="form-group has-feedback dashboard-summaries-search pull-right">

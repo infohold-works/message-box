@@ -1,4 +1,7 @@
 <script>
+    import {
+      toggleLogin
+    } from '../vuex/actions'
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
     var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
@@ -10,11 +13,15 @@
     module.exports = {
         name: 'Header',
 
-        props: ['title', 'userName'],
+        props: ['title'],
 
         vuex: {
             getters: {
                 socket: ({ global }) => global.socket,
+                userName: ({ login }) => login.userName
+            },
+            actions: {
+              toggleLogin
             }
         },
 
@@ -40,7 +47,7 @@
                 socket.emit('logout', {
                     username: username
                 });
-                this.$dispatch('logout');
+                this.toggleLogin();
             },
             exit() {
                 ipcRenderer.send('exit', 'exit');

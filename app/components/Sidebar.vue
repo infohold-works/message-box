@@ -1,4 +1,7 @@
 <script>
+    import {
+        toggleRouter
+    } from '../vuex/actions'
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
     var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
@@ -6,17 +9,24 @@
 
     module.exports = {
         name: "Sidebar",
-        props: [
-            'userName'
-        ],
+
         data: function() {
             return {
                 messageTypes: [],
-                selected: 'selected',
-                isAll: false,
-                isRead: false,
-                isUnRead: false,
-                isType: false,
+                selected: 'selected'
+            }
+        },
+
+        vuex: {
+            getters: {
+                userName: ({ login }) => login.userName,
+                isAll: ({ sidebar }) => sidebar.router.isAll,
+                isRead: ({ sidebar }) => sidebar.router.isRead,
+                isUnRead: ({ sidebar }) => sidebar.router.isUnRead,
+                isType: ({ sidebar }) => sidebar.router.isType
+            },
+            actions: {
+                toggleRouter
             }
         },
 
@@ -84,10 +94,7 @@
 
         methods: {
             allMessages() {
-                this.$set('isAll', true);
-                this.$set('isRead', false);
-                this.$set('isUnRead', false);
-                this.$set('isType', false);
+                this.toggleRouter('isAll');
                 this.$dispatch('searchAll');
                 return this.$route.router.go({
                     path: '/',
@@ -95,20 +102,14 @@
                 })
             },
             readMessages() {
-                this.$set('isAll', false);
-                this.$set('isRead', true);
-                this.$set('isUnRead', false);
-                this.$set('isType', false);
+                this.toggleRouter('isRead');
                 this.$dispatch('searchRead');
                 return this.$route.router.go({
                     path: '/message/read'
                 });
             },
             unreadMessages() {
-                this.$set('isAll', false);
-                this.$set('isRead', false);
-                this.$set('isUnRead', true);
-                this.$set('isType', false);
+                this.toggleRouter('isUnRead');
                 this.$dispatch('searchUnread');
                 return this.$route.router.go({
                     path: '/message/unread'
@@ -119,10 +120,7 @@
                     i == messageType.id - 1 ? this.messageTypes[i].selected = true :
                         this.messageTypes[i].selected = false;
                 }
-                this.$set('isAll', false);
-                this.$set('isRead', false);
-                this.$set('isUnRead', false);
-                this.$set('isType', true);
+                this.toggleRouter('isType');
 
                 // // 根据id查询
                 // this.$http({
