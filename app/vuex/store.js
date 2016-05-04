@@ -5,6 +5,7 @@ import Vuex from 'vuex'
 import global from './modules/global'
 import login from './modules/login'
 import sidebar from './modules/sidebar'
+import main from './modules/main'
 
 const debug = process.env.NODE_ENV !== 'production'
 Vue.use(Vuex)
@@ -15,7 +16,8 @@ export default new Vuex.Store({
     modules: {
         global,
         login,
-        sidebar
+        sidebar,
+        main
     },
     strict: debug
 })

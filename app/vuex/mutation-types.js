@@ -8,3 +8,9 @@ export const SET_USERNAME = 'SET_USERNAME'
 
 // sidebar mutation types
 export const TOGGLE_ROUTER = 'TOGGLE_ROUTER'
+export const SET_MESSAGETYPES = 'SET_MESSAGETYPES'
+export const INCREASE_COUNT = 'INCREASE_COUNT'
+export const DECREASE_COUNT = 'DECREASE_COUNT'
+
+// main mutation types
+export const SET_MESCONTENT = 'SET_MESCONTENT'

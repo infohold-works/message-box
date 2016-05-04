@@ -26,15 +26,6 @@
             },
             'searchType': function(id) {
                 this.$broadcast('summaries-searchType', id);
-            },
-            'markRead': function(typeid) {
-                this.$broadcast('siderbar-markRead', typeid);
-            },
-            'markUnread': function(typeid) {
-                this.$broadcast('siderbar-markUnread', typeid);
-            },
-            'newMessage': function(typeid){
-                this.$broadcast('siderbar-newMessage', typeid);
             }
         },
 

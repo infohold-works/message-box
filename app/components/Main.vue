@@ -1,4 +1,8 @@
 <script>
+    import {
+        increaseCount,
+        decreaseCount
+    } from '../vuex/actions'
     // PulseLoader插件
     var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
     // Child Component
@@ -29,14 +33,15 @@
     module.exports = {
         name: 'Main',
 
-        props: [
-            'userName',
-        ],
-
         vuex: {
             getters: {
                 socket: ({ global }) => global.socket,
-                userName: ({ login }) => login.userName
+                userName: ({ login }) => login.userName,
+                messageTypes: ({ sidebar }) => sidebar.messageTypes,
+            },
+            actions: {
+                increaseCount,
+                decreaseCount
             }
         },
 
@@ -127,7 +132,9 @@
                     if (this.summaries[i].id == id) {
                         // this.summaries.$set(i,{read:true});        // 视图更新
                         this.summaries[i].read = true; // 视图不变
-                        this.$dispatch('markRead', this.summaries[i].typeid);
+                        // this.$dispatch('markRead', this.summaries[i].typeid);
+                        this.decreaseCount(this.summaries[i].typeid);
+                        this.updateCount(this.summaries[i].typeid, this.userName);
                     }
                 }
                 connect(function(db) {
@@ -156,7 +163,9 @@
                     if (this.summaries[i].id == id) {
                         // this.summaries.$set(i,{read:true});        // 视图更新
                         this.summaries[i].read = false; // 视图不变
-                        this.$dispatch('markUnread', this.summaries[i].typeid);
+                        // this.$dispatch('markUnread', this.summaries[i].typeid);
+                        this.increaseCount(this.summaries[i].typeid);
+                        this.updateCount(this.summaries[i].typeid, this.userName);
                     }
                 }
                 connect(function(db) {
@@ -208,7 +217,8 @@
                 console.log('new message' + data);
                 this.searchAllSummaries();
                 ipcRenderer.send('update-icon', 'newMessage');
-                this.$dispatch('newMessage', data.typeid);
+                // this.$dispatch('newMessage', data.typeid);
+                this.increaseCount(data.typeid);
                 notifier.notify({
                     'title': "您有新的消息：" + data.title,
                     'message': data.desc,
@@ -267,6 +277,26 @@
                         });
                         cursor.toArray(function(err, result) {
                             self.summaries = result;
+                        });
+                    });
+                });
+            },
+            // 修改数据库count
+            updateCount(typeid, username) {
+                var self = this;
+                connect(function(db) {
+                    var userCollection = db.collection('mb_user');
+                    var summaryCollection = db.collection('mb_summary');
+                    userCollection.find({
+                        username: username
+                    }).toArray(function(err, docs) {
+                        summaryCollection.update({
+                            userid: docs[0].userid,
+                            typeid: typeid
+                        }, {
+                            $set: {
+                                count: self.messageTypes[typeid - 1].count
+                            }
                         });
                     });
                 });

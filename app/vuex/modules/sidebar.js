@@ -1,10 +1,14 @@
 // vuex/modules/login.js
 import {
-    TOGGLE_ROUTER
+    SET_MESSAGETYPES,
+    TOGGLE_ROUTER,
+    INCREASE_COUNT,
+    DECREASE_COUNT
 } from '../mutation-types'
 
 // initial state
 const state = {
+    messageTypes: [],
     router: {
         isAll: true,
         isRead: false,
@@ -15,12 +19,40 @@ const state = {
 
 // mutations
 const mutations = {
-    [TOGGLE_ROUTER](state, route) {
+    [SET_MESSAGETYPES](state, mesTypes, data) {
+        for (var i = 0; i < mesTypes.length; i++) {
+            state.messageTypes.push({
+                id: i + 1,
+                title: mesTypes[i],
+                count: data[i].count,
+                selected: false
+            })
+        }
+    },
+    [TOGGLE_ROUTER](state, route, mesTypes, messageType) {
         for (var key in state.router) {
             key == route
             ? state.router[key] = true
-            : state.router[key] = false
+            : state.router[key] = false;
+            for (var i in mesTypes) {
+                state.messageTypes[i].selected = false;
+            }
         }
+        if( route == 'isType' ) {
+          for (var i in mesTypes) {
+            i == messageType.id - 1
+            ? state.messageTypes[i].selected = true
+            : state.messageTypes[i].selected = false;
+          }
+        }
+    },
+    [INCREASE_COUNT](state, typeid) {
+        console.log('+1');
+        state.messageTypes[typeid - 1].count += 1;
+    },
+    [DECREASE_COUNT](state, typeid) {
+        console.log('-1');
+        state.messageTypes[typeid - 1].count -= 1;
     }
 }
 
