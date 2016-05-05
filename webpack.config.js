@@ -12,6 +12,15 @@ module.exports = {
         filename: '[name].js',
     },
     module: {
+        preLoaders: [{
+            test: /\.vue$/,
+            loader: 'eslint',
+            exclude: /node_modules/
+        }, {
+            test: /\.js$/,
+            loader: 'eslint',
+            exclude: /node_modules/
+        }],
         loaders: [{
             test: /\.vue$/,
             loader: 'vue'
@@ -35,6 +44,9 @@ module.exports = {
         }),
         new ExtractTextPlugin('app.css')
     ],
+    eslint: {
+        formatter: require('eslint-friendly-formatter')
+    },
     vue: {
         loaders: {
             css: ExtractTextPlugin.extract("css")

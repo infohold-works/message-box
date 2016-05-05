@@ -14,15 +14,15 @@ const state = {
 
 // mutations
 const mutations = {
-  [TOGGLE_LOADING] (state) {
+  [TOGGLE_LOADING](state) {
     state.loading = !state.loading
   },
 
-  [TOGGLE_LOGIN] (state) {
+  [TOGGLE_LOGIN](state) {
     state.isLogin = !state.isLogin
   },
 
-  [SET_USERNAME] (state, userName) {
+  [SET_USERNAME](state, userName) {
     state.userName = userName
   }
 }

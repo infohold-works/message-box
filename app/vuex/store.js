@@ -12,12 +12,12 @@ Vue.use(Vuex)
 Vue.config.debug = debug
 
 export default new Vuex.Store({
-    // combine sub modules
-    modules: {
-        global,
-        login,
-        sidebar,
-        main
-    },
-    strict: debug
+  // combine sub modules
+  modules: {
+    global,
+    login,
+    sidebar,
+    main
+  },
+  strict: debug
 })

@@ -7,7 +7,7 @@ var sync = require('vuex-router-sync').sync
 
 var App = require('./App.vue')
 // plugins
-var Dropdown = require('./components/Dropdown.vue')
+// var Dropdown = require('./components/Dropdown.vue')
 
 Vue.config.debug = true
 
@@ -27,12 +27,12 @@ ConfigRouter(router)
 
 // For every new route scroll to the top of the page
 router.beforeEach(function() {
-    window.scrollTo(0, 0)
+  window.scrollTo(0, 0)
 })
 
 // If no route is matched redirect home
 router.redirect({
-    '*': '/'
+  '*': '/'
 })
 
 // Start up our app

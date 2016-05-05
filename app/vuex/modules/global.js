@@ -5,12 +5,12 @@ import {
 
 // initial state
 const state = {
-  socket: '',
+  socket: ''
 }
 
 // mutations
 const mutations = {
-  [SET_SOCKET] (state, socket) {
+  [SET_SOCKET](state, socket) {
     state.socket = socket
   }
 }

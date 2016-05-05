@@ -39,8 +39,8 @@ var Tray = electron.Tray;
 var mainWindow;
 // Preserver of the window size and position between app launches.
 var mainWindowState = windowStateKeeper('main', {
-    width: 1024,
-    height: 768
+  width: 1024,
+  height: 768
 });
 var tray = null;
 var iconNew = path.join(__dirname, 'assets/img', 'iconNew.png');
@@ -48,129 +48,129 @@ var icon = path.join(__dirname, 'assets/img', 'icon.png');
 
 app.on('ready', function() {
 
-    mainWindow = new BrowserWindow({
-        x: mainWindowState.x,
-        y: mainWindowState.y,
-        width: mainWindowState.width,
-        height: mainWindowState.height,
-        title: "消息盒子"
-    });
+  mainWindow = new BrowserWindow({
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
+    title: "消息盒子"
+  });
 
-    if (mainWindowState.isMaximized) {
-        mainWindow.maximize();
+  if (mainWindowState.isMaximized) {
+    mainWindow.maximize();
+  }
+
+  if (env.name === 'test') {
+    mainWindow.loadURL('file://' + __dirname + '/spec.html');
+  } else {
+    mainWindow.loadURL('file://' + __dirname + '/app.html');
+  }
+
+  if (env.name !== 'production') {
+    devHelper.setDevMenu();
+    // mainWindow.openDevTools();
+  }
+
+  // mainWindow.webContents.on('did-finish-load', function() {
+  //     mainWindow.webContents.send('ping', 'whoooooooh!');
+  // });
+
+  tray = new Tray(icon);
+  var trayMenuTemplate = [{
+    label: '显示主窗口',
+    click: function() {
+      // 恢复窗口
+      mainWindow.restore();
     }
+  }, {
+    label: '最小化窗口',
+    accelerator: 'CmdOrCtrl+M',
+    click: function() {
+      // 最小化窗口
+      mainWindow.minimize();
+    }
+  }, {
+    type: 'separator'
+  }, {
+    label: '设置',
+    click: function() {
+      // ipc.send('open-settings-window');
+    }
+  }, {
+    type: 'separator'
+  }, {
+    label: '退出',
+    click: function() {
+      Dialog.showMessageBox({
+        type: 'question',
+        buttons: ['确定', '取消'],
+        title: '退出消息盒子',
+        cancelId: 99,
+        message: '确定退出吗?'
+      }, function(response) {
+        console.log('Exit: ' + response);
+        if (!response) app.quit();
+      });
+    }
+  }];
+  var contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
+  tray.setToolTip('消息盒子');
+  tray.setTitle('消息盒子');
+  tray.setHighlightMode(true);
+  tray.on('click', function() {
+    // 显示主窗口
+    mainWindow.restore();
+    // 获取焦点
+    mainWindow.show();
+  })
+  tray.setContextMenu(contextMenu);
 
-    if (env.name === 'test') {
-        mainWindow.loadURL('file://' + __dirname + '/spec.html');
+  // ipcMain.on('asynchronous-message', function(event, arg) {
+  //     console.log(arg);  // prints "ping"
+  //     event.sender.send('asynchronous-reply', 'pong');
+  // });
+
+  // 新消息修改托盘图标事件
+  ipcMain.on('update-icon', function(event, arg) {
+    if (arg === 'newMessage') {
+      tray.setImage(iconNew);
     } else {
-        mainWindow.loadURL('file://' + __dirname + '/app.html');
+      tray.setImage(icon);
     }
+  });
 
-    if (env.name !== 'production') {
-        devHelper.setDevMenu();
-        // mainWindow.openDevTools();
-    }
+  // 新消息修改托盘图标事件
+  ipcMain.on('restore-window', function(event, arg) {
+    // 显示主窗口
+    mainWindow.restore();
+    // 获取焦点
+    mainWindow.show();
+  });
 
-    // mainWindow.webContents.on('did-finish-load', function() {
-    //     mainWindow.webContents.send('ping', 'whoooooooh!');
-    // });
-
-    tray = new Tray(icon);
-    var trayMenuTemplate = [{
-        label: '显示主窗口',
-        click: function() {
-            // 恢复窗口
-            mainWindow.restore();
-        }
-    }, {
-        label: '最小化窗口',
-        accelerator: 'CmdOrCtrl+M',
-        click: function() {
-            // 最小化窗口
-            mainWindow.minimize();
-        }
-    }, {
-        type: 'separator'
-    }, {
-        label: '设置',
-        click: function() {
-            // ipc.send('open-settings-window');
-        }
-    }, {
-        type: 'separator'
-    }, {
-        label: '退出',
-        click: function() {
-            Dialog.showMessageBox({
-                type: 'question',
-                buttons: ['确定', '取消'],
-                title: '退出消息盒子',
-                cancelId: 99,
-                message: '确定退出吗?'
-            }, function(response) {
-                console.log('Exit: ' + response);
-                if (!response) app.quit();
-            });
-        }
-    }];
-    var contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
-    tray.setToolTip('消息盒子');
-    tray.setTitle('消息盒子');
-    tray.setHighlightMode(true);
-    tray.on('click', function() {
-        // 显示主窗口
-        mainWindow.restore();
-        // 获取焦点
-        mainWindow.show();
-    })
-    tray.setContextMenu(contextMenu);
-
-    // ipcMain.on('asynchronous-message', function(event, arg) {
-    //     console.log(arg);  // prints "ping"
-    //     event.sender.send('asynchronous-reply', 'pong');
-    // });
-
-    // 新消息修改托盘图标事件
-    ipcMain.on('update-icon', function(event, arg) {
-        if (arg === 'newMessage') {
-            tray.setImage(iconNew);
-        } else {
-            tray.setImage(icon);
-        }
+  // 退出事件
+  ipcMain.on('exit', function(event, arg) {
+    Dialog.showMessageBox({
+      type: 'question',
+      buttons: ['确定', '取消'],
+      title: '退出消息盒子',
+      cancelId: 99,
+      message: '确定退出吗?'
+    }, function(response) {
+      console.log('Exit: ' + response);
+      if (!response) app.quit();
     });
+  });
 
-    // 新消息修改托盘图标事件
-    ipcMain.on('restore-window', function(event, arg) {
-        // 显示主窗口
-        mainWindow.restore();
-        // 获取焦点
-        mainWindow.show();
-    });
-
-    // 退出事件
-    ipcMain.on('exit', function(event, arg) {
-        Dialog.showMessageBox({
-            type: 'question',
-            buttons: ['确定', '取消'],
-            title: '退出消息盒子',
-            cancelId: 99,
-            message: '确定退出吗?'
-        }, function(response) {
-            console.log('Exit: ' + response);
-            if (!response) app.quit();
-        });
-    });
-
-    mainWindow.on('close', function() {
-        mainWindowState.saveState(mainWindow);
-    });
+  mainWindow.on('close', function() {
+    mainWindowState.saveState(mainWindow);
+  });
 });
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
-    // On OS X it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform != 'darwin') {
-        app.quit();
-    }
+  // On OS X it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
+  if (process.platform != 'darwin') {
+    app.quit();
+  }
 });
