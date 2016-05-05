@@ -1,4 +1,8 @@
 <script>
+    import {
+        increaseCount,
+        decreaseCount
+    } from '../vuex/actions'
     // PulseLoader插件
     var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
     // Child Component
@@ -14,9 +18,6 @@
     var notifier = remote.getGlobal('notifier');
     // Markdown Parser
     var marked = require('marked');
-    import {
-      toggleLogin
-    } from '../vuex/actions'
 
     marked.setOptions({
         renderer: new marked.Renderer(),
@@ -32,17 +33,15 @@
     module.exports = {
         name: 'Main',
 
-        props: [
-            'userName',
-        ],
-
         vuex: {
             getters: {
-                isLogin: ({ login }) => login.isLogin,
                 socket: ({ global }) => global.socket,
+                userName: ({ login }) => login.userName,
+                messageTypes: ({ sidebar }) => sidebar.messageTypes,
             },
             actions: {
-                toggleLogin
+                increaseCount,
+                decreaseCount
             }
         },
 
@@ -94,7 +93,6 @@
                 mescontent: '',
                 author: '',
                 sendtime: '',
-                showSetting: false,
                 detailUl: false
             }
         },
@@ -134,7 +132,9 @@
                     if (this.summaries[i].id == id) {
                         // this.summaries.$set(i,{read:true});        // 视图更新
                         this.summaries[i].read = true; // 视图不变
-                        this.$dispatch('markRead', this.summaries[i].typeid);
+                        // this.$dispatch('markRead', this.summaries[i].typeid);
+                        this.decreaseCount(this.summaries[i].typeid);
+                        this.updateCount(this.summaries[i].typeid, this.userName);
                     }
                 }
                 connect(function(db) {
@@ -163,7 +163,9 @@
                     if (this.summaries[i].id == id) {
                         // this.summaries.$set(i,{read:true});        // 视图更新
                         this.summaries[i].read = false; // 视图不变
-                        this.$dispatch('markUnread', this.summaries[i].typeid);
+                        // this.$dispatch('markUnread', this.summaries[i].typeid);
+                        this.increaseCount(this.summaries[i].typeid);
+                        this.updateCount(this.summaries[i].typeid, this.userName);
                     }
                 }
                 connect(function(db) {
@@ -215,7 +217,8 @@
                 console.log('new message' + data);
                 this.searchAllSummaries();
                 ipcRenderer.send('update-icon', 'newMessage');
-                this.$dispatch('newMessage', data.typeid);
+                // this.$dispatch('newMessage', data.typeid);
+                this.increaseCount(data.typeid);
                 notifier.notify({
                     'title': "您有新的消息：" + data.title,
                     'message': data.desc,
@@ -278,19 +281,19 @@
                     });
                 });
             },
-            mouseIn(id){
+            mouseIn(id) {
                 this.detailUl = id;
             },
-            mouseOut(id){
+            mouseOut(id) {
                 this.detailUl = false;
             },
-            msgDelete(id,e){
+            msgDelete(id,e) {
                 console.log(id)
-                var self = this;   
+                var self = this;
                 if (e && e.stopPropagation){
                     e.stopPropagation();
                 } else{
-                    window.event.cancelBubble = true;             
+                    window.event.cancelBubble = true;
                 }
                 connect(function(db) {
                     var username = self.userName;
@@ -325,6 +328,26 @@
                         });
                     });
                 });
+            },
+            // 修改数据库count
+            updateCount(typeid, username) {
+                var self = this;
+                connect(function(db) {
+                    var userCollection = db.collection('mb_user');
+                    var summaryCollection = db.collection('mb_summary');
+                    userCollection.find({
+                        username: username
+                    }).toArray(function(err, docs) {
+                        summaryCollection.update({
+                            userid: docs[0].userid,
+                            typeid: typeid
+                        }, {
+                            $set: {
+                                count: self.messageTypes[typeid - 1].count
+                            }
+                        });
+                    });
+                });
             }
         },
 
@@ -345,9 +368,6 @@
                 this.getSummaries(typeid, [true, false]);
                 this.mescontent = false;
             },
-            'logout': function() {
-                this.toggleLogin()
-            },
             'setting': function() {
                 this.showSetting = true;
             }
@@ -363,7 +383,7 @@
 </script>
 <template>
     <div class="dashboard-header">
-        <dashboard-header :title="title" :user-name="userName"></dashboard-header>
+        <dashboard-header :title="title"></dashboard-header>
     </div>
     <div class="dashboard-summaries">
         <div class="form-group has-feedback dashboard-summaries-search pull-right">
@@ -371,8 +391,12 @@
             <span class="form-control-feedback fui-search"></span>
         </div>
         <ul v-if="summaries.length > 0" class="summaries">
-            <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'  " class="animated fadeIn summary" @click="messageDetail(summary.id)" @mouseenter="mouseIn(summary.id)" @mouseleave="mouseOut(summary.id)">
+            <li :class="{ readed : summary.read, selected: summary.selected}"
+            v-for="summary in summaries | filterBy searchQuery in 'title' 'desc'"
+            class="animated fadeIn summary"
+            @click="messageDetail(summary.id)"
+            @mouseenter="mouseIn(summary.id)"
+            @mouseleave="mouseOut(summary.id)">
                 <article>
                     <header class="summary-title">
                         <h6 v-if="summary.title.length > 10">{{ summary.title.substring(0,10) }} ...</h6>
@@ -586,16 +610,20 @@
         text-align: center;
         width: 100%;
     }
+    /* 消息删除 */
+
     .detail-ul-in {
         position: relative;
         top: -4px;
         left: 11px;
     }
+
     .detail-ul-out {
         position: relative;
         top: -4px;
         left: 11px;
     }
+
     .detail-li {
         display: inline-block;
         border: 1px solid #ccc;
@@ -607,6 +635,7 @@
         text-align: center;
 
     }
+
     .detail-li a {
         line-height: 32px;
         width:32px;

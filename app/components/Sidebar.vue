@@ -1,40 +1,32 @@
 <script>
+    import {
+        setMessagetypes,
+        toggleRouter
+    } from '../vuex/actions'
     // 连接mongodb
     var env_conf = require('../../config/env_development.json');
     var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
-    // var assert = require('assert');
+    var mesTypes = env_conf.messageTypes;
 
     module.exports = {
         name: "Sidebar",
-        props: [
-            'userName'
-        ],
-        data: function() {
-            return {
-                messageTypes: [],
-                selected: 'selected',
-                isAll: false,
-                isRead: false,
-                isUnRead: false,
-                isType: false,
+
+        vuex: {
+            getters: {
+                userName: ({ login }) => login.userName,
+                messageTypes: ({ sidebar }) => sidebar.messageTypes,
+                isAll: ({ sidebar }) => sidebar.router.isAll,
+                isRead: ({ sidebar }) => sidebar.router.isRead,
+                isUnRead: ({ sidebar }) => sidebar.router.isUnRead,
+                isType: ({ sidebar }) => sidebar.router.isType
+            },
+            actions: {
+                setMessagetypes,
+                toggleRouter
             }
         },
 
-        // // Anything within the ready function will run when the application loads
         ready: function() {
-            // When the application loads, we want to call the method that initializes
-            // some data
-            // GET request
-            // this.$http({
-            //     url: 'http://localhost:3000/messageTypes',
-            //     method: 'GET'
-            // }).then(function(response) {
-            //     // success callback
-            //     this.$set('messageTypes', response.data);
-            // }, function(response) {
-            //     // error callback
-            // });
-
             // 使用mongodb获取数据
             var self = this;
             connect(function(db) {
@@ -45,49 +37,21 @@
                 // Find some documents
                 userCollection.find({
                     username: username
-                }).toArray(function(err, docs) {
-                    var msgTypes = env_conf.messageTypes;
-                    var msgCount = [];
+                }).toArray(function(err, result) {
                     summaryCollection.find({
-                        userid: docs[0].userid
+                        userid: result[0].userid
                     }).sort({
                         "typeid": 1
-                    }).toArray(function(err, doc) {
-                        for (var i = 0; i < msgTypes.length; i++) {
-                            self.messageTypes.push({
-                                title: msgTypes[i],
-                                count: doc[i].count,
-                                id: i + 1,
-                                selected: false
-                            });
-                        }
+                    }).toArray(function(err, result) {
+                        self.setMessagetypes(mesTypes, result);
                     });
                 });
-                // collection.find({}).toArray(function(err, docs) {
-                //     // assert.equal(err, null);
-                //     // assert.equal(5, docs.length);
-                //     // console.log("Sidebar found the following records");
-                //     // console.dir(docs);
-                //     self.messageTypes = docs;
-                //     console.log(docs)
-                // });
             });
-
-            // 删除写法
-            // this.$http({
-            //     url: 'http://localhost:3000/messageTypes/8',
-            //     method: 'DELETE'
-            // }).then(function(response) {
-            //     console.log('删除成功');
-            // })
         },
 
         methods: {
             allMessages() {
-                this.$set('isAll', true);
-                this.$set('isRead', false);
-                this.$set('isUnRead', false);
-                this.$set('isType', false);
+                this.toggleRouter('isAll', mesTypes);
                 this.$dispatch('searchAll');
                 return this.$route.router.go({
                     path: '/',
@@ -95,95 +59,26 @@
                 })
             },
             readMessages() {
-                this.$set('isAll', false);
-                this.$set('isRead', true);
-                this.$set('isUnRead', false);
-                this.$set('isType', false);
+                this.toggleRouter('isRead', mesTypes);
                 this.$dispatch('searchRead');
                 return this.$route.router.go({
                     path: '/message/read'
                 });
             },
             unreadMessages() {
-                this.$set('isAll', false);
-                this.$set('isRead', false);
-                this.$set('isUnRead', true);
-                this.$set('isType', false);
+                this.toggleRouter('isUnRead', mesTypes);
                 this.$dispatch('searchUnread');
                 return this.$route.router.go({
                     path: '/message/unread'
                 });
             },
-            typeMessages(messageType, length) {
-                for (var i = 0; i < length; i++) {
-                    i == messageType.id - 1 ? this.messageTypes[i].selected = true :
-                        this.messageTypes[i].selected = false;
-                }
-                this.$set('isAll', false);
-                this.$set('isRead', false);
-                this.$set('isUnRead', false);
-                this.$set('isType', true);
-
-                // // 根据id查询
-                // this.$http({
-                //     url: 'http://localhost:3000/messageTypes',
-                //     data: {
-                //         id: messageType.id
-                //     },
-                //     method: 'GET'
-                // }).then(function(response) {
-                // }, function(response) {
-                //     // error callback
-                // });
-
+            typeMessages(messageType) {
+                this.toggleRouter('isType', mesTypes, messageType);
                 this.$dispatch('searchType', messageType.id);
-
                 return this.$route.router.go({
                     path: '/type/' + messageType.title
                 });
-            },
-            //修改数据库count
-            updateCount(typeid, username) {
-                var self = this;
-                connect(function(db) {
-                    var userCollection = db.collection('mb_user');
-                    var summaryCollection = db.collection('mb_summary');
-                    userCollection.find({
-                        username: username
-                    }).toArray(function(err, docs) {
-                        summaryCollection.update({
-                            userid: docs[0].userid,
-                            typeid: typeid
-                        }, {
-                            $set: {
-                                count: self.messageTypes[typeid - 1].count
-                            }
-                        });
-                    });
-                });
             }
-
-        },
-
-        events: {
-            'siderbar-markRead': function(typeid) {
-                var self = this;
-                var username = this.userName;
-                console.log('-1');
-                this.messageTypes[typeid - 1].count -= 1;
-                this.updateCount(typeid, username);
-            },
-            'siderbar-markUnread': function(typeid) {
-                var self = this;
-                var username = this.userName;
-                console.log('+1');
-                this.messageTypes[typeid - 1].count += 1;
-                this.updateCount(typeid, username);
-            },
-            'siderbar-newMessage': function(typeid) {
-                this.messageTypes[typeid - 1].count += 1;
-            }
-
         }
     }
 </script>
@@ -197,13 +92,13 @@
             <h4 class="sidebar-header-text">消息</h4>
         </div>
         <ul class="dashboard-list">
-            <li class="dashboard-list-item" @click="allMessages()" :class="[isAll ? selected : '']">
+            <li class="dashboard-list-item" @click="allMessages()" :class="{active : isAll}">
                 <i class="fa fa-fw fa-list"></i> 所有消息
             </li>
-            <li class="dashboard-list-item" @click="readMessages()" :class="[isRead ? selected : '']">
+            <li class="dashboard-list-item" @click="readMessages()" :class="{active : isRead}">
                 <i class="fa fa-fw fa-check"></i> 已读消息
             </li>
-            <li class="dashboard-list-item" @click="unreadMessages()" :class="[isUnRead ? selected : '']">
+            <li class="dashboard-list-item" @click="unreadMessages()" :class="{active : isUnRead}">
                 <i class="fa fa-fw fa-history"></i> 未读消息
             </li>
         </ul>
@@ -211,7 +106,11 @@
             <h4 class="sidebar-header-text">类型</h4>
         </div>
         <ul class="dashboard-list">
-            <li @click="typeMessages(messageType,messageTypes.length)" v-for="messageType in messageTypes" class="dashboard-list-item" :class="[messageType.selected ? isType ? selected : '' : '']">
+            <li
+              @click="typeMessages(messageType)"
+              v-for="messageType in messageTypes"
+              class="dashboard-list-item"
+              :class="{active : messageType.selected}">
                 <i class="fa fa-fw fa-paperclip"></i> {{ messageType.title }}
                 <span class="type-count pull-right badge" v-if="messageType.count > 0">{{ messageType.count }}</span>
             </li>
@@ -276,12 +175,12 @@
         padding: 0;
     }
 
-    .dashboard-sidebar .dashboard-list .dashboard-list-item.selected {
+    .dashboard-sidebar .dashboard-list .dashboard-list-item.active {
         background: #1ABC9C;
         color: #fff;
     }
 
-    .dashboard-sidebar .dashboard-list .dashboard-list-item.selected:hover {
+    .dashboard-sidebar .dashboard-list .dashboard-list-item.active:hover {
         background: #1ABC9C;
         color: #fff;
     }

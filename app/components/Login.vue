@@ -8,7 +8,8 @@
     import {
       toggleLoading,
       toggleLogin,
-      setSocket
+      setUserName,
+      setSocket,
     } from '../vuex/actions'
     // var ipcRenderer = require('electron').ipcRenderer;
     // ipcRenderer.on('asynchronous-reply', function(event, arg) {
@@ -31,23 +32,20 @@
                 loading: false,
                 password: '',
                 isChecked: false,
+                userName: ''
             }
         },
 
-        props: [
-            'userName',
-        ],
-
         vuex: {
-          getters: {
-            loading: ({ login }) => login.loading,
-            isLogin: ({ login }) => login.isLogin
-          },
-          actions: {
-            toggleLoading,
-            toggleLogin,
-            setSocket
-          }
+            getters: {
+                loading: ({ login }) => login.loading
+            },
+            actions: {
+                toggleLoading,
+                toggleLogin,
+                setUserName,
+                setSocket
+            }
         },
 
         ready: function() {
@@ -123,7 +121,7 @@
                                                 socket.emit('login', {
                                                     username: username
                                                 });
-                                                self.userName = username;
+                                                self.setUserName(username);
                                                 storage.set('login-user', {
                                                     username: username,
                                                     password: password,
