@@ -8,6 +8,12 @@
 
         store,
 
+        data () {
+            return {
+                socket: ''
+            }
+        },
+
         vuex: {
             getters: {
                 isLogin: ({ login }) => login.isLogin,
@@ -38,11 +44,11 @@
 <template>
     <div id="app">
       <div class="login-style animated fadeIn" v-if="!isLogin">
-        <login keep-alive></login>
+        <login :socket.sync="socket"></login>
       </div>
       <div class="dashboard animated fadeIn" v-if="isLogin">
-        <sidebar></sidebar>
-        <router-view></router-view>
+        <sidebar :socket.sync="socket"></sidebar>
+        <router-view :socket.sync="socket"></router-view>
       </div>
     </div>
 </template>

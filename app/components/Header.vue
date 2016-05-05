@@ -13,11 +13,13 @@
     module.exports = {
         name: 'Header',
 
-        props: ['title'],
+        props: [
+            'title',
+            'socket'
+        ],
 
         vuex: {
             getters: {
-                socket: ({ global }) => global.socket,
                 userName: ({ login }) => login.userName
             },
             actions: {
@@ -44,7 +46,7 @@
                         }
                     });
                 })
-                socket.emit('logout', {
+                this.socket.emit('logout', {
                     username: username
                 });
                 this.toggleLogin();

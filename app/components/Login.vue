@@ -8,8 +8,7 @@
     import {
       toggleLoading,
       toggleLogin,
-      setUserName,
-      setSocket,
+      setUserName
     } from '../vuex/actions'
     // var ipcRenderer = require('electron').ipcRenderer;
     // ipcRenderer.on('asynchronous-reply', function(event, arg) {
@@ -36,6 +35,10 @@
             }
         },
 
+        props: [
+            'socket'
+        ],
+
         vuex: {
             getters: {
                 loading: ({ login }) => login.loading
@@ -43,14 +46,13 @@
             actions: {
                 toggleLoading,
                 toggleLogin,
-                setUserName,
-                setSocket
+                setUserName
             }
         },
 
         ready: function() {
             var self = this;
-            this.setSocket(socket);
+            this.socket = socket;
             storage.get('login-user', function(error, data) {
                 if (error) throw error;
                 self.userName = data.username;

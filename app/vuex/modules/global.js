@@ -10,8 +10,8 @@ const state = {
 
 // mutations
 const mutations = {
-  [SET_SOCKET] (state) {
-    state.socket = !state.socket
+  [SET_SOCKET] (state, socket) {
+    state.socket = socket
   }
 }
 

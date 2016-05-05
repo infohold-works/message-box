@@ -33,9 +33,12 @@
     module.exports = {
         name: 'Main',
 
+        props: [
+            'socket'
+        ],
+
         vuex: {
             getters: {
-                socket: ({ global }) => global.socket,
                 userName: ({ login }) => login.userName,
                 messageTypes: ({ sidebar }) => sidebar.messageTypes,
             },
@@ -98,15 +101,15 @@
         },
 
         ready: function() {
-            var socket = this.socket;
             var self = this;
             // listen to news event raised by the server
-            socket.on('public message', function(data) {
+            this.socket.on('public message', function(data) {
                 self.newMessage(data);
             });
 
             // listen to news event raised by the server
-            socket.on('private message', function(data) {
+            this.socket.on('private message', function(data) {
+                console.log('into private message function');
                 self.newMessage(data);
             });
             this.searchAllSummaries();
@@ -217,7 +220,6 @@
                 console.log('new message' + data);
                 this.searchAllSummaries();
                 ipcRenderer.send('update-icon', 'newMessage');
-                // this.$dispatch('newMessage', data.typeid);
                 this.increaseCount(data.typeid);
                 notifier.notify({
                     'title': "您有新的消息：" + data.title,
@@ -383,7 +385,7 @@
 </script>
 <template>
     <div class="dashboard-header">
-        <dashboard-header :title="title"></dashboard-header>
+        <dashboard-header :title="title" :socket="socket"></dashboard-header>
     </div>
     <div class="dashboard-summaries">
         <div class="form-group has-feedback dashboard-summaries-search pull-right">
