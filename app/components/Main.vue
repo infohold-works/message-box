@@ -93,7 +93,7 @@
                 mescontent: '',
                 author: '',
                 sendtime: '',
-                showSetting: false
+                detailUl: false
             }
         },
 
@@ -281,6 +281,54 @@
                     });
                 });
             },
+            mouseIn(id) {
+                this.detailUl = id;
+            },
+            mouseOut(id) {
+                this.detailUl = false;
+            },
+            msgDelete(id,e) {
+                console.log(id)
+                var self = this;
+                if (e && e.stopPropagation){
+                    e.stopPropagation();
+                } else{
+                    window.event.cancelBubble = true;
+                }
+                connect(function(db) {
+                    var username = self.userName;
+                    var userCollection = db.collection('mb_user');
+                    var messageCollection = db.collection('mb_message');
+                    var summaryCollection = db.collection('mb_summary');
+                    messageCollection.find({id:id}).toArray(function(err,docs){
+                        userCollection.find({username:username}).toArray(function(err, doc) {
+                            summaryCollection.find({
+                                userid:doc[0].userid,typeid:docs[0].typeid
+                            }).toArray(function(err,d){
+                                var messages = d[0].message;
+                                for(var i=0;i<messages.length;i++){
+                                    if(messages[i].id == id){
+                                        console.log(messages[i].read);
+                                        if(messages[i].read){
+                                            summaryCollection.update({
+                                                userid:doc[0].userid,typeid:docs[0].typeid
+                                            },{
+                                                $pull:{"message":{"id":id}}
+                                            })
+                                            setTimeout(function(){
+                                                var typeid = env_conf.typeid;
+                                                self.getSummaries(typeid, [true, false]);
+                                            },400);
+                                        }else {
+                                            console.log("消息未读取！")
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    });
+                });
+            },
             // 修改数据库count
             updateCount(typeid, username) {
                 var self = this;
@@ -343,8 +391,12 @@
             <span class="form-control-feedback fui-search"></span>
         </div>
         <ul v-if="summaries.length > 0" class="summaries">
-            <li :class="{ readed : summary.read, selected: summary.selected}" v-for="summary in summaries |
-            filterBy searchQuery in 'title' 'desc'  " class="animated fadeIn summary" @click="messageDetail(summary.id)">
+            <li :class="{ readed : summary.read, selected: summary.selected}"
+            v-for="summary in summaries | filterBy searchQuery in 'title' 'desc'"
+            class="animated fadeIn summary"
+            @click="messageDetail(summary.id)"
+            @mouseenter="mouseIn(summary.id)"
+            @mouseleave="mouseOut(summary.id)">
                 <article>
                     <header class="summary-title">
                         <h6 v-if="summary.title.length > 10">{{ summary.title.substring(0,10) }} ...</h6>
@@ -353,9 +405,33 @@
                     </header>
                     <section class="summary-desc" v-if="summary.desc.length > 24">
                         {{ summary.desc.substr(0,64) }} ...
+                        <ul v-if="detailUl == summary.id && summary.read" class="pull-right detail-ul-in animated zoomIn" >
+                            <li class="detail-li" >
+                                <a href="#" class="fa fa-trash" @click="msgDelete(summary.id,event)">
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="pull-right detail-ul-out animated zoomOut" v-else>
+                            <li class="detail-li" >
+                                <a href="#" class="fa fa-trash">
+                                </a>
+                            </li>
+                        </ul>
                     </section>
                     <section class="summary-desc" v-else>
                         {{ summary.desc }}
+                        <ul v-if="detailUl == summary.id && summary.read" class="pull-right detail-ul-in animated zoomIn" >
+                            <li class="detail-li" >
+                                <a href="#" class="fa fa-trash" @click="msgDelete(summary.id,event)">
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="pull-right detail-ul-out animated zoomOut" v-else>
+                            <li class="detail-li" >
+                                <a href="#" class="fa fa-trash">
+                                </a>
+                            </li>
+                        </ul>
                     </section>
                 </article>
             </li>
@@ -533,5 +609,36 @@
         left: 0;
         text-align: center;
         width: 100%;
+    }
+    /* 消息删除 */
+
+    .detail-ul-in {
+        position: relative;
+        top: -4px;
+        left: 11px;
+    }
+
+    .detail-ul-out {
+        position: relative;
+        top: -4px;
+        left: 11px;
+    }
+
+    .detail-li {
+        display: inline-block;
+        border: 1px solid #ccc;
+        background-color: #eee;
+        opacity: 0.7;
+        margin-right: -4px;
+        height: 32px;
+        width:32px;
+        text-align: center;
+
+    }
+
+    .detail-li a {
+        line-height: 32px;
+        width:32px;
+        height:32px;
     }
 </style>
