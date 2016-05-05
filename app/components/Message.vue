@@ -1,4 +1,35 @@
-<style media="screen">
+<script>
+    module.exports = {
+        name: 'Message',
+
+        props: ['mestitle', 'mescontent', 'author', 'sendtime', 'markedread']
+    }
+</script>
+<template>
+    <article class="message" v-if="mescontent">
+        <header class="message-header">
+            <h5>{{ mestitle }}</h5>
+            <section class="message-header-meta">
+                <span class="meta-item">
+                    <i class="fa fa-user"></i>&nbsp;
+                    {{ author }}
+                </span>
+                <span class="meta-item">
+                    <i class="fa fa-clock-o"></i>&nbsp;
+                    <time class="sendtime">{{ sendtime }}</time>
+                </span>
+            </section>
+        </header>
+        <section class="message-content">
+            {{{ mescontent }}}
+        </section>
+    </article>
+    <!--
+    <div class="empty-placeholder" v-if="!mescontent">
+        Sorry this content is only available online view
+    </div> -->
+</template>
+<style>
     .dashboard-message-detail .message {
         font-size: 1.4rem;
         line-height: 1.5;
@@ -65,35 +96,3 @@
         font-size: 16px;
     }
 </style>
-<template>
-    <article class="message" v-if="mescontent">
-        <header class="message-header">
-            <h5>{{ mestitle }}</h5>
-            <section class="message-header-meta">
-                <span class="meta-item">
-                    <i class="fa fa-user"></i>&nbsp;
-                    {{ author }}
-                </span>
-                <span class="meta-item">
-                    <i class="fa fa-clock-o"></i>&nbsp;
-                    <time class="sendtime">{{ sendtime }}</time>
-                </span>
-            </section>
-        </header>
-        <section class="message-content">
-            {{{ mescontent }}}
-        </section>
-    </article>
-    <!--
-    <div class="empty-placeholder" v-if="!mescontent">
-        Sorry this content is only available online view
-    </div> -->
-</template>
-
-<script>
-    module.exports = {
-        name: 'Message',
-
-        props: ['mestitle', 'mescontent', 'author', 'sendtime', 'markedread']
-    }
-</script>

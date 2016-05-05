@@ -1,17 +1,19 @@
 var Vue = require('vue')
-var Router = require('vue-router')
-var Resource = require('vue-resource')
+var VueRouter = require('vue-router')
+var ConfigRouter = require('./router')
+var VueResource = require('vue-resource')
+var store = require('./vuex/store')
+var sync = require('vuex-router-sync').sync
 
 var App = require('./App.vue')
-var Main = require('./components/Main.vue')
-var About = require('./components/About.vue')
-var Dropdown = require('./components/Dropdown.vue');
+// plugins
+var Dropdown = require('./components/Dropdown.vue')
 
 Vue.config.debug = true
 
 // Install plugins
-Vue.use(Router)
-Vue.use(Resource)
+Vue.use(VueRouter)
+Vue.use(VueResource)
 
 Vue.http.options.root = '/root'
 Vue.http.headers.common['Authorization'] = 'Basic YXBpOnBhc3N3b3Jk'
@@ -19,22 +21,9 @@ Vue.http.options.emulateJSON = true
 Vue.http.options.emulateHTTP = true
 
 // Set up a new router
-var router = new Router()
-
-// Route config
-router.map({
-    '/': {
-        name: 'main',
-        component: Main
-    },
-    '/about': {
-        name: 'about',
-        component: About
-    },
-    ':type/:name': {
-        component: Main
-    }
-})
+var router = new VueRouter()
+sync(store, router)
+ConfigRouter(router)
 
 // For every new route scroll to the top of the page
 router.beforeEach(function() {
@@ -47,4 +36,4 @@ router.redirect({
 })
 
 // Start up our app
-router.start(App, '#app')
+router.start(App, '#root')

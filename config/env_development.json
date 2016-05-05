@@ -2,7 +2,7 @@
   "name": "development",
   "description": "Add here any environment specific stuff you like.",
   "socketServerUrl": "http://localhost:3000",
-  "test": {
+  "db": {
     "url": "mongodb://localhost:27017/test",
     "options": {
       "server": {
@@ -10,5 +10,6 @@
       }
     }
   },
-  "messageTypes": ["消息类型1","消息类型2","消息类型3","消息类型4","消息类型5","消息类型6"]
+  "messageTypes": ["消息类型1", "消息类型2", "消息类型3", "消息类型4", "消息类型5", "消息类型6"],
+  "typeid": [1, 2, 3, 4, 5, 6]
 }
