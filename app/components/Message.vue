@@ -2,7 +2,7 @@
   module.exports = {
     name: 'Message',
 
-    props: ['mestitle', 'mescontent', 'author', 'sendtime', 'markedread']
+    props: ['mestitle', 'mescontent', 'author', 'sendtime']
   }
 </script>
 <template>
@@ -11,13 +11,13 @@
       <h5>{{ mestitle }}</h5>
       <section class="message-header-meta">
         <span class="meta-item">
-                    <i class="fa fa-user"></i>&nbsp;
-                    {{ author }}
-                </span>
+          <i class="fa fa-user"></i>&nbsp;
+          {{ author }}
+        </span>
         <span class="meta-item">
-                    <i class="fa fa-clock-o"></i>&nbsp;
-                    <time class="sendtime">{{ sendtime }}</time>
-                </span>
+          <i class="fa fa-clock-o"></i>&nbsp;
+          <time class="sendtime">{{ sendtime }}</time>
+        </span>
       </section>
     </header>
     <section class="message-content">

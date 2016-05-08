@@ -211,8 +211,8 @@
           var collection = db.collection('mb_message');
           collection.find({}).toArray(function(err, docs) {
             var messages = docs;
-            self.typeid = messages[messagesId].typeid;
             self.id = messages[messagesId].id;
+            self.typeid = messages[messagesId].typeid;
             self.mestitle = messages[messagesId].title;
             self.mescontent = marked(messages[messagesId].content);
             self.author = messages[messagesId].author;
@@ -640,18 +640,20 @@
 
   .detail-li {
     display: inline-block;
-    border: 1px solid #ccc;
-    background-color: #eee;
     opacity: 0.7;
-    margin-right: -4px;
     height: 32px;
     width: 32px;
     text-align: center;
   }
 
   .detail-li a {
+    color: #bdc3c7;
     line-height: 32px;
     width: 32px;
     height: 32px;
+  }
+
+  .detail-li a:hover {
+    color: #c0392b;
   }
 </style>

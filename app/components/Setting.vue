@@ -1,8 +1,7 @@
 <script>
-  /**
-   * Bootstrap Style Modal Component for Vue
-   * Depend on Bootstrap.css
-   */
+  import { remote } from 'electron'
+  const notifier = remote.getGlobal('notifier')
+
   export default {
     props: {
       show: {
@@ -116,6 +115,16 @@
         if (!this.force) {
           this.cancel();
         }
+      },
+      testNotify() {
+        notifier.notify({
+          'title': "测试标题",
+          'message': "。。。。。。",
+          'sound': true
+        }, function(error, response) {
+          console.log(error);
+          console.log(response);
+        });
       }
     }
   };
@@ -131,26 +140,37 @@
             <slot name="header">
               <a type="button" class="close" @click="cancel">x</a>
               <h4 class="modal-title">
-                                <slot name="title">
-                                    {{title}}
-                                </slot>
-                            </h4>
+                <slot name="title">
+                    {{title}}
+                </slot>
+              </h4>
             </slot>
           </div>
           <!--Container-->
           <div class="modal-body">
             <slot name="body">
+              <div class="system">
+                <h6>系统设置</h6>
+              </div>
               <ul>
                 <li>
                   <label for="switch-01">开机自动启动<code>消息盒子</code></label>
                   <input type="checkbox" checked data-toggle="switch" name="default-switch-colors" data-on-color="primary" data-off-color="default" id="switch-03" class="pull-right" />
                 </li>
+              </ul>
+              <div class="bell">
+                <h6>
+                  <span>桌面提醒</span>
+                  <span class="bell-test"><a href="#" @click="testNotify()"><i class="fa fa-bell-o"></i>发送测试提醒</a></span>
+                </h6>
+              </div>
+              <ul>
                 <li>
-                  <label for="switch-02">收到新消息时系统通知弹窗</label>
+                  <label for="switch-02">开启后，在桌面接收到来自社保的消息提醒，可随时关闭。</label>
                   <input type="checkbox" checked data-toggle="switch" name="default-switch" id="switch-02" class="pull-right" />
                 </li>
                 <li>
-                  <label for="switch-03">收到新消息时播放提示音</label>
+                  <label for="switch-03">接收到消息提醒时播放提示音。</label>
                   <input type="checkbox" checked data-toggle="switch" name="default-switch" id="switch-03" class="pull-right" />
                 </li>
               </ul>
@@ -180,7 +200,6 @@
   }
 
   .modal-leave {
-    /* 样式没什么用，但可以让根标签的transitionEnd生效，以去掉modal-leave */
     border-radius: 1px !important;
   }
 
@@ -198,5 +217,20 @@
   .modal-enter .modal-backdrop,
   .modal-leave .modal-backdrop {
     opacity: 0;
+  }
+
+  .modal-body h6 {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .modal-body h6 .bell-test{;
+    color: #27AE60;
+    font-size: 20px;
+    margin-left: 15px;
+  }
+
+  .modal-body ul li {
+    list-style: none;
   }
 </style>

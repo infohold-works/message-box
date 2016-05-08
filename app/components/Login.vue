@@ -1,15 +1,16 @@
 <script>
+  import {
+    toggleLoading,
+    toggleLogin,
+    setUserName
+  } from '../vuex/actions'
   var env_conf = require('../../config/env_development.json');
   var socket = require('socket.io-client')(env_conf.socketServerUrl);
   var moment = require('moment');
   var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
   var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
   var storage = require('electron-json-storage');
-  import {
-    toggleLoading,
-    toggleLogin,
-    setUserName
-  } from '../vuex/actions'
+  
   // var ipcRenderer = require('electron').ipcRenderer;
   // ipcRenderer.on('asynchronous-reply', function(event, arg) {
   //     console.log(arg); // prints "pong"

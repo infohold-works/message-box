@@ -1,2 +1,2 @@
 app/assets/js/*.js
-app/components/Dropdown.vue
+app/components/plugins/*.vue
