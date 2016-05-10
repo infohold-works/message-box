@@ -13,9 +13,9 @@
 
     vuex: {
       getters: {
-        userName: ({
+        username: ({
           login
-        }) => login.userName,
+        }) => login.username,
         messageTypes: ({
           sidebar
         }) => sidebar.messageTypes,
@@ -45,7 +45,7 @@
         // Get the documents collection
         var userCollection = db.collection('mb_user');
         var summaryCollection = db.collection('mb_summary');
-        var username = self.userName;
+        var username = self.username;
         // Find some documents
         userCollection.find({
           username: username

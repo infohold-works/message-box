@@ -59,9 +59,9 @@
 
     vuex: {
       getters: {
-        userName: ({
+        username: ({
           login
-        }) => login.userName,
+        }) => login.username,
         messageTypes: ({
           sidebar
         }) => sidebar.messageTypes
@@ -142,13 +142,13 @@
             this.summaries[i].read = true; // 视图不变
             // this.$dispatch('markRead', this.summaries[i].typeid);
             this.decreaseCount(this.summaries[i].typeid);
-            this.updateCount(this.summaries[i].typeid, this.userName);
+            this.updateCount(this.summaries[i].typeid, this.username);
           }
         }
         connect(function(db) {
           var userCollention = db.collection('mb_user');
           var summaryCollection = db.collection('mb_summary');
-          var username = self.userName;
+          var username = self.username;
           userCollention.find({
             username: username
           }).toArray(function(err, docs) {
@@ -172,13 +172,13 @@
             this.summaries[i].read = false; // 视图不变
             // this.$dispatch('markUnread', this.summaries[i].typeid);
             this.increaseCount(this.summaries[i].typeid);
-            this.updateCount(this.summaries[i].typeid, this.userName);
+            this.updateCount(this.summaries[i].typeid, this.username);
           }
         }
         connect(function(db) {
           var userCollention = db.collection('mb_user');
           var summaryCollection = db.collection('mb_summary');
-          var username = self.userName;
+          var username = self.username;
           userCollention.find({
             username: username
           }).toArray(function(err, docs) {
@@ -237,7 +237,7 @@
       },
       getSummaries(typeid, readStat) {
         var self = this;
-        var username = this.userName;
+        var username = this.username;
         connect(function(db) {
           var userCollention = db.collection('mb_user');
           var summaryCollection = db.collection('mb_summary');
@@ -300,7 +300,7 @@
           window.event.cancelBubble = true;
         }
         connect(function(db) {
-          var username = self.userName;
+          var username = self.username;
           var userCollection = db.collection('mb_user');
           var messageCollection = db.collection('mb_message');
           var summaryCollection = db.collection('mb_summary');

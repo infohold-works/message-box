@@ -20,9 +20,9 @@
 
     vuex: {
       getters: {
-        userName: ({
+        username: ({
           login
-        }) => login.userName
+        }) => login.username
       },
       actions: {
         toggleLogin
@@ -34,7 +34,7 @@
         this.$dispatch('setting');
       },
       logout() {
-        var username = this.userName;
+        var username = this.username;
         // 连接数据库
         connect(function(db) {
           // 关联用户名表
@@ -63,7 +63,7 @@
   <h4>{{ title }}</h4>
   <div class="btn-group pull-right">
     <section class="dropdown-toggle" data-toggle="dropdown">
-      欢迎您,{{ userName }}<span class="caret"></span>
+      欢迎您,{{ username }}<span class="caret"></span>
     </section>
     <ul class="dropdown-menu" role="menu">
       <li><a href="#" @click="setting">设&emsp;&emsp;置</a></li>

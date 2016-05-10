@@ -44,21 +44,33 @@
     },
 
     ready: function() {
-      // var self = this;
+      var self = this;
       this.socket = socket;
-      // storage.get('login-user', function(error, data) {
-      //   if (error) throw error;
-      //   self.username = data.username;
-      //   self.password = data.password;
-      //   self.isChecked = data.isChecked;
-      //   self.setUserName(data.username);
-      // });
+      storage.get('login-user', function(error, data) {
+        if (error) throw error;
+        self.username = data.username;
+        self.password = data.password;
+        self.isChecked = data.isChecked;
+        self.setUserName(data.username);
+      });
     },
 
     methods: {
+      onSubmit: function (e) {
+        // validate manually
+        this.$validate(true);
+
+        if (this.$loginValidation.invalid) {
+          e.preventDefault();
+        } else {
+          this.login();
+        }
+      },
       login: function() {
-        // this.updateUser(this.username);
+        console.log(this.username);
+        this.setUserName(this.username);
         this.toggleLogin();
+        // this.updateUser(this.username);
       },
       savePasswd: function() {
         this.isChecked = true;
@@ -98,16 +110,19 @@
     </div> -->
     <div class="login-form">
       <validator name="loginValidation">
-        <form novalidate>
+        <form novalidate @submit="onSubmit">
           <div class="form-group" :class="{'has-error': $loginValidation.username.required}">
-            <input type="text" class="form-control" value="" placeholder="用户名" v-validate:username="['required']">
+            <input type="text" class="form-control" placeholder="用户名"
+            v-model="username" initial="off" v-validate:username="['required']">
             <label class="login-field-icon fui-user" for="login-name"></label>
             <span class="notice pull-right" v-if="$loginValidation.username.required">请输入用户名！</span>
           </div>
           <div class="form-group" :class="{'has-error': $loginValidation.password.required}">
-            <input type="password" class="form-control" value="" placeholder="密码" v-validate:password="['required']">
+            <input type="password" class="form-control" placeholder="密码"
+            v-model="password" initial="off" v-validate:password="{ required: true, maxlength: 16 }">
             <label class="login-field-icon fui-lock" for="login-pass"></label>
             <span class="notice pull-right" v-if="$loginValidation.password.required">请输入密码！</span>
+            <span class="notice pull-right" v-if="$loginValidation.password.maxlength">密码最大16位！</span>
           </div>
           <label class="checkbox" for="checkbox">
             <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="savePasswd" v-if="!isChecked">
@@ -118,12 +133,15 @@
             </span>
             保持登录状态
           </label>
-          <a class="btn btn-primary btn-lg btn-block" href="#" @click="login">登录</a>
+          <button type="submit" class="btn btn-embossed btn-primary btn-lg btn-block">
+            登&emsp;&emsp;录
+          </button>
+          <!-- <button class="btn btn-primary btn-lg btn-block" href="#"></a> -->
           <a class="login-link" href="#">忘记密码？</a>
         </form>
       </validator>
     </div>
-    <div class="loading" v-if="loading" style="background-image: url(../assets/img/bg.jpg)">
+    <div class="loading" v-if="loading" style="background: url(assets/img/bg.jpg) no-repeat center center fixed; background-size: cover">
       <scale-loader class="loading-center" color="white" height="60px" width="7px"></scale-loader>
     </div>
   </div>
