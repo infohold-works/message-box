@@ -5,6 +5,7 @@ export const setSocket = makeAction('SET_SOCKET')
 export const toggleLoading = makeAction('TOGGLE_LOADING')
 export const toggleLogin = makeAction('TOGGLE_LOGIN')
 export const setUserName = makeAction('SET_USERNAME')
+export const updateUser = makeAction('UPDATE_USER')
 
 // sidebar actions
 export const toggleRouter = makeAction('TOGGLE_ROUTER')

@@ -43,8 +43,8 @@ var mainWindowState = windowStateKeeper('main', {
   height: 768
 });
 var tray = null;
-var iconNew = path.join(__dirname, 'assets/img', 'iconNew.png');
-var icon = path.join(__dirname, 'assets/img', 'icon.png');
+var iconNew = path.join(__dirname, 'assets/img', 'icon16x16new.png');
+var icon = path.join(__dirname, 'assets/img', 'icon16x16.png');
 
 app.on('ready', function() {
 
