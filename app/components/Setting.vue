@@ -119,7 +119,7 @@
       testNotify() {
         notifier.notify({
           'title': "测试标题",
-          'message': "。。。。。。",
+          'message': "看这里！看这里！",
           'sound': true
         }, function(error, response) {
           console.log(error);

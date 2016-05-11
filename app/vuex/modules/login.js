@@ -3,19 +3,19 @@ import {
   TOGGLE_LOADING,
   TOGGLE_LOGIN,
   SET_USERNAME,
+  SET_ERROR_MSG,
   UPDATE_USER
 } from '../mutation-types'
 import moment from 'moment'
-import mongoose from 'mongoose'
-import env_conf from '../../../config/env_development.json'
-mongoose.connect(env_conf.db.url)
-import User from '../models/userModel'
+// import User from '../models/userModel'
 
 // initial state
 const state = {
   loading: false,
   isLogin: false,
-  username: ''
+  username: '',
+  isOnline: '',
+  errorMsg: ''
 }
 
 // mutations
@@ -32,28 +32,34 @@ const mutations = {
     state.username = username
   },
 
-  [UPDATE_USER](state, username) {
+  [SET_ERROR_MSG](state, errorMsg) {
+    state.errorMsg = errorMsg
+  },
+
+  [UPDATE_USER](state, User, username) {
     let queryUser = User.findOne({username: username})
     queryUser.exec(function (err, docs) {
-      let query = {
-        username: username
-      }
-      let doc = {
-        $set: {
-          online_stat: true,
-          login_time: moment().format('YYYY-MM-DD HH:mm:ss'),
-          last_login_time: docs.login_time
+      if (docs !== null) {
+        let query = {
+          username: username
         }
-      }
-      let callback = function(err, result) {
-        if (err) {
-          console.log(err)
-          return
+        let doc = {
+          $set: {
+            online_stat: true,
+            login_time: moment().format('YYYY-MM-DD HH:mm:ss'),
+            last_login_time: docs.login_time
+          }
         }
-        console.log('Update user[' + username + ']')
+        let callback = function(err, result) {
+          if (err) {
+            console.log(err)
+            return
+          }
+          console.log('Update user[' + username + ']')
+        }
+        User.update(query, doc, null, callback)
       }
-      User.update(query, doc, null, callback)
-    });
+    })
   }
 }
 

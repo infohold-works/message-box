@@ -3,12 +3,14 @@
     toggleLoading,
     toggleLogin,
     setUserName,
+    setErrorMsg,
     updateUser
   } from '../vuex/actions'
   var env_conf = require('../../config/env_development.json');
   var socket = require('socket.io-client')(env_conf.socketServerUrl);
   var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
   var storage = require('electron-json-storage');
+  // import User from '../vuex/models/userModel'
   // var ipcRenderer = require('electron').ipcRenderer;
   // ipcRenderer.on('asynchronous-reply', function(event, arg) {
   //     console.log(arg); // prints "pong"
@@ -21,7 +23,8 @@
       return {
         username: '',
         password: '',
-        isChecked: false
+        isChecked: false,
+        isOnline: false
       }
     },
 
@@ -31,14 +34,15 @@
 
     vuex: {
       getters: {
-        loading: ({
-          login
-        }) => login.loading
+        loading: ({login}) => login.loading,
+        errorMsg: ({login}) => login.errorMsg,
+        User: ({global}) => global.User
       },
       actions: {
         toggleLoading,
         toggleLogin,
         setUserName,
+        setErrorMsg,
         updateUser
       }
     },
@@ -46,12 +50,17 @@
     ready: function() {
       var self = this;
       this.socket = socket;
+
       storage.get('login-user', function(error, data) {
         if (error) throw error;
         self.username = data.username;
         self.password = data.password;
         self.isChecked = data.isChecked;
         self.setUserName(data.username);
+      });
+
+      socket.on('checkOnline', function(obj) {
+        self.isOnline = obj.isOnline;
       });
     },
 
@@ -67,10 +76,46 @@
         }
       },
       login: function() {
-        console.log(this.username);
-        this.setUserName(this.username);
-        this.toggleLogin();
-        // this.updateUser(this.username);
+        var self = this
+
+        this.toggleLoading();
+
+        socket.emit('checkOnline', {
+          isOnline: "detect"
+        });
+
+        setTimeout(function() {
+          if (self.isOnline) {
+            self.User.findOne({username: self.username}, function (err, docs) {
+              if (docs !== null) {
+                if (self.password !== docs.password) {
+                  self.toggleLoading();
+                  self.setErrorMsg('密码不正确！')
+                } else {
+                  self.updateUser(self.User, self.username);
+                  storage.set('login-user', {
+                    username: self.username,
+                    password: self.password,
+                    isChecked: self.isChecked
+                  }, function(error) {
+                    if (error) throw error;
+                  });
+                  socket.emit('login', {
+                    username: self.username
+                  });
+                  self.setUserName(self.username);
+                  self.toggleLogin();
+                }
+              } else {
+                self.toggleLoading();
+                self.setErrorMsg('用户名不存在！')
+              }
+            })
+          } else {
+            self.toggleLoading();
+            self.setErrorMsg('系统繁忙，请稍后再试！')
+          }
+        }, 1000 * 3 + Math.random() * 1000);
       },
       savePasswd: function() {
         this.isChecked = true;
@@ -97,6 +142,8 @@
   }
 </script>
 <template>
+  <!-- <div class="login-icon" style="background: url(assets/img/logo340x512.png) no-repeat center center;"></div> -->
+  <!-- <div class="login-screen" style="background: url(assets/img/bg2.png) no-repeat center center;"> -->
   <div class="login-screen">
     <header class="login-screen-header">
       <h5>消息盒子</h5>
@@ -104,10 +151,10 @@
     <!-- <pre>
       {{ $data | json }}
     </pre> -->
-    <!-- <div class="alert alert-warning time-out" role="alert" :class="{'hidden':timeOut}">
-      <a class="glyphicon glyphicon-remove-sign pull-right" href="#" @click="close"></a>
-      <span>{{noticeError}}</span>
-    </div> -->
+    <div class="alert alert-danger alert-dismissible error-msg" role="alert" v-if="errorMsg">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <strong>系统提示：</strong> {{ errorMsg }}
+    </div>
     <div class="login-form">
       <validator name="loginValidation">
         <form novalidate @submit="onSubmit">
@@ -136,7 +183,6 @@
           <button type="submit" class="btn btn-embossed btn-primary btn-lg btn-block">
             登&emsp;&emsp;录
           </button>
-          <!-- <button class="btn btn-primary btn-lg btn-block" href="#"></a> -->
           <a class="login-link" href="#">忘记密码？</a>
         </form>
       </validator>
@@ -189,5 +235,13 @@
     top: 50%;
     margin-top: -30px;
     margin-left: -35px;
+  }
+
+  .error-msg {
+    width: 320px;
+    margin: 32px auto -20px;
+    min-height: 48px;
+    font-size: 13px;
+    color: #e74c3c;
   }
 </style>

@@ -1,10 +1,8 @@
 <script>
   import {
+    toggleLoading,
     toggleLogin
   } from '../vuex/actions'
-  // 连接mongodb
-  var env_conf = require('../../config/env_development.json');
-  var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
   var ipcRenderer = require('electron').ipcRenderer;
   // ipcRenderer.on('asynchronous-reply', function(event, arg) {
   //     console.log(arg); // prints "pong"
@@ -25,6 +23,7 @@
         }) => login.username
       },
       actions: {
+        toggleLoading,
         toggleLogin
       }
     },
@@ -35,22 +34,10 @@
       },
       logout() {
         var username = this.username;
-        // 连接数据库
-        connect(function(db) {
-          // 关联用户名表
-          var collection = db.collection('mb_user');
-          collection.update({
-            username: username
-          }, {
-            $set: {
-              online_stat: false,
-              socketID: ''
-            }
-          });
-        })
         this.socket.emit('logout', {
           username: username
         });
+        this.toggleLoading();
         this.toggleLogin();
       },
       exit() {
@@ -69,7 +56,7 @@
       <li><a href="#" @click="setting">设&emsp;&emsp;置</a></li>
       <li><a href="#">关于我们</a></li>
       <li class="divider"></li>
-      <!-- <li><a href="#" @click="logout">登&emsp;&emsp;出</a></li> -->
+      <li><a href="#" @click="logout">登&emsp;&emsp;出</a></li>
       <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
     </ul>
   </div>
