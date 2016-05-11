@@ -1,17 +1,21 @@
 // vuex/modules/global.js
 import {
-  SET_SOCKET
+  SET_MODEL
 } from '../mutation-types'
 
 // initial state
 const state = {
-  socket: ''
+  User: '',
+  Summary: '',
+  Message: ''
 }
 
 // mutations
 const mutations = {
-  [SET_SOCKET](state, socket) {
-    state.socket = socket
+  [SET_MODEL](state, User, Summary, Message) {
+    state.User = User
+    state.Summary = Summary
+    state.Message = Message
   }
 }
 

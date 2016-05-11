@@ -11,7 +11,7 @@
   var Setting = require('./Setting.vue');
   // 连接mongodb
   var env_conf = require('../../config/env_development.json');
-  var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
+  var connect = require('../db').connect(env_conf.db.uri, env_conf.db.options);
   // Electron API
   var remote = require('electron').remote;
   var ipcRenderer = require('electron').ipcRenderer;
@@ -146,8 +146,8 @@
           }
         }
         connect(function(db) {
-          var userCollention = db.collection('mb_user');
-          var summaryCollection = db.collection('mb_summary');
+          var userCollention = db.collection('mb_users');
+          var summaryCollection = db.collection('mb_summaries');
           var username = self.username;
           userCollention.find({
             username: username
@@ -176,8 +176,8 @@
           }
         }
         connect(function(db) {
-          var userCollention = db.collection('mb_user');
-          var summaryCollection = db.collection('mb_summary');
+          var userCollention = db.collection('mb_users');
+          var summaryCollection = db.collection('mb_summaries');
           var username = self.username;
           userCollention.find({
             username: username
@@ -208,7 +208,7 @@
           }
         }
         connect(function(db) {
-          var collection = db.collection('mb_message');
+          var collection = db.collection('mb_messages');
           collection.find({}).toArray(function(err, docs) {
             var messages = docs;
             self.id = messages[messagesId].id;
@@ -239,8 +239,8 @@
         var self = this;
         var username = this.username;
         connect(function(db) {
-          var userCollention = db.collection('mb_user');
-          var summaryCollection = db.collection('mb_summary');
+          var userCollention = db.collection('mb_users');
+          var summaryCollection = db.collection('mb_summaries');
           userCollention.find({
             username: username
           }).toArray(function(err, docs) {
@@ -301,9 +301,9 @@
         }
         connect(function(db) {
           var username = self.username;
-          var userCollection = db.collection('mb_user');
-          var messageCollection = db.collection('mb_message');
-          var summaryCollection = db.collection('mb_summary');
+          var userCollection = db.collection('mb_users');
+          var messageCollection = db.collection('mb_messages');
+          var summaryCollection = db.collection('mb_summaries');
           messageCollection.find({
             id: id
           }).toArray(function(err, docs) {
@@ -347,8 +347,8 @@
       updateCount(typeid, username) {
         var self = this;
         connect(function(db) {
-          var userCollection = db.collection('mb_user');
-          var summaryCollection = db.collection('mb_summary');
+          var userCollection = db.collection('mb_users');
+          var summaryCollection = db.collection('mb_summaries');
           userCollection.find({
             username: username
           }).toArray(function(err, docs) {

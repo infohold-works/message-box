@@ -3,9 +3,7 @@
     setMessagetypes,
     toggleRouter
   } from '../vuex/actions'
-  // 连接mongodb
   var env_conf = require('../../config/env_development.json');
-  var connect = require('../db').connect(env_conf.db.url, env_conf.db.options);
   var mesTypes = env_conf.messageTypes;
 
   module.exports = {
@@ -30,7 +28,13 @@
         }) => sidebar.router.isUnRead,
         isType: ({
           sidebar
-        }) => sidebar.router.isType
+        }) => sidebar.router.isType,
+        User: ({
+          global
+        }) => global.User,
+        Summary: ({
+          global
+        }) => global.Summary
       },
       actions: {
         setMessagetypes,
@@ -39,26 +43,15 @@
     },
 
     ready: function() {
-      // 使用mongodb获取数据
-      var self = this;
-      connect(function(db) {
-        // Get the documents collection
-        var userCollection = db.collection('mb_user');
-        var summaryCollection = db.collection('mb_summary');
-        var username = self.username;
-        // Find some documents
-        userCollection.find({
-          username: username
-        }).toArray(function(err, result) {
-          summaryCollection.find({
-            userid: result[0].userid
-          }).sort({
-            "typeid": 1
-          }).toArray(function(err, result) {
-            self.setMessagetypes(mesTypes, result);
-          });
-        });
-      });
+      var self = this
+      var User = this.User
+      var Summary = this.Summary
+      User.find({username: self.username}, function(err, docs) {
+        var summaryQuery = Summary.find({userid: docs[0].userid}).sort({"typeid": 1})
+        summaryQuery.exec(function(err, result) {
+          self.setMessagetypes(mesTypes, result);
+        })
+      })
     },
 
     methods: {

@@ -1,10 +1,11 @@
 // global mutation types
-export const SET_SOCKET = 'SET_SOCKET'
+export const SET_MODEL = 'SET_MODEL'
 
 // login mutation types
 export const TOGGLE_LOADING = 'TOGGLE_LOADING'
 export const TOGGLE_LOGIN = 'TOGGLE_LOGIN'
 export const SET_USERNAME = 'SET_USERNAME'
+export const SET_ERROR_MSG = 'SET_ERROR_MSG'
 export const UPDATE_USER = 'UPDATE_USER'
 
 // sidebar mutation types

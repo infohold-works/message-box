@@ -19,14 +19,18 @@ const state = {
 
 // mutations
 const mutations = {
-  [SET_MESSAGETYPES](state, mesTypes, data) {
-    for (var i = 0; i < mesTypes.length; i++) {
-      state.messageTypes.push({
-        id: i + 1,
-        title: mesTypes[i],
-        count: data[i].count,
-        selected: false
-      })
+  [SET_MESSAGETYPES](state, mesTypes, docs) {
+    if ( mesTypes == null ) {
+      state.messageTypes = [];
+    } else {
+      for (var i = 0; i < mesTypes.length; i++) {
+        state.messageTypes.push({
+          id: i + 1,
+          title: mesTypes[i],
+          count: docs[i].count,
+          selected: false
+        })
+      }
     }
   },
   [TOGGLE_ROUTER](state, route, mesTypes, messageType) {

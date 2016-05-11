@@ -3,6 +3,13 @@
   import Login from './components/Login.vue'
   import Sidebar from './components/Sidebar.vue'
   import Bootstrap from './components/plugins/Bootstrap.vue'
+  import mongoose from 'mongoose'
+  import env_conf from '../config/env_development.json'
+  import { setModel } from './vuex/actions'
+  mongoose.connect(env_conf.db.uri, env_conf.db.options)
+  import User from './vuex/models/userModel'
+  import Summary from './vuex/models/summaryModel'
+  import Message from './vuex/models/messageModel'
 
   module.exports = {
     name: "App",
@@ -20,7 +27,14 @@
         isLogin: ({
           login
         }) => login.isLogin
+      },
+      actions: {
+        setModel
       }
+    },
+
+    ready () {
+      this.setModel(User, Summary, Message)
     },
 
     events: {

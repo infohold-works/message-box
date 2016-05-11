@@ -1,7 +1,8 @@
 <script>
   import {
     toggleLoading,
-    toggleLogin
+    toggleLogin,
+    setMessagetypes
   } from '../vuex/actions'
   var ipcRenderer = require('electron').ipcRenderer;
   // ipcRenderer.on('asynchronous-reply', function(event, arg) {
@@ -24,7 +25,8 @@
       },
       actions: {
         toggleLoading,
-        toggleLogin
+        toggleLogin,
+        setMessagetypes
       }
     },
 
@@ -38,6 +40,7 @@
           username: username
         });
         this.toggleLoading();
+        this.setMessagetypes(null);
         this.toggleLogin();
       },
       exit() {
