@@ -5,10 +5,6 @@
     setMessagetypes
   } from '../vuex/actions'
   var ipcRenderer = require('electron').ipcRenderer;
-  // ipcRenderer.on('asynchronous-reply', function(event, arg) {
-  //     console.log(arg); // prints "pong"
-  // });
-  // ipcRenderer.send('asynchronous-message', 'ping');
   module.exports = {
     name: 'Header',
 
@@ -19,9 +15,9 @@
 
     vuex: {
       getters: {
-        username: ({
+        user: ({
           login
-        }) => login.username
+        }) => login.user
       },
       actions: {
         toggleLoading,
@@ -34,8 +30,11 @@
       setting() {
         this.$dispatch('setting');
       },
+      confirm() {
+        this.$dispatch('confirm');
+      },
       logout() {
-        var username = this.username;
+        var username = this.user.username;
         this.socket.emit('logout', {
           username: username
         });
@@ -53,13 +52,13 @@
   <h4>{{ title }}</h4>
   <div class="btn-group pull-right">
     <section class="dropdown-toggle" data-toggle="dropdown">
-      欢迎您,{{ username }}<span class="caret"></span>
+      欢迎您,{{ user.username }}<span class="caret"></span>
     </section>
     <ul class="dropdown-menu" role="menu">
       <li><a href="#" @click="setting">设&emsp;&emsp;置</a></li>
       <li><a href="#">关于我们</a></li>
       <li class="divider"></li>
-      <li><a href="#" @click="logout">登&emsp;&emsp;出</a></li>
+      <li><a href="#" @click="confirm">登&emsp;&emsp;出</a></li>
       <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
     </ul>
   </div>

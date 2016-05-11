@@ -2,7 +2,7 @@
   import {
     toggleLoading,
     toggleLogin,
-    setUserName,
+    setUser,
     setErrorMsg,
     updateUser
   } from '../vuex/actions'
@@ -10,7 +10,6 @@
   var socket = require('socket.io-client')(env_conf.socketServerUrl);
   var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
   var storage = require('electron-json-storage');
-  // import User from '../vuex/models/userModel'
   // var ipcRenderer = require('electron').ipcRenderer;
   // ipcRenderer.on('asynchronous-reply', function(event, arg) {
   //     console.log(arg); // prints "pong"
@@ -41,7 +40,7 @@
       actions: {
         toggleLoading,
         toggleLogin,
-        setUserName,
+        setUser,
         setErrorMsg,
         updateUser
       }
@@ -56,7 +55,6 @@
         self.username = data.username;
         self.password = data.password;
         self.isChecked = data.isChecked;
-        self.setUserName(data.username);
       });
 
       socket.on('checkOnline', function(obj) {
@@ -103,7 +101,7 @@
                   socket.emit('login', {
                     username: self.username
                   });
-                  self.setUserName(self.username);
+                  self.setUser(docs);
                   self.toggleLogin();
                 }
               } else {

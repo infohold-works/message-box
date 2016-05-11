@@ -11,9 +11,9 @@
 
     vuex: {
       getters: {
-        username: ({
+        user: ({
           login
-        }) => login.username,
+        }) => login.user,
         messageTypes: ({
           sidebar
         }) => sidebar.messageTypes,
@@ -46,7 +46,7 @@
       var self = this
       var User = this.User
       var Summary = this.Summary
-      User.find({username: self.username}, function(err, docs) {
+      User.find({username: self.user.username}, function(err, docs) {
         var summaryQuery = Summary.find({userid: docs[0].userid}).sort({"typeid": 1})
         summaryQuery.exec(function(err, result) {
           self.setMessagetypes(mesTypes, result);
@@ -116,8 +116,8 @@
         <span class="type-count pull-right badge" v-if="messageType.count > 0">{{ messageType.count }}</span>
       </li>
       <!-- <pre>
-                {{ $data | json }}
-            </pre> -->
+        {{ $data | json }}
+      </pre> -->
     </ul>
   </div>
   <!-- ./dashboard-sidebar -->

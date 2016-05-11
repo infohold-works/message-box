@@ -20,7 +20,7 @@ const state = {
 // mutations
 const mutations = {
   [SET_MESSAGETYPES](state, mesTypes, docs) {
-    if ( mesTypes == null ) {
+    if (mesTypes == null) {
       state.messageTypes = [];
     } else {
       for (var i = 0; i < mesTypes.length; i++) {

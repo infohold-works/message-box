@@ -2,7 +2,7 @@
 import {
   TOGGLE_LOADING,
   TOGGLE_LOGIN,
-  SET_USERNAME,
+  SET_USER,
   SET_ERROR_MSG,
   UPDATE_USER
 } from '../mutation-types'
@@ -13,7 +13,7 @@ import moment from 'moment'
 const state = {
   loading: false,
   isLogin: false,
-  username: '',
+  user: [],
   isOnline: '',
   errorMsg: ''
 }
@@ -28,8 +28,8 @@ const mutations = {
     state.isLogin = !state.isLogin
   },
 
-  [SET_USERNAME](state, username) {
-    state.username = username
+  [SET_USER](state, docs) {
+    state.user = docs
   },
 
   [SET_ERROR_MSG](state, errorMsg) {

@@ -3,15 +3,13 @@
     increaseCount,
     decreaseCount
   } from '../vuex/actions'
-  // PulseLoader插件
-  var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
   // Child Component
   var Header = require('./Header.vue');
   var Message = require('./Message.vue');
   var Setting = require('./Setting.vue');
-  // 连接mongodb
+  var Confirm = require('./Confirm.vue');
+  var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
   var env_conf = require('../../config/env_development.json');
-  var connect = require('../db').connect(env_conf.db.uri, env_conf.db.options);
   // Electron API
   var remote = require('electron').remote;
   var ipcRenderer = require('electron').ipcRenderer;
@@ -49,7 +47,8 @@
         author: '',
         sendtime: '',
         showSetting: '',
-        detailUl: false
+        showConfirm: '',
+        isDelete: false
       }
     },
 
@@ -59,12 +58,21 @@
 
     vuex: {
       getters: {
-        username: ({
+        user: ({
           login
-        }) => login.username,
+        }) => login.user,
+        userid: ({
+          login
+        }) => login.userid,
         messageTypes: ({
           sidebar
-        }) => sidebar.messageTypes
+        }) => sidebar.messageTypes,
+        Summary: ({
+          global
+        }) => global.Summary,
+        Message: ({
+          global
+        }) => global.Message
       },
       actions: {
         increaseCount,
@@ -107,33 +115,28 @@
 
     ready: function() {
       var self = this;
-      // listen to news event raised by the server
       this.socket.on('public message', function(data) {
         self.newMessage(data);
       });
 
-      // listen to news event raised by the server
       this.socket.on('private message', function(data) {
         console.log('into private message function');
         self.newMessage(data);
       });
+
       this.searchAllSummaries();
 
       notifier.on('click', function(notifierObject, options) {
-        // Triggers if `wait: true` and user clicks notification
         ipcRenderer.send('restore-window', 'newMessage');
       });
     },
 
     methods: {
       searchAllSummaries() {
-        var typeid = env_conf.typeid;
-        this.getSummaries(typeid, [true, false]);
+        this.getSummaries(env_conf.typeid, [true, false]);
         this.mescontent = false;
       },
       markRead(id) {
-        var self = this;
-        // 传参赋值
         this.markedread = true;
         // read样式绑定
         for (var i in this.summaries) {
@@ -142,56 +145,21 @@
             this.summaries[i].read = true; // 视图不变
             // this.$dispatch('markRead', this.summaries[i].typeid);
             this.decreaseCount(this.summaries[i].typeid);
-            this.updateCount(this.summaries[i].typeid, this.username);
+            this.updateCount(this.summaries[i].typeid);
           }
         }
-        connect(function(db) {
-          var userCollention = db.collection('mb_users');
-          var summaryCollection = db.collection('mb_summaries');
-          var username = self.username;
-          userCollention.find({
-            username: username
-          }).toArray(function(err, docs) {
-            summaryCollection.update({
-              userid: docs[0].userid,
-              "message.id": id
-            }, {
-              $set: {
-                "message.$.read": true
-              }
-            });
-          });
-        })
+        this.Summary.update({userid: this.user.userid, "message.id": id}, {$set: {"message.$.read": true}}).exec();
       },
       markUnread(id) {
-        var self = this;
         this.markedread = false;
         for (var i in this.summaries) {
           if (this.summaries[i].id == id) {
-            // this.summaries.$set(i,{read:true});        // 视图更新
-            this.summaries[i].read = false; // 视图不变
-            // this.$dispatch('markUnread', this.summaries[i].typeid);
+            this.summaries[i].read = false;
             this.increaseCount(this.summaries[i].typeid);
-            this.updateCount(this.summaries[i].typeid, this.username);
+            this.updateCount(this.summaries[i].typeid);
           }
         }
-        connect(function(db) {
-          var userCollention = db.collection('mb_users');
-          var summaryCollection = db.collection('mb_summaries');
-          var username = self.username;
-          userCollention.find({
-            username: username
-          }).toArray(function(err, docs) {
-            summaryCollection.update({
-              userid: docs[0].userid,
-              "message.id": id
-            }, {
-              $set: {
-                "message.$.read": false
-              }
-            });
-          });
-        })
+        this.Summary.update({userid: this.user.userid, "message.id": id}, {$set: {"message.$.read": false}}).exec();
       },
       messageDetail(id) {
         var self = this;
@@ -207,18 +175,15 @@
             // this.summaries[i].selected = true;
           }
         }
-        connect(function(db) {
-          var collection = db.collection('mb_messages');
-          collection.find({}).toArray(function(err, docs) {
-            var messages = docs;
-            self.id = messages[messagesId].id;
-            self.typeid = messages[messagesId].typeid;
-            self.mestitle = messages[messagesId].title;
-            self.mescontent = marked(messages[messagesId].content);
-            self.author = messages[messagesId].author;
-            self.sendtime = messages[messagesId].sendtime;
-          });
-        });
+        this.Message.find({}, function(err, docs) {
+          var messages = docs;
+          self.id = messages[messagesId].id;
+          self.typeid = messages[messagesId].typeid;
+          self.mestitle = messages[messagesId].title;
+          self.mescontent = marked(messages[messagesId].content);
+          self.author = messages[messagesId].author;
+          self.sendtime = messages[messagesId].sendtime;
+        })
       },
       newMessage(data) {
         console.log('new message' + data);
@@ -236,145 +201,74 @@
         });
       },
       getSummaries(typeid, readStat) {
-        var self = this;
-        var username = this.username;
-        connect(function(db) {
-          var userCollention = db.collection('mb_users');
-          var summaryCollection = db.collection('mb_summaries');
-          userCollention.find({
-            username: username
-          }).toArray(function(err, docs) {
-            var cursor = summaryCollection.aggregate([{
-              $match: {
-                userid: docs[0].userid,
-                typeid: {
-                  $in: typeid
-                }
-              }
-            }, {
-              $unwind: "$message"
-            }, {
-              $project: {
-                _id: 0,
-                userid: 1,
-                typeid: 1,
-                id: "$message.id",
-                title: "$message.title",
-                desc: "$message.desc",
-                sendtime: "$message.sendtime",
-                read: "$message.read"
-              }
-            }, {
-              $match: {
-                read: {
-                  $in: readStat
-                }
-              }
-            }, {
-              $sort: {
-                sendtime: -1
-              }
-            }
-            // { $out: "mb_temp" }     // 输出到数据库
-          ], {
-            cursor: { batchSize: 1 }
-          });
-            cursor.toArray(function(err, result) {
-              self.summaries = result;
-            });
-          }); /* end of userCollention */
-        }); /* end of connect */
+        var self = this
+        var aggregate = [
+          {$match: {userid: self.user.userid, typeid: {$in: typeid}}},
+          {$unwind: "$message"},
+          {$project: {_id: 0, userid: 1, typeid: 1, id: "$message.id", title: "$message.title", desc: "$message.desc", sendtime: "$message.sendtime", read: "$message.read"}},
+          {$match: {read: {$in: readStat}}},
+          {$sort: {sendtime: -1}}
+        ];
+        var callback = function(err, result) {
+          if (err) {
+            console.log(err)
+            return
+          }
+          self.summaries = result;
+        }
+        this.Summary.aggregate(aggregate, callback)
       },
-      mouseIn(id) {
-        this.detailUl = id;
+      toggleDelAnimate(id) {
+        this.isDelete = !this.isDelete;
       },
-      mouseOut(id) {
-        this.detailUl = false;
-      },
-      msgDelete(id, e) {
-        console.log(id)
+      delMessage(id, e) {
         var self = this;
         if (e && e.stopPropagation) {
           e.stopPropagation();
         } else {
           window.event.cancelBubble = true;
         }
-        connect(function(db) {
-          var username = self.username;
-          var userCollection = db.collection('mb_users');
-          var messageCollection = db.collection('mb_messages');
-          var summaryCollection = db.collection('mb_summaries');
-          messageCollection.find({
-            id: id
-          }).toArray(function(err, docs) {
-            userCollection.find({
-              username: username
-            }).toArray(function(err, doc) {
-              summaryCollection.find({
-                userid: doc[0].userid,
+        this.Message.find({id: id}, function(err, docs) {
+          var querySummary = self.Summary.findOne({userid: self.user.userid, typeid: docs[0].typeid})
+          querySummary.exec(function (err, result) {
+            if (result !== null) {
+              var query = {
+                userid: self.user.userid,
                 typeid: docs[0].typeid
-              }).toArray(function(err, d) {
-                var messages = d[0].message;
-                for (var i = 0; i < messages.length; i++) {
-                  if (messages[i].id == id) {
-                    console.log(messages[i].read);
-                    if (messages[i].read) {
-                      summaryCollection.update({
-                        userid: doc[0].userid,
-                        typeid: docs[0].typeid
-                      }, {
-                        $pull: {
-                          "message": {
-                            "id": id
-                          }
-                        }
-                      })
-                      setTimeout(function() {
-                        var typeid = env_conf.typeid;
-                        self.getSummaries(typeid, [true, false]);
-                      }, 400);
-                    } else {
-                      console.log("消息未读取！")
-                    }
+              }
+              var doc = {
+                $pull: {
+                  "message": {
+                    "id": id
                   }
                 }
-              });
-            });
-          });
-        });
-      },
-      // 修改数据库count
-      updateCount(typeid, username) {
-        var self = this;
-        connect(function(db) {
-          var userCollection = db.collection('mb_users');
-          var summaryCollection = db.collection('mb_summaries');
-          userCollection.find({
-            username: username
-          }).toArray(function(err, docs) {
-            summaryCollection.update({
-              userid: docs[0].userid,
-              typeid: typeid
-            }, {
-              $set: {
-                count: self.messageTypes[typeid - 1].count
               }
-            });
-          });
-        });
+              // 遍历message删除id 试着寻找更好的办法
+              for (var i in result.message) {
+                if (result.message[i].id == id) {
+                  self.Summary.update(query, doc).exec()
+                  setTimeout(function() {
+                    self.searchAllSummaries();
+                  }, 400);
+                }
+              }
+            }
+          })
+        })
+      },
+      updateCount(typeid) {
+        this.Summary.update({userid: this.user.userid, typeid: typeid}, {$set: {count: this.messageTypes[typeid - 1].count}}).exec();
       }
     },
 
     events: {
       'summaries-searchAll': 'searchAllSummaries',
       'summaries-searchRead': function() {
-        var typeid = env_conf.typeid;
-        this.getSummaries(typeid, [true]);
+        this.getSummaries(env_conf.typeid, [true]);
         this.mescontent = false;
       },
       'summaries-searchUnread': function() {
-        var typeid = env_conf.typeid;
-        this.getSummaries(typeid, [false]);
+        this.getSummaries(env_conf.typeid, [false]);
         this.mescontent = false;
       },
       'summaries-searchType': function(id) {
@@ -384,12 +278,16 @@
       },
       'setting': function() {
         this.showSetting = true;
+      },
+      'confirm': function() {
+        this.showConfirm = true;
       }
     },
 
     components: {
       PulseLoader,
       Setting,
+      Confirm,
       'dashboard-header': Header,
       'message-detail': Message
     }
@@ -409,8 +307,8 @@
         v-for="summary in summaries | filterBy searchQuery in 'title' 'desc'"
         class="animated fadeIn summary"
         @click="messageDetail(summary.id)"
-        @mouseenter="mouseIn(summary.id)"
-        @mouseleave="mouseOut(summary.id)">
+        @mouseenter="toggleDelAnimate()"
+        @mouseleave="toggleDelAnimate()">
         <article>
           <header class="summary-title">
             <h6 v-if="summary.title.length > 10">{{ summary.title.substring(0,10) }} ...</h6>
@@ -419,9 +317,9 @@
           </header>
           <section class="summary-desc" v-if="summary.desc.length > 24">
             {{ summary.desc.substr(0,64) }} ...
-            <ul v-if="detailUl == summary.id && summary.read" class="pull-right detail-ul-in animated zoomIn">
+            <ul v-if="isDelete == summary.id && summary.read" class="pull-right detail-ul-in animated zoomIn">
               <li class="detail-li">
-                <a href="#" class="fa fa-trash" @click="msgDelete(summary.id,event)">
+                <a href="#" class="fa fa-trash" @click="delMessage(summary.id, event)">
                 </a>
               </li>
             </ul>
@@ -434,9 +332,9 @@
           </section>
           <section class="summary-desc" v-else>
             {{ summary.desc }}
-            <ul v-if="detailUl == summary.id && summary.read" class="pull-right detail-ul-in animated zoomIn">
+            <ul v-if="isDelete == summary.id && summary.read" class="pull-right detail-ul-in animated zoomIn">
               <li class="detail-li">
-                <a href="#" class="fa fa-trash" @click="msgDelete(summary.id,event)">
+                <a href="#" class="fa fa-trash" @click="delMessage(summary.id, event)">
                 </a>
               </li>
             </ul>
@@ -481,6 +379,7 @@
     <div class="empty-placeholder" v-if="!mescontent">没有选择消息</div>
   </div>
   <setting v-if="showSetting" :show.sync="showSetting"></setting>
+  <confirm v-if="showConfirm" :show.sync="showConfirm"></confirm>
 </template>
 <style>
   footer {
