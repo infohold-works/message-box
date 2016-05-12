@@ -59,9 +59,9 @@
         default: false
       },
       // 消息内容
-      confirmMessage: {
+      confirmContent: {
         type: String,
-        default: "确认登出吗？"
+        default: "确认操作吗？"
       }
     },
     data() {
@@ -107,6 +107,7 @@
         if (this.closeWhenOK) {
           this.show = false;
         }
+        this.$dispatch('confirmed');
       },
       cancel() {
         this.$emit('cancel');
@@ -130,25 +131,25 @@
           <!--Header-->
           <div class="modal-header">
             <slot name="header">
-              <a type="button" class="close" @click="cancel">x</a>
-              <h4 class="modal-title">
+              <a type="button" class="close" @click="cancel"><i class="fa fa-close"></i></a>
+              <h6 class="modal-title">
                 <slot name="title">
                     {{title}}
                 </slot>
-              </h4>
+              </h6>
             </slot>
           </div>
           <!--Container-->
           <div class="modal-body">
             <slot name="body">
-              <div class="message">{{confirmMessage}}</div>
+              {{confirmContent}}
             </slot>
           </div>
           <!--Footer-->
           <div class="modal-footer">
             <slot name="footer">
-              <button type="button" :class="cancelClass" @click="cancel">{{cancelText}}</button>
-              <button type="button" :class="okClass" @click="ok">{{okText}}</button>
+              <button type="button btn-sm" :class="cancelClass" @click="cancel"><i class="fa fa-close"></i> {{cancelText}}</button>
+              <button type="button btn-sm" :class="okClass" @click="ok"><i class="fa fa-check"></i> {{okText}}</button>
             </slot>
           </div>
         </div>
@@ -187,12 +188,27 @@
     opacity: 0;
   }
 
+  .modal-title {
+    color: #34495e;
+    font-size: 20px;
+  }
+
+  .modal-content {
+    margin: 128px auto;
+  }
+
+  .modal-body {
+    padding: 10px 15px;
+    color: #34495e;
+    font-size: 16px;
+  }
+
   .modal-body h6 {
     font-size: 20px;
     font-weight: 700;
   }
 
-  .modal-body h6 .bell-test{;
+  .modal-body h6 .bell-test{
     color: #27AE60;
     font-size: 20px;
     margin-left: 15px;
@@ -200,5 +216,13 @@
 
   .modal-body ul li {
     list-style: none;
+  }
+
+  .modal-footer {
+    padding: 10px 15px;
+  }
+
+  .modal-footer button {
+    padding: 6px 12px;
   }
 </style>

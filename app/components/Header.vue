@@ -4,9 +4,18 @@
     toggleLogin,
     setMessagetypes
   } from '../vuex/actions'
+  var Setting = require('./Setting.vue');
+  var Confirm = require('./Confirm.vue');
   var ipcRenderer = require('electron').ipcRenderer;
   module.exports = {
     name: 'Header',
+
+    data () {
+      return {
+        showSetting: false,
+        showConfirm: false
+      }
+    },
 
     props: [
       'title',
@@ -28,12 +37,18 @@
 
     methods: {
       setting() {
-        this.$dispatch('setting');
+        this.showSetting = true;
       },
       confirm() {
-        this.$dispatch('confirm');
+        this.showConfirm = true;
       },
-      logout() {
+      exit() {
+        ipcRenderer.send('exit', 'exit');
+      }
+    },
+
+    events: {
+      confirmed() {
         var username = this.user.username;
         this.socket.emit('logout', {
           username: username
@@ -41,10 +56,12 @@
         this.toggleLoading();
         this.setMessagetypes(null);
         this.toggleLogin();
-      },
-      exit() {
-        ipcRenderer.send('exit', 'exit');
       }
+    },
+
+    components: {
+      Setting,
+      Confirm
     }
   }
 </script>
@@ -62,6 +79,8 @@
       <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
     </ul>
   </div>
+  <setting v-if="showSetting" :show.sync="showSetting"></setting>
+  <confirm v-if="showConfirm" :show.sync="showConfirm" confirm-content="确认登出吗？"></confirm>
 </template>
 <style>
   .dashboard .dashboard-header {

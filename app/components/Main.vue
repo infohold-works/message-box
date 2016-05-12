@@ -6,7 +6,6 @@
   // Child Component
   var Header = require('./Header.vue');
   var Message = require('./Message.vue');
-  var Setting = require('./Setting.vue');
   var Confirm = require('./Confirm.vue');
   var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
   var env_conf = require('../../config/env_development.json');
@@ -46,9 +45,8 @@
         mescontent: '',
         author: '',
         sendtime: '',
-        showSetting: '',
         showConfirm: '',
-        isDelete: false
+        messageId: ''
       }
     },
 
@@ -218,16 +216,12 @@
         }
         this.Summary.aggregate(aggregate, callback)
       },
-      toggleDelAnimate(id) {
-        this.isDelete = !this.isDelete;
+      confirm(id) {
+        this.messageId = id;
+        this.showConfirm = true;
       },
-      delMessage(id, e) {
+      delMessage(id) {
         var self = this;
-        if (e && e.stopPropagation) {
-          e.stopPropagation();
-        } else {
-          window.event.cancelBubble = true;
-        }
         this.Message.find({id: id}, function(err, docs) {
           var querySummary = self.Summary.findOne({userid: self.user.userid, typeid: docs[0].typeid})
           querySummary.exec(function (err, result) {
@@ -276,17 +270,14 @@
         this.getSummaries(typeid, [true, false]);
         this.mescontent = false;
       },
-      'setting': function() {
-        this.showSetting = true;
-      },
-      'confirm': function() {
-        this.showConfirm = true;
+      'confirmed': function() {
+        this.showConfirm = false;
+        this.delMessage(this.messageId);
       }
     },
 
     components: {
       PulseLoader,
-      Setting,
       Confirm,
       'dashboard-header': Header,
       'message-detail': Message
@@ -306,9 +297,7 @@
       <li :class="{ readed : summary.read, selected: summary.selected}"
         v-for="summary in summaries | filterBy searchQuery in 'title' 'desc'"
         class="animated fadeIn summary"
-        @click="messageDetail(summary.id)"
-        @mouseenter="toggleDelAnimate()"
-        @mouseleave="toggleDelAnimate()">
+        @click="messageDetail(summary.id)">
         <article>
           <header class="summary-title">
             <h6 v-if="summary.title.length > 10">{{ summary.title.substring(0,10) }} ...</h6>
@@ -317,33 +306,9 @@
           </header>
           <section class="summary-desc" v-if="summary.desc.length > 24">
             {{ summary.desc.substr(0,64) }} ...
-            <ul v-if="isDelete == summary.id && summary.read" class="pull-right detail-ul-in animated zoomIn">
-              <li class="detail-li">
-                <a href="#" class="fa fa-trash" @click="delMessage(summary.id, event)">
-                </a>
-              </li>
-            </ul>
-            <ul class="pull-right detail-ul-out animated zoomOut" v-else>
-              <li class="detail-li">
-                <a href="#" class="fa fa-trash">
-                </a>
-              </li>
-            </ul>
           </section>
           <section class="summary-desc" v-else>
             {{ summary.desc }}
-            <ul v-if="isDelete == summary.id && summary.read" class="pull-right detail-ul-in animated zoomIn">
-              <li class="detail-li">
-                <a href="#" class="fa fa-trash" @click="delMessage(summary.id, event)">
-                </a>
-              </li>
-            </ul>
-            <ul class="pull-right detail-ul-out animated zoomOut" v-else>
-              <li class="detail-li">
-                <a href="#" class="fa fa-trash">
-                </a>
-              </li>
-            </ul>
           </section>
         </article>
       </li>
@@ -367,19 +332,21 @@
     </div>
   </div>
   <div class="dashboard-message-detail">
-    <div class="manage-message" v-if="mescontent">
-      <button v-if="!markedread" @click="markRead(id)" type="button" class="btn btn-xs btn-primary btn-marked">
+    <div class="manage-message">
+      <button v-if="mescontent && !markedread" @click="markRead(id)" type="button" class="btn btn-xs btn-primary btn-marked">
         <i class="fa fa-fw fa-check"></i> 标记为已读
       </button>
-      <button v-if="markedread" @click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
+      <button v-if="mescontent && markedread" @click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
         <i class="fa fa-fw fa-history"></i> 标记为未读
+      </button>
+      <button v-if="mescontent" @click="confirm(id)" type="button" class="btn btn-xs btn-danger btn-marked pull-right">
+        <i class="fa fa-fw fa-trash"></i>
       </button>
     </div>
     <message-detail :mestitle="mestitle" :sendtime="sendtime" :author="author" :mescontent="mescontent" v-if="mescontent"></message-detail>
     <div class="empty-placeholder" v-if="!mescontent">没有选择消息</div>
   </div>
-  <setting v-if="showSetting" :show.sync="showSetting"></setting>
-  <confirm v-if="showConfirm" :show.sync="showConfirm"></confirm>
+  <confirm v-if="showConfirm" :show.sync="showConfirm" confirm-content="确认删除消息吗？"></confirm>
 </template>
 <style>
   footer {

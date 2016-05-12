@@ -50,14 +50,7 @@ const mutations = {
             last_login_time: docs.login_time
           }
         }
-        let callback = function(err, result) {
-          if (err) {
-            console.log(err)
-            return
-          }
-          console.log('Update user[' + username + ']')
-        }
-        User.update(query, doc, null, callback)
+        User.update(query, doc).exec()
       }
     })
   }

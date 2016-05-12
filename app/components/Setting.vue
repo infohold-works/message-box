@@ -219,6 +219,12 @@
     opacity: 0;
   }
 
+  .modal-body {
+    padding: 10px 15px;
+    color: #34495e;
+    font-size: 16px;
+  }
+
   .modal-body h6 {
     font-size: 20px;
     font-weight: 700;
