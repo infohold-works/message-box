@@ -10,7 +10,7 @@
   module.exports = {
     name: 'Header',
 
-    data () {
+    data() {
       return {
         showSetting: false,
         showConfirm: false
@@ -75,7 +75,7 @@
       <li><a href="#" @click="setting">设&emsp;&emsp;置</a></li>
       <li><a href="#">关于我们</a></li>
       <li class="divider"></li>
-      <li><a href="#" @click="confirm">登&emsp;&emsp;出</a></li>
+      <!-- <li><a href="#" @click="confirm">登&emsp;&emsp;出</a></li> -->
       <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
     </ul>
   </div>

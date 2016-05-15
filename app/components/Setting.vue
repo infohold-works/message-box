@@ -138,7 +138,7 @@
           <!--Header-->
           <div class="modal-header">
             <slot name="header">
-              <a type="button" class="close" @click="cancel">x</a>
+              <a type="button" class="close" @click="cancel"><i class="fa fa-close"></i></a>
               <h4 class="modal-title">
                 <slot name="title">
                     {{title}}

@@ -34,14 +34,14 @@ const mutations = {
     }
   },
   [TOGGLE_ROUTER](state, route, mesTypes, messageType) {
-    for (var key in state.router) {
+    for (let key in state.router) {
       key == route ? state.router[key] = true : state.router[key] = false;
-      for (var i in mesTypes) {
+      for (let i in mesTypes) {
         state.messageTypes[i].selected = false;
       }
     }
     if (route == 'isType') {
-      for (var j in mesTypes) {
+      for (let j in mesTypes) {
         j == messageType.id - 1 ? state.messageTypes[j].selected = true : state.messageTypes[j].selected = false;
       }
     }

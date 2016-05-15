@@ -5,7 +5,9 @@
   import Bootstrap from './components/plugins/Bootstrap.vue'
   import mongoose from 'mongoose'
   import env_conf from '../config/env_development.json'
-  import { setModel } from './vuex/actions'
+  import {
+    setModel
+  } from './vuex/actions'
   mongoose.connect(env_conf.db.uri, env_conf.db.options)
   import User from './vuex/models/userModel'
   import Summary from './vuex/models/summaryModel'
@@ -33,7 +35,7 @@
       }
     },
 
-    ready () {
+    ready() {
       this.setModel(User, Summary, Message)
     },
 
@@ -65,7 +67,7 @@
       <login :socket.sync="socket"></login>
     </div>
     <div class="dashboard animated fadeIn" v-if="isLogin">
-      <sidebar :socket.sync="socket"></sidebar>
+      <sidebar></sidebar>
       <router-view :socket.sync="socket"></router-view>
     </div>
   </div>

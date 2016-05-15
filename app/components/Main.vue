@@ -184,7 +184,7 @@
         })
       },
       newMessage(data) {
-        console.log('new message' + data);
+        console.log(data);
         this.searchAllSummaries();
         ipcRenderer.send('update-icon', 'newMessage');
         this.increaseCount(data.typeid);
@@ -199,7 +199,7 @@
         });
       },
       getSummaries(typeid, readStat) {
-        var self = this
+        var self = this;
         var aggregate = [
           {$match: {userid: self.user.userid, typeid: {$in: typeid}}},
           {$unwind: "$message"},
@@ -222,13 +222,13 @@
       },
       delMessage(id) {
         var self = this;
-        this.Message.find({id: id}, function(err, docs) {
-          var querySummary = self.Summary.findOne({userid: self.user.userid, typeid: docs[0].typeid})
+        this.Message.findOne({id: id}, function(err, docs) {
+          var querySummary = self.Summary.findOne({userid: self.user.userid, typeid: docs.typeid})
           querySummary.exec(function (err, result) {
             if (result !== null) {
               var query = {
                 userid: self.user.userid,
-                typeid: docs[0].typeid
+                typeid: docs.typeid
               }
               var doc = {
                 $pull: {
@@ -286,7 +286,7 @@
 </script>
 <template>
   <div class="dashboard-header">
-    <dashboard-header :title="title" :socket="socket"></dashboard-header>
+    <dashboard-header :title="title" :socket.sync="socket"></dashboard-header>
   </div>
   <div class="dashboard-summaries">
     <div class="form-group has-feedback dashboard-summaries-search pull-right">
@@ -339,7 +339,7 @@
       <button v-if="mescontent && markedread" @click="markUnread(id)" type="button" class="btn btn-xs btn-primary btn-marked">
         <i class="fa fa-fw fa-history"></i> 标记为未读
       </button>
-      <button v-if="mescontent" @click="confirm(id)" type="button" class="btn btn-xs btn-danger btn-marked pull-right">
+      <button v-if="mescontent && markedread" @click="confirm(id)" type="button" class="btn btn-xs btn-danger btn-marked pull-right">
         <i class="fa fa-fw fa-trash"></i>
       </button>
     </div>

@@ -7,7 +7,7 @@
     updateUser
   } from '../vuex/actions'
   var env_conf = require('../../config/env_development.json');
-  var socket = require('socket.io-client')(env_conf.socketServerUrl);
+  var socket = require('socket.io-client')(env_conf.socketServerUrl, {'force new connection': true});
   var ScaleLoader = require('vue-spinner/src/ScaleLoader.vue');
   var storage = require('electron-json-storage');
   // var ipcRenderer = require('electron').ipcRenderer;
