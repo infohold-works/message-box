@@ -39,13 +39,20 @@
       }
     },
 
+    ready: function() {
+      var self = this;
+      ipcRenderer.on('open-about-window', function(event, arg) {
+        self.about();
+      });
+    },
+
     methods: {
       setting() {
         this.showSetting = true;
       },
       about() {
         var aboutUrl = "file://" + path.resolve('./') + "/app/about.html";
-        // Open about window
+
         var aboutWindow = new BrowserWindow({
           width: 320,
           height: 240,

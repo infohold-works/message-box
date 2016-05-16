@@ -18,24 +18,6 @@ var ipcMain = electron.ipcMain;
 var Menu = electron.Menu;
 var Tray = electron.Tray;
 
-// for win10
-// var WindowsToaster = require('node-notifier').WindowsToaster;
-//
-// var notifier = new WindowsToaster({
-//     withFallback: false, // Fallback to Growl or Balloons?
-//     customPath: void 0 // Relative path if you want to use your fork of toast.exe
-// });
-
-// var redis = require('redis'),
-//     RDS_PORT = 6379,
-//     RDS_HOST = '8.1.3.213',
-//     RDS_OPTS = {},
-//     client = redis.createClient(RDS_PORT,RDS_HOST,RDS_OPTS);
-//
-// client.on('ready', function (err) {
-//     console.log('ready');
-// })
-
 var mainWindow;
 // Preserver of the window size and position between app launches.
 var mainWindowState = windowStateKeeper('main', {
@@ -92,9 +74,9 @@ app.on('ready', function() {
   }, {
     type: 'separator'
   }, {
-    label: '设置',
+    label: '关于我们',
     click: function() {
-      // ipc.send('open-settings-window');
+      mainWindow.webContents.send('open-about-window');
     }
   }, {
     type: 'separator'
