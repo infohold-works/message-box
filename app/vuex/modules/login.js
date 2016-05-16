@@ -7,7 +7,6 @@ import {
   UPDATE_USER
 } from '../mutation-types'
 import moment from 'moment'
-// import User from '../models/userModel'
 
 // initial state
 const state = {

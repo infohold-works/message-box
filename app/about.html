@@ -8,6 +8,7 @@
         font: 14px/1 'Helvetica Neue', Helvetica, Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', sans-serif;
         text-align: center;
     }
+
     .contents {
         display: inline-block;
         text-align: center;
@@ -15,7 +16,8 @@
 
     #logo {
         width: 60px;
-        margin: 5px;
+        margin: 8px;
+        min-height: 60px;
     }
 
     #name {
@@ -27,20 +29,20 @@
     #version {
         font-size: 11px;
     }
+
+    #company {
+        font-size: 11px;
+        font-weight: bold;
+        margin: 20px;
+    }
     </style>
 </head>
 <body>
   <div class="contents">
-      <div id="logo" style="background: url(assets/img/logo512.png) no-repeat center center;">
+      <div id="logo" style="background: url(assets/img/logo512.png) no-repeat center center; background-size: cover;"></div>
       <div id="name">消息盒子</div>
-      <div id="version">[version]</div>
+      <div id="version">Version: 0.2.0</div>
+      <div id="company">数吉科技</div>
   </div>
-  <script>
-    (function() {
-        var manifest = require('./package.json');
-        var $version = document.body.querySelector('#version');
-        $version.innerText = 'Version: ' + manifest.version;
-    })();
-    </script>
 </body>
 </html>

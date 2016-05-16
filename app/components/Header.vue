@@ -44,11 +44,11 @@
         this.showSetting = true;
       },
       about() {
-        var aboutUrl = "file://" + path.join(__dirname, "/about.html");
+        var aboutUrl = "file://" + path.resolve('./') + "/app/about.html";
         // Open about window
         var aboutWindow = new BrowserWindow({
           width: 320,
-          height: 180,
+          height: 240,
           show: true,
           'web-preferences': {
             'node-integration': false

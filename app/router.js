@@ -5,10 +5,6 @@ export default function(router) {
       name: 'main',
       component: require("./components/main.vue")
     },
-    '/about': {
-      name: 'about',
-      component: require("./components/about.vue")
-    },
     ':type/:name': {
       component: require("./components/main.vue")
     }
