@@ -18,7 +18,7 @@ var srcDir = projectDir.cwd(src)
 var destDir = projectDir.cwd(dest)
 
 var filesToCopyAll = [
-    './app/app.html',
+    './app/*.html',
     './app/assets/**/*',
     './app/main.js',
     './app/vendor/**/*',
@@ -26,7 +26,7 @@ var filesToCopyAll = [
 ]
 
 var filesToCopy = [
-    './app/app.html',
+    './app/*.html',
     './app/assets/**/*',
     './app/main.js',
     '!./app/vendor/**/*',

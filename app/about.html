@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>关于 消息盒子</title>
+    <style>
+    body {
+        font: 14px/1 'Helvetica Neue', Helvetica, Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', sans-serif;
+        text-align: center;
+    }
+    .contents {
+        display: inline-block;
+        text-align: center;
+    }
+
+    #logo {
+        width: 60px;
+        margin: 5px;
+    }
+
+    #name {
+        font-size: 15px;
+        font-weight: bold;
+        margin: 10px;
+    }
+
+    #version {
+        font-size: 11px;
+    }
+    </style>
+</head>
+<body>
+  <div class="contents">
+      <div id="logo" style="background: url(assets/img/logo512.png) no-repeat center center;">
+      <div id="name">消息盒子</div>
+      <div id="version">[version]</div>
+  </div>
+  <script>
+    (function() {
+        var manifest = require('./package.json');
+        var $version = document.body.querySelector('#version');
+        $version.innerText = 'Version: ' + manifest.version;
+    })();
+    </script>
+</body>
+</html>

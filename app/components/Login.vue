@@ -140,60 +140,70 @@
   }
 </script>
 <template>
-  <!-- <div class="login-icon" style="background: url(assets/img/logo340x512.png) no-repeat center center;"></div> -->
-  <!-- <div class="login-screen" style="background: url(assets/img/bg2.png) no-repeat center center;"> -->
-  <div class="login-screen">
-    <header class="login-screen-header">
-      <h5>消息盒子</h5>
-    </header>
-    <!-- <pre>
-      {{ $data | json }}
-    </pre> -->
-    <div class="alert alert-danger alert-dismissible error-msg" role="alert" v-if="errorMsg">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <strong>系统提示：</strong> {{ errorMsg }}
-    </div>
-    <div class="login-form">
-      <validator name="loginValidation">
-        <form novalidate @submit="onSubmit">
-          <div class="form-group" :class="{'has-error': $loginValidation.username.required}">
-            <input type="text" class="form-control" placeholder="用户名"
-            v-model="username" initial="off" v-validate:username="['required']">
-            <label class="login-field-icon fui-user" for="login-name"></label>
-            <span class="notice pull-right" v-if="$loginValidation.username.required">请输入用户名！</span>
-          </div>
-          <div class="form-group" :class="{'has-error': $loginValidation.password.required}">
-            <input type="password" class="form-control" placeholder="密码"
-            v-model="password" initial="off" v-validate:password="{ required: true, maxlength: 16 }">
-            <label class="login-field-icon fui-lock" for="login-pass"></label>
-            <span class="notice pull-right" v-if="$loginValidation.password.required">请输入密码！</span>
-            <span class="notice pull-right" v-if="$loginValidation.password.maxlength">密码最大16位！</span>
-          </div>
-          <label class="checkbox" for="checkbox">
-            <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="savePasswd" v-if="!isChecked">
-            <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="removePasswd" v-if="isChecked" checked="checked">
-            <span class="icons">
-              <span class="icon-unchecked"></span>
-              <span class="icon-checked"></span>
-            </span>
-            保持登录状态
-          </label>
-          <button type="submit" class="btn btn-embossed btn-primary btn-lg btn-block">
-            登&emsp;&emsp;录
-          </button>
-          <a class="login-link" href="#">忘记密码？</a>
-        </form>
-      </validator>
-    </div>
-    <div class="loading" v-if="loading" style="background: url(assets/img/bg.jpg) no-repeat center center fixed; background-size: cover">
-      <scale-loader class="loading-center" color="white" height="60px" width="7px"></scale-loader>
+  <div class="col-md-5 col-sm-5">
+    <div class="login-logo" style="background: url(assets/img/logo340x512.png) no-repeat center center;"></div>
+  </div>
+  <div class="col-md-7 col-sm-7">
+    <div class="login-screen" style="background: url(assets/img/bg2.png) no-repeat center center;">
+      <div class="alert alert-danger alert-dismissible error-msg" role="alert" v-if="errorMsg">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <strong>系统提示：</strong> {{ errorMsg }}
+      </div>
+      <div class="login-form">
+        <validator name="loginValidation">
+          <form novalidate @submit="onSubmit">
+            <div class="form-group" :class="{'has-error': $loginValidation.username.required}">
+              <input type="text" class="form-control" placeholder="用户名"
+              v-model="username" initial="off" v-validate:username="['required']">
+              <label class="login-field-icon fui-user" for="login-name"></label>
+              <span class="notice pull-right" v-if="$loginValidation.username.required">请输入用户名！</span>
+            </div>
+            <div class="form-group" :class="{'has-error': $loginValidation.password.required}">
+              <input type="password" class="form-control" placeholder="密码"
+              v-model="password" initial="off" v-validate:password="{ required: true, maxlength: 16 }">
+              <label class="login-field-icon fui-lock" for="login-pass"></label>
+              <span class="notice pull-right" v-if="$loginValidation.password.required">请输入密码！</span>
+              <span class="notice pull-right" v-if="$loginValidation.password.maxlength">密码最大16位！</span>
+            </div>
+            <label class="checkbox" for="checkbox">
+              <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="savePasswd" v-if="!isChecked">
+              <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="removePasswd" v-if="isChecked" checked="checked">
+              <span class="icons">
+                <span class="icon-unchecked"></span>
+                <span class="icon-checked"></span>
+              </span>
+              保持登录状态
+            </label>
+            <button type="submit" class="btn btn-embossed btn-primary btn-lg btn-block">
+              登&emsp;&emsp;录
+            </button>
+            <a class="login-link" href="#">忘记密码？</a>
+          </form>
+        </validator>
+      </div>
+      <div class="loading" v-if="loading" style="background: url(assets/img/bg.jpg) no-repeat center center fixed; background-size: cover">
+        <scale-loader class="loading-center" color="white" height="60px" width="7px"></scale-loader>
+      </div>
     </div>
   </div>
 </template>
 <style>
+  .login-style {
+    margin: 128px auto;
+  }
+
+  .login-logo {
+    background-size: cover;
+    min-height: 512px;
+    /*max-width: 340px;*/
+    margin: 128px 0 0 128px;
+    zoom: .5;
+  }
+
   .login-screen {
     padding: 0;
-    background: none;
+    min-height: 360px;
+    max-width: 450px;
   }
 
   .login-screen .login-screen-header {
@@ -205,7 +215,8 @@
 
   .login-form {
     width: 320px;
-    margin: 32px auto;
+    top: 40px;
+    left: 72px;
   }
 
   .login-form::before {

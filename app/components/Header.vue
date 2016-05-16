@@ -4,9 +4,13 @@
     toggleLogin,
     setMessagetypes
   } from '../vuex/actions'
+  var path = require('path');
   var Setting = require('./Setting.vue');
   var Confirm = require('./Confirm.vue');
+  // Electron API
+  var remote = require('electron').remote;
   var ipcRenderer = require('electron').ipcRenderer;
+  var BrowserWindow = remote.BrowserWindow;
   module.exports = {
     name: 'Header',
 
@@ -38,6 +42,24 @@
     methods: {
       setting() {
         this.showSetting = true;
+      },
+      about() {
+        var aboutUrl = "file://" + path.join(__dirname, "/about.html");
+        // Open about window
+        var aboutWindow = new BrowserWindow({
+          width: 320,
+          height: 180,
+          show: true,
+          'web-preferences': {
+            'node-integration': false
+          }
+        })
+
+        aboutWindow.loadURL(aboutUrl)
+
+        aboutWindow.on('close', function () {
+          aboutWindow.destroy()
+        })
       },
       confirm() {
         this.showConfirm = true;
@@ -73,7 +95,7 @@
     </section>
     <ul class="dropdown-menu" role="menu">
       <li><a href="#" @click="setting">设&emsp;&emsp;置</a></li>
-      <li><a href="#">关于我们</a></li>
+      <li><a href="#" @click="about">关于我们</a></li>
       <li class="divider"></li>
       <!-- <li><a href="#" @click="confirm">登&emsp;&emsp;出</a></li> -->
       <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
