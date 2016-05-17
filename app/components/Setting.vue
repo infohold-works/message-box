@@ -1,6 +1,10 @@
 <script>
   import { remote } from 'electron'
+  import { setSetting } from '../vuex/actions'
   const notifier = remote.getGlobal('notifier')
+  import $ from 'jquery'
+  import env_conf from '../../config/env_development.json'
+  import storage from 'electron-json-storage'
 
   export default {
     props: {
@@ -76,10 +80,68 @@
         }
       }
     },
+    vuex: {
+      actions: {
+        setSetting
+      }
+    },
     created() {
       if (this.show) {
         document.body.className += ' modal-open';
       }
+      // 初始值设置
+      $("[data-toggle='switch']").bootstrapSwitch();
+      storage.has('setting', function(error, hasKey) {
+        if (error) throw error;
+
+        if (!hasKey) {
+          storage.set('setting', env_conf.setting, function(error) {
+            if (error) throw error;
+            $('#autoLanuchSwitch').bootstrapSwitch('state', env_conf.setting.autoLanuch)
+            $('#notifySwitch').bootstrapSwitch('state', env_conf.setting.notify)
+            $('#notifySoundSwitch').bootstrapSwitch('state', env_conf.setting.notifySound)
+          });
+        } else {
+          storage.get('setting', function(error, data) {
+            $('#autoLanuchSwitch').bootstrapSwitch('state', data.autoLanuch)
+            $('#notifySwitch').bootstrapSwitch('state', data.notify)
+            $('#notifySoundSwitch').bootstrapSwitch('state', data.notifySound)
+          });
+        }
+      });
+    },
+    ready() {
+      var self = this;
+      $('#autoLanuchSwitch').on('switchChange.bootstrapSwitch', function (event, state) {
+        storage.get('setting', function(error, data) {
+          if (error) throw error;
+          data.autoLanuch = state
+          storage.set('setting', data, function(error) {
+            if (error) throw error;
+            self.setSetting(data)
+          });
+        });
+      });
+      $('#notifySwitch').on('switchChange.bootstrapSwitch', function (event, state) {
+        storage.get('setting', function(error, data) {
+          if (error) throw error;
+          data.notify = state
+          storage.set('setting', data, function(error) {
+            if (error) throw error;
+            self.setSetting(data)
+          });
+        });
+      });
+      $('#notifySoundSwitch').on('switchChange.bootstrapSwitch', function (event, state) {
+        storage.get('setting', function(error, data) {
+          if (error) throw error;
+          data.notifySound = state
+          storage.set('setting', data, function(error) {
+            if (error) throw error;
+            self.setSetting(data)
+          });
+        });
+      });
     },
     destroyed() {
       document.body.className = document.body.className.replace(' modal-open', '');
@@ -154,8 +216,8 @@
               </div>
               <ul>
                 <li>
-                  <label for="switch-01">开机自动启动<code>消息盒子</code></label>
-                  <input type="checkbox" checked data-toggle="switch" name="default-switch-colors" data-on-color="primary" data-off-color="default" id="switch-03" class="pull-right" />
+                  <label for="autoLanuchSwitch">开机自动启动消息盒子</label>
+                  <input type="checkbox" data-toggle="switch" data-on-color="primary" data-off-color="default" id="autoLanuchSwitch"/>
                 </li>
               </ul>
               <div class="bell">
@@ -166,23 +228,23 @@
               </div>
               <ul>
                 <li>
-                  <label for="switch-02">开启后，在桌面接收到来自社保的消息提醒，可随时关闭。</label>
-                  <input type="checkbox" checked data-toggle="switch" name="default-switch" id="switch-02" class="pull-right" />
+                  <label for="notifySwitch">开启后，在桌面接收到来自社保的消息提醒，可随时关闭。</label>
+                  <input type="checkbox" checked data-toggle="switch" id="notifySwitch"/>
                 </li>
                 <li>
-                  <label for="switch-03">接收到消息提醒时播放提示音。</label>
-                  <input type="checkbox" checked data-toggle="switch" name="default-switch" id="switch-03" class="pull-right" />
+                  <label for="notifySoundSwitch">接收到消息提醒时播放提示音。</label>
+                  <input type="checkbox" checked data-toggle="switch" id="notifySoundSwitch"/>
                 </li>
               </ul>
             </slot>
           </div>
           <!--Footer-->
-          <div class="modal-footer">
+          <!-- <div class="modal-footer">
             <slot name="footer">
-              <button type="button" :class="cancelClass" @click="cancel">{{cancelText}}</button>
-              <button type="button" :class="okClass" @click="ok">{{okText}}</button>
+              <button type="button" :class="cancelClass" @click="cancel"><i class="fa fa-close"></i> {{cancelText}}</button>
+              <button type="button" :class="okClass" @click="ok"><i class="fa fa-check"></i> {{okText}}</button>
             </slot>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -219,6 +281,14 @@
     opacity: 0;
   }
 
+  .modal-header {
+    padding: 0;
+  }
+
+  .modal-header .close {
+    margin: 15px;
+  }
+
   .modal-body {
     padding: 10px 15px;
     color: #34495e;
@@ -228,15 +298,31 @@
   .modal-body h6 {
     font-size: 20px;
     font-weight: 700;
+    margin: 0;
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
   }
 
   .modal-body h6 .bell-test{;
     color: #27AE60;
-    font-size: 20px;
+    font-size: 14px;
     margin-left: 15px;
+  }
+
+  .modal-body ul {
+    margin: 0;
+    padding: 0;
   }
 
   .modal-body ul li {
     list-style: none;
+  }
+
+  .modal-body ul li label {
+    margin-left: 15px;
+  }
+
+  .modal-footer {
+    padding: 0 15px;
   }
 </style>

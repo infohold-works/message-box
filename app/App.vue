@@ -3,6 +3,7 @@
   import Login from './components/Login.vue'
   import Sidebar from './components/Sidebar.vue'
   import Bootstrap from './components/plugins/Bootstrap.vue'
+  import BootstrapSwitch from './components/plugins/BootstrapSwitch.vue'
   import mongoose from 'mongoose'
   import env_conf from '../config/env_development.json'
   import {
@@ -57,7 +58,8 @@
     components: {
       Login,
       Sidebar,
-      Bootstrap
+      Bootstrap,
+      BootstrapSwitch
     }
   }
 </script>
