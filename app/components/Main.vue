@@ -70,7 +70,10 @@
         }) => global.Summary,
         Message: ({
           global
-        }) => global.Message
+        }) => global.Message,
+        setting: ({
+          global
+        }) => global.setting
       },
       actions: {
         increaseCount,
@@ -113,12 +116,12 @@
 
     ready: function() {
       var self = this;
+
       this.socket.on('public message', function(data) {
         self.newMessage(data);
       });
 
       this.socket.on('private message', function(data) {
-        console.log('into private message function');
         self.newMessage(data);
       });
 
@@ -184,19 +187,20 @@
         })
       },
       newMessage(data) {
-        console.log(data);
         this.searchAllSummaries();
         ipcRenderer.send('update-icon', 'newMessage');
         this.increaseCount(data.typeid);
-        notifier.notify({
-          'title': "您有新的消息：" + data.title,
-          'message': data.desc,
-          'sound': true,
-          'wait': true
-        }, function(error, response) {
-          console.log(error);
-          console.log(response);
-        });
+        if (this.setting.notify) {
+          notifier.notify({
+            'title': "您有新的消息：" + data.title,
+            'message': data.desc,
+            'sound': true,
+            'wait': true
+          }, function(error, response) {
+            console.log(error);
+            console.log(response);
+          });
+        }
       },
       getSummaries(typeid, readStat) {
         var self = this;

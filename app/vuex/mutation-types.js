@@ -1,5 +1,6 @@
 // global mutation types
 export const SET_MODEL = 'SET_MODEL'
+export const SET_SETTING = 'SET_SETTING'
 
 // login mutation types
 export const TOGGLE_LOADING = 'TOGGLE_LOADING'

@@ -4,7 +4,8 @@
     toggleLogin,
     setUser,
     setErrorMsg,
-    updateUser
+    updateUser,
+    setSetting
   } from '../vuex/actions'
   var env_conf = require('../../config/env_development.json');
   var socket = require('socket.io-client')(env_conf.socketServerUrl, {'force new connection': true});
@@ -42,7 +43,8 @@
         toggleLogin,
         setUser,
         setErrorMsg,
-        updateUser
+        updateUser,
+        setSetting
       }
     },
 
@@ -59,6 +61,21 @@
 
       socket.on('checkOnline', function(obj) {
         self.isOnline = obj.isOnline;
+      });
+
+      storage.has('setting', function(error, hasKey) {
+        if (error) throw error;
+
+        if (!hasKey) {
+          storage.set('setting', env_conf.setting, function(error) {
+            if (error) throw error;
+            self.setSetting(env_conf.setting)
+          });
+        } else {
+          storage.get('setting', function(error, data) {
+            self.setSetting(data)
+          });
+        }
       });
     },
 

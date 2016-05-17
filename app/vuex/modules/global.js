@@ -1,13 +1,15 @@
 // vuex/modules/global.js
 import {
-  SET_MODEL
+  SET_MODEL,
+  SET_SETTING
 } from '../mutation-types'
 
 // initial state
 const state = {
   User: '',
   Summary: '',
-  Message: ''
+  Message: '',
+  setting: {}
 }
 
 // mutations
@@ -16,6 +18,9 @@ const mutations = {
     state.User = User
     state.Summary = Summary
     state.Message = Message
+  },
+  [SET_SETTING](state, setting) {
+    state.setting = setting
   }
 }
 

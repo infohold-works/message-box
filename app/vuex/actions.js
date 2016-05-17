@@ -1,5 +1,6 @@
 // global actions
 export const setModel = makeAction('SET_MODEL')
+export const setSetting = makeAction('SET_SETTING')
 
 // login actions
 export const toggleLoading = makeAction('TOGGLE_LOADING')
