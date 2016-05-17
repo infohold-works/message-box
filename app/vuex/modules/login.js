@@ -6,7 +6,6 @@ import {
   SET_ERROR_MSG,
   UPDATE_USER
 } from '../mutation-types'
-import moment from 'moment'
 
 // initial state
 const state = {
@@ -37,6 +36,21 @@ const mutations = {
 
   [UPDATE_USER](state, User, username) {
     let queryUser = User.findOne({username: username})
+    // 生成格式化后的当前时间
+    function getNowFormatDate() {
+      var date = new Date();
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var day = date.getDate();
+      var hours = date.getHours();
+      var minutes = date.getMinutes();
+      var seconds = date.getSeconds();
+      function format(arg) {
+        var reg = /^\d{1}$/;
+        return reg.test(arg) ? ("0" + arg) : arg;
+      }
+      return year + "-" + format(month) + "-" + format(day) + " " + format(hours) + ":" + format(minutes) + ":" + format(seconds);
+    }
     queryUser.exec(function (err, docs) {
       if (docs !== null) {
         let query = {
@@ -45,7 +59,7 @@ const mutations = {
         let doc = {
           $set: {
             online_stat: true,
-            login_time: moment().format('YYYY-MM-DD HH:mm:ss'),
+            login_time: getNowFormatDate(),
             last_login_time: docs.login_time
           }
         }
