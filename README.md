@@ -1,6 +1,10 @@
 # message-box
 基于Electron、Vue.js、Socket.io、MongoDB等技术搭建的消息盒子桌面客户端（Windows）
 
+# Preview
+
+![img](./app/assets/img/message box.jpg)
+
 # Usages
 
 - `clone this repo`
@@ -20,14 +24,16 @@
 - [x] 按消息/通知类型统计未读消息总数
 - [x] 标记已读/未读
 - [ ] 标记全部已读
+- [x] 消息删除功能
 - [x] 全文搜索功能
 - [x] 消息显示支持markdown格式
 - [x] 数据持久化支持
-- [ ] 系统托盘图标功能
+- [x] 系统托盘图标功能
 - [ ] 本地缓存机制
 - [ ] socket.io集群
-- [ ] 制作客户端图标
+- [x] 制作客户端图标
 - [ ] 更换主题
+- [x] 关于窗口
 
 # Plan to do better
 
