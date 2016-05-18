@@ -194,7 +194,7 @@
           notifier.notify({
             'title': "您有新的消息：" + data.title,
             'message': data.desc,
-            'sound': true,
+            'sound': this.setting.notifySound,
             'wait': true
           }, function(error, response) {
             console.log(error);

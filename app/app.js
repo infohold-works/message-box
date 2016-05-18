@@ -2,7 +2,7 @@ var Vue = require('vue')
 var VueRouter = require('vue-router')
 var ConfigRouter = require('./router')
 var VueResource = require('vue-resource')
-var VueValidator = require('vue-validator')
+var vueForm = require('vue-form')
 var store = require('./vuex/store')
 var sync = require('vuex-router-sync').sync
 
@@ -15,7 +15,7 @@ Vue.config.debug = true
 // Install plugins
 Vue.use(VueRouter)
 Vue.use(VueResource)
-Vue.use(VueValidator)
+Vue.use(vueForm);
 
 Vue.http.options.root = '/root'
 Vue.http.headers.common['Authorization'] = 'Basic YXBpOnBhc3N3b3Jk'

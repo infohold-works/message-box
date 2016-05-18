@@ -24,7 +24,8 @@
         username: '',
         password: '',
         isChecked: false,
-        isOnline: false
+        isOnline: false,
+        loginForm: ''
       }
     },
 
@@ -82,9 +83,9 @@
     methods: {
       onSubmit: function (e) {
         // validate manually
-        this.$validate(true);
+        this.loginForm.$submitted = true;
 
-        if (this.$loginValidation.invalid) {
+        if (this.loginForm.$invalid) {
           e.preventDefault();
         } else {
           this.login();
@@ -163,40 +164,39 @@
   <div class="col-md-7 col-sm-7">
     <div class="login-screen" style="background: url(assets/img/bg2.png) no-repeat center center;">
       <div class="alert alert-danger alert-dismissible error-msg" role="alert" v-if="errorMsg">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" @click="setErrorMsg(false)"><span aria-hidden="true">&times;</span></button>
         <strong>系统提示：</strong> {{ errorMsg }}
       </div>
       <div class="login-form">
-        <validator name="loginValidation">
-          <form novalidate @submit="onSubmit">
-            <div class="form-group" :class="{'has-error': $loginValidation.username.required}">
-              <input type="text" class="form-control" placeholder="用户名"
-              v-model="username" initial="off" v-validate:username="['required']">
-              <label class="login-field-icon fui-user" for="login-name"></label>
-              <span class="notice pull-right" v-if="$loginValidation.username.required">请输入用户名！</span>
-            </div>
-            <div class="form-group" :class="{'has-error': $loginValidation.password.required}">
-              <input type="password" class="form-control" placeholder="密码"
-              v-model="password" initial="off" v-validate:password="{ required: true, maxlength: 16 }">
-              <label class="login-field-icon fui-lock" for="login-pass"></label>
-              <span class="notice pull-right" v-if="$loginValidation.password.required">请输入密码！</span>
-              <span class="notice pull-right" v-if="$loginValidation.password.maxlength">密码最大16位！</span>
-            </div>
-            <label class="checkbox" for="checkbox">
-              <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="savePasswd" v-if="!isChecked">
-              <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="removePasswd" v-if="isChecked" checked="checked">
-              <span class="icons">
-                <span class="icon-unchecked"></span>
-                <span class="icon-checked"></span>
-              </span>
-              保持登录状态
-            </label>
-            <button type="submit" class="btn btn-embossed btn-primary btn-lg btn-block">
-              登&emsp;&emsp;录
-            </button>
-            <a class="login-link" href="#">忘记密码？</a>
-          </form>
-        </validator>
+        <form v-form name="loginForm" @submit.prevent="onSubmit">
+          <div class="form-group" :class="{'has-error': loginForm.$submitted && loginForm.username.$error.required}">
+            <input type="text" class="form-control" placeholder="用户名"
+            v-model="username" name="username" v-form-ctrl required>
+            <label class="login-field-icon fui-user" for="login-name"></label>
+            <span class="notice pull-right" v-if="loginForm.$submitted && loginForm.username.$error.required">请输入用户名！</span>
+          </div>
+          <div class="form-group" :class="{'has-error': loginForm.$submitted && loginForm.password.$error.required}">
+            <input type="password" class="form-control" placeholder="密码"
+            v-model="password" name="password" v-form-ctrl required maxlength="16">
+            <label class="login-field-icon fui-lock" for="login-pass"></label>
+            <span class="notice pull-right" v-if="loginForm.$submitted && loginForm.password.$error.required">请输入密码！</span>
+            <span class="notice pull-right" v-if="loginForm.$submitted && loginForm.password.$error.maxlength">密码最大16位！</span>
+          </div>
+          <label class="checkbox" for="checkbox">
+            <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="savePasswd" v-if="!isChecked">
+            <input class="custom-checkbox" id="checkbox" data-toggle="checkbox" type="checkbox" @click="removePasswd" v-if="isChecked" checked="checked">
+            <span class="icons">
+              <span class="icon-unchecked"></span>
+              <span class="icon-checked"></span>
+            </span>
+            保持登录状态
+          </label>
+          <a class="login-link" href="#">忘记密码？</a>
+          <button type="submit" class="btn btn-embossed btn-primary btn-lg btn-block">
+            登&emsp;&emsp;录
+          </button>
+        </form>
+        <!-- <pre>{{ loginForm | json }}</pre> -->
       </div>
       <div class="loading" v-if="loading" style="background: url(assets/img/bg.jpg) no-repeat center center fixed; background-size: cover">
         <scale-loader class="loading-center" color="white" height="60px" width="7px"></scale-loader>
@@ -240,6 +240,10 @@
     content: none;
   }
 
+  .login-form .checkbox {
+    font-size: 13px;
+  }
+
   .notice {
     font-size: 13px;
     color: #e74c3c;
@@ -264,8 +268,11 @@
   }
 
   .error-msg {
+    position: relative;
+    top: 10px;
+    left: 6px;
     width: 320px;
-    margin: 32px auto -20px;
+    margin: 0px auto -20px;
     min-height: 48px;
     font-size: 13px;
     color: #e74c3c;
