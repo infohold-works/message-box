@@ -3,7 +3,7 @@
 
 # Preview
 
-![img](./app/assets/img/message box.jpg)
+![img](./app/assets/img/preview.png)
 
 # Usages
 
