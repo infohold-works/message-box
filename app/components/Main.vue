@@ -7,6 +7,7 @@
   var Header = require('./Header.vue');
   var Message = require('./Message.vue');
   var Confirm = require('./Confirm.vue');
+  var Fab = require('./plugins/Fab.vue');
   var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
   var env_conf = require('../../config/env_development.json');
   // Electron API
@@ -283,6 +284,7 @@
     components: {
       PulseLoader,
       Confirm,
+      Fab,
       'dashboard-header': Header,
       'message-detail': Message
     }
@@ -349,6 +351,7 @@
     </div>
     <message-detail :mestitle="mestitle" :sendtime="sendtime" :author="author" :mescontent="mescontent" v-if="mescontent"></message-detail>
     <div class="empty-placeholder" v-if="!mescontent">没有选择消息</div>
+    <fab></fab>
   </div>
   <confirm v-if="showConfirm" :show.sync="showConfirm" confirm-content="确认删除消息吗？"></confirm>
 </template>

@@ -101,11 +101,11 @@
       欢迎您,{{ user.username }}<span class="caret"></span>
     </section>
     <ul class="dropdown-menu" role="menu">
-      <li><a href="#" @click="setting">设&emsp;&emsp;置</a></li>
-      <li><a href="#" @click="about">关于我们</a></li>
+      <li><a href="#" @click="setting"><i class="fa fa-gears"></i> 设&emsp;&emsp;置</a></li>
+      <li><a href="#" @click="about"><i class="fa fa-info-circle"></i> 关于我们</a></li>
       <li class="divider"></li>
       <!-- <li><a href="#" @click="confirm">登&emsp;&emsp;出</a></li> -->
-      <li><a href="#" @click="exit">退&emsp;&emsp;出</a></li>
+      <li><a href="#" @click="exit"><i class="fa fa-sign-out"></i> 退&emsp;&emsp;出</a></li>
     </ul>
   </div>
   <setting v-if="showSetting" :show.sync="showSetting"></setting>

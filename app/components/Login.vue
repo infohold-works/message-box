@@ -191,10 +191,10 @@
             </span>
             保持登录状态
           </label>
-          <a class="login-link" href="#">忘记密码？</a>
           <button type="submit" class="btn btn-embossed btn-primary btn-lg btn-block">
             登&emsp;&emsp;录
           </button>
+          <a class="login-link" href="#">忘记密码？</a>
         </form>
         <!-- <pre>{{ loginForm | json }}</pre> -->
       </div>

@@ -4,6 +4,7 @@
   import Sidebar from './components/Sidebar.vue'
   import Bootstrap from './components/plugins/Bootstrap.vue'
   import BootstrapSwitch from './components/plugins/BootstrapSwitch.vue'
+  import Fab from './components/plugins/Fab.vue'
   import mongoose from 'mongoose'
   import env_conf from '../config/env_development.json'
   import {
@@ -59,7 +60,8 @@
       Login,
       Sidebar,
       Bootstrap,
-      BootstrapSwitch
+      BootstrapSwitch,
+      Fab
     }
   }
 </script>
