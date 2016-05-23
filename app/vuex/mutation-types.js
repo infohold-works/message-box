@@ -17,3 +17,4 @@ export const DECREASE_COUNT = 'DECREASE_COUNT'
 
 // main mutation types
 export const SET_MESCONTENT = 'SET_MESCONTENT'
+export const ADD_FEEDBACK = 'ADD_FEEDBACK'

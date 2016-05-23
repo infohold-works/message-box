@@ -17,6 +17,7 @@ export const decreaseCount = makeAction('DECREASE_COUNT')
 
 // main actions
 export const setMescontent = makeAction('SET_MESCONTENT')
+export const addFeedback = makeAction('ADD_FEEDBACK')
 
 function makeAction (type) {
   return ({ dispatch }, ...args) => dispatch(type, ...args)

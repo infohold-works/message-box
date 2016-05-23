@@ -1,17 +1,48 @@
 <script>
+  import Feedback from '../Feedback.vue'
+  import { remote } from 'electron'
+  const notifier = remote.getGlobal('notifier')
+
   export default {
-    name: 'MdlFab'
+    name: 'MdlFab',
+    data() {
+      return {
+        showFeedback: false
+      }
+    },
+    methods: {
+      feedback() {
+        this.showFeedback = true
+      }
+    },
+    events: {
+      sendback() {
+        this.showFeedback = false
+        notifier.notify({
+          'title': "发送成功",
+          'message': "感谢您提出的宝贵反馈意见，在您的支持下消息盒子将会越做越好。",
+          'sound': true
+        }, function(error, response) {
+          console.log(error);
+          console.log(response);
+        });
+      }
+    },
+    components: {
+      Feedback
+    }
   }
 </script>
 
 <template>
   <div class="fab">
-    <a href="#" class="btn-fab btn-alizarin" tooltip="用户信息"><i class="fa fa-user"></i></a>
-    <a href="#" class="btn-fab btn-memrald" tooltip="帮助信息"><i class="fa fa-question"></i></a>
-    <a href="#" class="btn-fab btn-large btn-peter-river" tooltip="意见收集">
-      <i class="fa fa-edit"></i>
+    <a href="#" class="btn-fab btn-peter-river" tooltip="用户信息"><span class="fui-user"></span></a>
+    <a href="#" class="btn-fab btn-alizarin" tooltip="帮助信息"><span class="fui-question-circle"></span></a>
+    <a href="#" class="btn-fab btn-large btn-memrald" tooltip="意见反馈" @click="feedback()">
+      <span class="fui-new"></span>
     </a>
   </div>
+  <feedback v-if="showFeedback" :show.sync="showFeedback"></feedback>
 </template>
 
 <style>
@@ -21,6 +52,12 @@
     bottom: 0;
     right: 20px;
     z-index: 2;
+    opacity: .33;
+  }
+
+  .fab:hover {
+    opacity: 1;
+    transition: .33s;
   }
 
   .fab:hover .btn-fab:not(:last-of-type) {
@@ -30,15 +67,10 @@
     opacity: 1;
   }
 
-  .fab:hover .rotate {
-    background-image: url("http://goo.gl/0eJslQ");
-    transform: rotate(0deg);
-  }
-
   .btn-fab {
     display: block;
-    width: 35px;
-    height: 35px;
+    width: 36px;
+    height: 36px;
     margin: 20px auto 0;
     text-decoration: none;
     position: relative;
@@ -109,7 +141,20 @@
     padding: 12px;
   }
 
+  .btn-fab span {
+    position: relative;
+    top: 4px;
+    padding: 11px;
+    color: white;
+  }
+
   .btn-fab.btn-large i {
+    padding: 15px;
+  }
+
+  .btn-fab.btn-large span {
+    position: relative;
+    top: 8px;
     padding: 15px;
   }
 
