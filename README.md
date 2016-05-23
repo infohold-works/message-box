@@ -1,4 +1,4 @@
-# message-box
+# MessageBox
 基于Electron、Vue.js、Socket.io、MongoDB等技术搭建的消息盒子桌面客户端（Windows）
 
 # Preview
@@ -34,6 +34,7 @@
 - [x] 制作客户端图标
 - [ ] 更换主题
 - [x] 关于窗口
+- [x] 设置页面
 
 # Plan to do better
 
