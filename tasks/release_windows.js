@@ -20,7 +20,7 @@ var init = function () {
     manifest = projectDir.read('app/package.json', 'json');
     readyAppDir = tmpDir.cwd(manifest.name);
 
-    return Q();
+    return new Q();
 };
 
 var copyRuntime = function () {
@@ -34,7 +34,9 @@ var cleanupRuntime = function () {
 var packageBuiltApp = function () {
     var deferred = Q.defer();
 
-    asar.createPackage(projectDir.path('build'), readyAppDir.path('resources/app.asar'), function() {
+    asar.createPackageWithOptions(projectDir.path('build'), readyAppDir.path('resources/app.asar'), {
+        dot: true
+    }, function () {
         deferred.resolve();
     });
 
@@ -53,6 +55,10 @@ var finalize = function () {
         'version-string': {
             'ProductName': manifest.productName,
             'FileDescription': manifest.description,
+            'ProductVersion': manifest.version,
+            'CompanyName': manifest.author, // it might be better to add another field to package.json for this
+            'LegalCopyright': manifest.copyright,
+            'OriginalFilename': manifest.productName + '.exe'
         }
     }, function (err) {
         if (!err) {
@@ -70,11 +76,12 @@ var renameApp = function () {
 var createInstaller = function () {
     var deferred = Q.defer();
 
-    var finalPackageName = manifest.name + '_' + manifest.version + '.exe';
+    var finalPackageName = manifest.productName + '-' + manifest.version + '.exe';
     var installScript = projectDir.read('resources/windows/installer.nsi');
     installScript = utils.replace(installScript, {
         name: manifest.name,
         productName: manifest.productName,
+        author: manifest.author,
         version: manifest.version,
         src: readyAppDir.path(),
         dest: releasesDir.path(finalPackageName),
@@ -84,7 +91,7 @@ var createInstaller = function () {
     });
     tmpDir.write('installer.nsi', installScript);
 
-    gulpUtil.log('Building installer with NSIS...');
+    gulpUtil.log('Building installer with NSIS... (' + finalPackageName + ')');
 
     // Remove destination file if already exists.
     releasesDir.remove(finalPackageName);
@@ -117,12 +124,12 @@ var cleanClutter = function () {
 
 module.exports = function () {
     return init()
-    .then(copyRuntime)
-    .then(cleanupRuntime)
-    .then(packageBuiltApp)
-    .then(finalize)
-    .then(renameApp)
-    .then(createInstaller)
-    .then(cleanClutter)
-    .catch(console.error);
+        .then(copyRuntime)
+        .then(cleanupRuntime)
+        .then(packageBuiltApp)
+        .then(finalize)
+        .then(renameApp)
+        .then(createInstaller)
+        .then(cleanClutter)
+        .catch(console.error);
 };

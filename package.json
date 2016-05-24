@@ -1,8 +1,8 @@
 {
   "name": "message-box",
-  "productName": "Message Box",
+  "productName": "MessageBox",
   "description": "基于Electron、Vue.js、socket.io等技术搭建的消息盒子",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "xiaoluoboding <xiaoluoboding@gmail.com>",
   "devDependencies": {
     "asar": "^0.7.2",

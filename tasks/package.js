@@ -13,6 +13,7 @@ var electronVersion = nodeModulesDir.read('electron_version');
 var config = {
     dir: path.join(__dirname, '../build'),
     out: 'releases/',
+    icon: path.join(__dirname, '../resources/windows/icon.ico'),
     name: appManifest.productName,
     'app-version': appManifest.version,
     version: electronVersion || devManifest.devDependencies['electron-prebuilt'].replace(/^\D+/, ''),
