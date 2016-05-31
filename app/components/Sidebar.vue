@@ -5,6 +5,7 @@
   } from '../vuex/actions'
   var env_conf = require('../../config/env_development.json');
   var mesTypes = env_conf.messageTypes;
+  var ipcRenderer = require('electron').ipcRenderer;
 
   module.exports = {
     name: "Sidebar",
@@ -39,6 +40,16 @@
       actions: {
         setMessagetypes,
         toggleRouter
+      }
+    },
+
+    computed: {
+      'allCount': function() {
+        let count = 0
+        for (let i in this.messageTypes) {
+          count += this.messageTypes[i].count
+        }
+        return count
       }
     },
 
@@ -79,6 +90,15 @@
         return this.$route.router.go({
           path: '/type/' + messageType.title
         });
+      }
+    },
+    watch: {
+      'allCount': function(val) {
+        if (!val) {
+          ipcRenderer.send('update-icon', 'allRead');
+        } else {
+          ipcRenderer.send('update-icon', 'newMessage');
+        }
       }
     }
   }
