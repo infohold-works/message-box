@@ -3,10 +3,10 @@ export default function(router) {
   router.map({
     '/': {
       name: 'main',
-      component: require("./components/main.vue")
+      component: require("./components/Main.vue")
     },
     ':type/:name': {
-      component: require("./components/main.vue")
+      component: require("./components/Main.vue")
     }
   })
 }

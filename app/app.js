@@ -5,10 +5,7 @@ var VueResource = require('vue-resource')
 var vueForm = require('vue-form')
 var store = require('./vuex/store')
 var sync = require('vuex-router-sync').sync
-
 var App = require('./App.vue')
-// plugins
-// var Dropdown = require('./components/Dropdown.vue')
 
 Vue.config.debug = true
 

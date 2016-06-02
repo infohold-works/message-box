@@ -165,26 +165,21 @@
       },
       messageDetail(id) {
         var self = this;
-        var messagesId = id - 1;
         for (var i in this.summaries) {
           if (this.summaries[i].id == id) {
             // this.summaries[i].selected = '';
-            if (this.summaries[i].read) {
-              this.markedread = true;
-            } else {
-              this.markRead(id);
-            }
+            this.summaries[i].read ? this.markedread = true : this.markRead(id)
             // this.summaries[i].selected = true;
           }
         }
-        this.Message.find({}, function(err, docs) {
-          var messages = docs;
-          self.id = messages[messagesId].id;
-          self.typeid = messages[messagesId].typeid;
-          self.mestitle = messages[messagesId].title;
-          self.mescontent = marked(messages[messagesId].content);
-          self.author = messages[messagesId].author;
-          self.sendtime = messages[messagesId].sendtime;
+        this.Message.findOne({id: id}, function(err, docs) {
+          // var messages = docs;
+          self.id = docs.id;
+          self.typeid = docs.typeid;
+          self.mestitle = docs.title;
+          self.mescontent = marked(docs.content);
+          self.author = docs.author;
+          self.sendtime = docs.sendtime;
         })
       },
       newMessage(data) {
