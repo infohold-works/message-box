@@ -1,4 +1,8 @@
 # MessageBox
+
+[![license](https://img.shields.io/github/license/infohold-works/message-box.svg?maxAge=2592000)](https://github.com/infohold-works/message-box)
+[![GitHub tag](https://img.shields.io/github/tag/infohold-works/message-box.svg?maxAge=2592000)](https://github.com/infohold-works/message-box/releases)
+
 基于Electron、Vue.js、Socket.io、MongoDB等技术搭建的消息盒子桌面客户端（Windows）
 
 # Preview
